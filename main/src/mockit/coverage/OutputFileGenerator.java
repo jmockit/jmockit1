@@ -8,7 +8,6 @@ import java.io.*;
 import javax.annotation.*;
 
 import mockit.coverage.data.*;
-import mockit.coverage.modification.*;
 import mockit.coverage.reporting.*;
 
 @SuppressWarnings("DynamicRegexReplaceableByCompiledPattern")
@@ -16,13 +15,11 @@ final class OutputFileGenerator
 {
    private static final String[] ALL_SOURCE_DIRS = new String[0];
 
-   @Nullable private final ClassModification classModification;
    @Nonnull private final String[] outputFormats;
    @Nonnull private final String outputDir;
    @Nullable private final String[] sourceDirs;
 
-   OutputFileGenerator(@Nullable ClassModification classModification) {
-      this.classModification = classModification;
+   OutputFileGenerator() {
       outputFormats = getOutputFormat();
       outputDir = Configuration.getProperty("outputDir", "");
 
@@ -67,15 +64,7 @@ final class OutputFileGenerator
       return false;
    }
 
-   void generate(@Nullable CodeCoverage codeCoverage) {
-      if (classModification != null && classModification.shouldConsiderClassesNotLoaded()) {
-         new ClassesNotLoaded(classModification).gatherCoverageData();
-      }
-
-      if (codeCoverage != null) {
-         codeCoverage.deactivate();
-      }
-
+   void generate() {
       CoverageData coverageData = CoverageData.instance();
 
       if (coverageData.isEmpty()) {
