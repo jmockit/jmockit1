@@ -16,7 +16,6 @@ public final class CodeCoverage implements ClassFileTransformer
 {
    @Nonnull private final ClassModification classModification;
    @Nonnull private final OutputFileGenerator outputGenerator;
-   private boolean inactive;
 
    public static void main(@Nonnull String[] args) {
       OutputFileGenerator generator = createOutputFileGenerator();
@@ -50,12 +49,11 @@ public final class CodeCoverage implements ClassFileTransformer
                   new ClassesNotLoaded(classModification).gatherCoverageData();
                }
 
-               inactive = true;
+               Startup.instrumentation().removeTransformer(CodeCoverage.this);
                outputGenerator.generate();
             }
 
             new CoverageCheck().verifyThresholds();
-            Startup.instrumentation().removeTransformer(CodeCoverage.this);
          }
       });
    }
@@ -65,7 +63,7 @@ public final class CodeCoverage implements ClassFileTransformer
       @Nullable ClassLoader loader, @Nonnull String internalClassName, @Nullable Class<?> classBeingRedefined,
       @Nullable ProtectionDomain protectionDomain, @Nonnull byte[] originalClassfile
    ) {
-      if (loader == null || classBeingRedefined != null || protectionDomain == null || inactive) {
+      if (loader == null || classBeingRedefined != null || protectionDomain == null) {
          return null;
       }
 
