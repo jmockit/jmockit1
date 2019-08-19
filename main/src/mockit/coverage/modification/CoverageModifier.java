@@ -29,11 +29,6 @@ final class CoverageModifier extends WrappingClassVisitor
       return modifier == null ? null : modifier.toByteArray();
    }
 
-   @Nullable
-   static ClassReader createClassReader(@Nonnull Class<?> aClass) {
-      return ClassFile.createClassReader(aClass.getClassLoader(), aClass.getName().replace('.', '/'));
-   }
-
    @Nullable private String internalClassName;
    @Nullable private String simpleClassName;
    @Nonnull private String sourceFileName;
