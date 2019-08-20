@@ -65,11 +65,11 @@ table#packages table td:first-child {
    white-space: pre;
 }
 
-td.pt, table#packages table td {
+table#packages td:nth-child(3), table#packages table td {
    font-size: 1em;
    border-bottom: white solid 1px; padding-right: 2px;
 }
-td.pt, table#packages table td:nth-child(2) {
+table#packages td:nth-child(3), table#packages table td:nth-child(2) {
     width: 2.875em; text-align: right;
 }
 

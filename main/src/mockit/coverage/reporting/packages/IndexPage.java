@@ -221,11 +221,6 @@ public final class IndexPage extends ListWithFilesAndPercentages
       printCoveragePercentage(packageReport.coveredItems, packageReport.totalItems, filePercentage);
    }
 
-   @Override
-   protected void writeClassAttributeForCoveragePercentageCell() {
-      output.write("class='pt' ");
-   }
-
    private void writeListOfRedundantTestsIfAny() {
       TestCoverage testCoverage = TestCoverage.INSTANCE;
 

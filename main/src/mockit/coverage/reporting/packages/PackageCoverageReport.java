@@ -97,7 +97,4 @@ final class PackageCoverageReport extends ListWithFilesAndPercentages
 
       printCoveragePercentage(covered, total, percentage);
    }
-
-   @Override
-   protected void writeClassAttributeForCoveragePercentageCell() {}
 }

@@ -65,7 +65,6 @@ abstract class ListWithFilesAndPercentages
    }
 
    private void writeRowCellWithCoveragePercentage(@Nonnegative int covered, @Nonnegative int total, @Nonnegative int percentage) {
-      writeClassAttributeForCoveragePercentageCell();
       output.write("style='background-color:#");
       output.write(CoveragePercentage.percentageColor(covered, total));
       output.write("' title='Items: ");
@@ -76,8 +75,6 @@ abstract class ListWithFilesAndPercentages
       writePercentageValue(covered, total, percentage);
       output.print("%");
    }
-
-   protected abstract void writeClassAttributeForCoveragePercentageCell();
 
    private void writePercentageValue(@Nonnegative int covered, @Nonnegative int total, @Nonnegative int percentage) {
       if (percentage < 100) {
