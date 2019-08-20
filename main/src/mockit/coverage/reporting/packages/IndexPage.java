@@ -166,7 +166,7 @@ public final class IndexPage extends ListWithFilesAndPercentages
 
    private void writeTableCellWithPackageName(@Nonnull String packageName) {
       printIndent();
-      output.write("  <td class='package");
+      output.write("  <td class='pkg");
 
       List<String> filesInPackage = packageToFiles.get(packageName);
 
@@ -236,7 +236,7 @@ public final class IndexPage extends ListWithFilesAndPercentages
       List<Method> redundantTests = testCoverage.getRedundantTests();
 
       if (!redundantTests.isEmpty()) {
-         output.println("  <br/>Redundant tests:");
+         output.println("  <br>Redundant tests:");
          output.println(
             "  <ol title=\"Tests are regarded as redundant when they don't cover any additional line " +
             "segments or fields that haven't already been covered by a previous test.\n" +
