@@ -50,7 +50,7 @@ final class PackageCoverageReport extends ListWithFilesAndPercentages
 
       writeRowStart();
       printIndent();
-      output.write("  <td class='file ");
+      output.write("  <td class='");
       output.write(fileData.kindOfTopLevelType != null ? fileData.kindOfTopLevelType : "class");
       output.write("'>");
 
