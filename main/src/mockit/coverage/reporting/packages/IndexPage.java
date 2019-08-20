@@ -184,7 +184,7 @@ public final class IndexPage extends ListWithFilesAndPercentages
       output.println("  <td>");
 
       printIndent();
-      output.println("    <table width='100%'>");
+      output.println("    <table>");
 
       List<String> fileNames = packageToFiles.get(packageName);
       packageReport.writeMetricsForEachFile(packageName, fileNames);
