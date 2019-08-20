@@ -132,7 +132,7 @@ public final class IndexPage extends ListWithFilesAndPercentages
    }
 
    private void writeHeaderCellWithMetricNameAndDescription() {
-      output.write(
+      output.println(
          "      <th onclick='sortTables()' style='cursor: n-resize' title='" +
          "Measures how much of the executable production code (executable lines and fields) was exercised by tests.\r\n" +
          "An executable line of code contains one or more executable segments, separated by branching points\r\n" +
@@ -196,6 +196,7 @@ public final class IndexPage extends ListWithFilesAndPercentages
       printIndent();
 
       writeInitiallyHiddenSourceFileCount(fileNames.size());
+      printIndent();
       output.println("  </td>");
    }
 
