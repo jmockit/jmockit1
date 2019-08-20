@@ -166,15 +166,15 @@ public final class IndexPage extends ListWithFilesAndPercentages
 
    private void writeTableCellWithPackageName(@Nonnull String packageName) {
       printIndent();
-      output.write("  <td class='pkg");
+      output.write("  <td");
 
       List<String> filesInPackage = packageToFiles.get(packageName);
 
       if (filesInPackage.size() > 1) {
-         output.write(" click' onclick='showHideFiles(this)");
+         output.write(" class='click' onclick='showHideFiles(this)'");
       }
 
-      output.write("'>");
+      output.write('>');
       output.write(packageName.replace('/', '.'));
       output.println("</td>");
    }

@@ -57,7 +57,7 @@ td.comment, .imports { cursor: row-resize; }
 
 .click { cursor: row-resize; }
 
-td.pkg, td:first-child {
+td:first-child {
    background-color: #e0e0e0; padding: 2px; border-bottom: white solid 1px;
 }
 table#packages table td:first-child {
@@ -65,20 +65,20 @@ table#packages table td:first-child {
    white-space: pre;
 }
 
-table#packages td:nth-child(3), table#packages table td {
+td:nth-child(3), table#packages table td {
    font-size: 1em;
    border-bottom: white solid 1px; padding-right: 2px;
 }
-table#packages td:nth-child(3), table#packages table td:nth-child(2) {
+td:nth-child(3), table#packages table td:nth-child(2) {
     width: 2.875em; text-align: right;
 }
 
-td.pkg, td.cls, td.absCls, td.exc, td.itf, td.ant, td.enm {
+td:first-child, td.cls, td.absCls, td.exc, td.itf, td.ant, td.enm {
    padding-left: 18px;
    background-position: left center;
    background-repeat: no-repeat;
 }
-td.pkg { background-image: url(package.png); }
+td:first-child { background-image: url(package.png); }
 td.cls { background-image: url(class.png); }
 td.exc { background-image: url(exception.png); }
 td.itf { background-image: url(interface.png); }
