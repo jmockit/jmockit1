@@ -2,15 +2,12 @@ body {
    font-size: medium;
    line-height: 1.12em; font-family: "Helvetica", "Arial", sans-serif;
 }
-h1 { font-size: 150%; }
+
 table { border-spacing: 1px; }
 table table { width: 100%; border-spacing: 0; }
 caption {
-   background-color: #483d8b; color: white;
-   font-size: larger;
-   padding: 4px;
-   text-shadow: 2px 2px 2px black;
-   border-radius: 4px;
+   background-color: #483d8b; color: white; font-size: larger;
+   padding: 4px; text-shadow: 2px 2px 2px black; border-radius: 4px;
 }
 caption div { text-shadow: 0 0 0; }
 
@@ -21,39 +18,8 @@ td { padding: 0; font-size: 0.95em; }
 table table td { border-right: 1px solid white; }
 
 ol {
-   background-color: #e0ffff;
-   margin: 1ex 2em 1ex 4em;
-   font-size: 0.8em;
+   background-color: #e0ffff; margin: 1ex 2em 1ex 4em; font-size: 0.8em;
 }
-
-td.comment { white-space: pre; color: gray; font-family: monospace; }
-td.comment div, .imports div { display: none; }
-pre.comment { margin: 0; color: gray; }
-td.comment, .imports { cursor: row-resize; }
-
-.line, .count {
-   text-align: right;
-   padding-right: 2px;
-   font-size: 0.8em;
-}
-.line {
-   background-color: #e0e0e0;
-   width: 2.3em;
-   padding-left: 1px;
-   border-right: #a0a0a0 solid 1px;
-}
-.count {
-   background-color: yellow;
-   width: 1.6em;
-   padding-left: 2px;
-   border-right: #aaaa00 solid 1px;
-}
-
-.covered { background-color: #90ee90; }
-.uncovered { background-color: #f08080; }
-
-.instance { font-weight: bold; }
-.static { font-weight: bold; font-style: italic; }
 
 .click { cursor: row-resize; }
 
@@ -61,8 +27,7 @@ td:first-child {
    background-color: #e0e0e0; padding: 2px; border-bottom: white solid 1px;
 }
 table#packages table td:first-child {
-   font-family: monospace;
-   white-space: pre;
+   font-family: monospace; white-space: pre;
 }
 
 td:nth-child(3), table#packages table td {
@@ -95,9 +60,6 @@ td.nocode { background-color: #999999; text-align: center; border-bottom: white 
 table#packages table td.nocode { text-align: center; }
 
 table#packages span { display: none; width: 100%; text-align: center; }
-
-pre.jmp { background-color: #f8ebb8; }
-pre.jmp span { padding-bottom: 1px; }
 
 .cp { cursor: pointer; }
 

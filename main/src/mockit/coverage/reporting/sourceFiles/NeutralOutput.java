@@ -72,12 +72,12 @@ final class NeutralOutput
    private void writeOpeningForCollapsibleBlockOfLines() {
       writeBlankLineIfPending();
       output.println("    <tr>");
-      output.println("      <td class='line'></td><td>&nbsp;</td>");
+      output.println("      <td></td><td>&nbsp;</td>");
    }
 
    private void writeBlankLineIfPending() {
       if (blankLinesPending) {
-         output.println("    <tr><td class='line'></td><td colspan='2'>&nbsp;</td></tr>");
+         output.println("    <tr><td></td><td colspan='2'>&nbsp;</td></tr>");
          blankLinesPending = false;
       }
    }

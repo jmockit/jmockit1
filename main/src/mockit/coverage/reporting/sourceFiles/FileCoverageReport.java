@@ -88,7 +88,7 @@ public final class FileCoverageReport
 
    private void writeOpeningOfNewLine(int lineNumber) {
       output.println("    <tr>");
-      output.write("      <td class='line'>");
+      output.write("      <td>");
       output.print(lineNumber);
       output.write("</td>");
    }
