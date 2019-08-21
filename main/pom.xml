@@ -51,7 +51,7 @@
          <resource>
             <directory>src</directory>
             <includes>
-               <include>mockit/coverage/reporting/coverage.css</include>
+               <include>mockit/coverage/reporting/*.css</include>
                <include>mockit/coverage/reporting/*.js</include>
                <include>mockit/coverage/reporting/*.png</include>
             </includes>
