@@ -145,7 +145,7 @@ public final class IndexPage extends ListWithFilesAndPercentages
 
    private void writeLineWithCoverageTotal() {
       output.println("    <tr class='total'>");
-      output.println("      <td>Total</td><td>&nbsp;</td>");
+      output.println("      <td>Total</td><td></td>");
 
       int covered = coveredItems;
       int total = totalItems;

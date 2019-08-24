@@ -68,7 +68,7 @@ public final class DataCoverageOutput
       boolean staticField = staticData != null;
       openingTag.append(staticField ? "static" : "instance");
 
-      openingTag.append(coverageInfo.isCovered(classAndFieldNames) ? " covered" : " uncovered");
+      openingTag.append(coverageInfo.isCovered(classAndFieldNames) ? " cvd" : " uncvd");
 
       InstanceFieldData instanceData = coverageInfo.getInstanceFieldData(classAndFieldNames);
 

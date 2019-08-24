@@ -41,10 +41,7 @@ final class NeutralOutput
    private boolean writeLineInComments(@Nonnull LineParser lineParser) {
       LineElement initialElement = lineParser.getInitialElement();
 
-      if (
-         lineParser.isInComments() ||
-         previousLineInComments && initialElement.isComment() && initialElement.getNext() == null
-      ) {
+      if (lineParser.isInComments() || previousLineInComments && initialElement.isComment() && initialElement.getNext() == null) {
          String lineText = initialElement.toString();
 
          if (previousLineInComments) {
@@ -52,7 +49,7 @@ final class NeutralOutput
          }
          else {
             writeOpeningForCollapsibleBlockOfLines();
-            output.write("      <td class='comment' onclick='showHideLines(this)'><div>");
+            output.write("      <td class='cm' onclick='showHideLines(this)'><div>");
             extractLineIndentation(lineText);
             previousLineInComments = true;
          }
@@ -72,12 +69,12 @@ final class NeutralOutput
    private void writeOpeningForCollapsibleBlockOfLines() {
       writeBlankLineIfPending();
       output.println("    <tr>");
-      output.println("      <td></td><td>&nbsp;</td>");
+      output.println("      <td></td><td></td>");
    }
 
    private void writeBlankLineIfPending() {
       if (blankLinesPending) {
-         output.println("    <tr><td></td><td colspan='2'>&nbsp;</td></tr>");
+         output.println("    <tr><td></td><td></td><td></td></tr>");
          blankLinesPending = false;
       }
    }
@@ -105,7 +102,7 @@ final class NeutralOutput
          }
          else {
             writeOpeningForCollapsibleBlockOfLines();
-            output.write("      <td><pre class='imports prettyprint' onclick='showHideLines(this)'><div>");
+            output.write("      <td><pre class='ims pp' onclick='showHideLines(this)'><div>");
             previousLineInImports = true;
          }
 

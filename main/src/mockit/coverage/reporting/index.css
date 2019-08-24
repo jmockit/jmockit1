@@ -1,6 +1,5 @@
 body {
-   font-size: medium;
-   line-height: 1.12em; font-family: "Helvetica", "Arial", sans-serif;
+   font-family: "Helvetica", "Arial", sans-serif; font-size: medium;
 }
 
 table { border-spacing: 1px; }
@@ -10,6 +9,7 @@ caption {
    padding: 4px; text-shadow: 2px 2px 2px black; border-radius: 4px;
 }
 caption div { text-shadow: 0 0 0; }
+tr { height: 2.5ex; }
 
 img { border: none; vertical-align: middle; }
 
@@ -62,32 +62,3 @@ table#packages table td.nocode { text-align: center; }
 table#packages span { display: none; width: 100%; text-align: center; }
 
 .cp { cursor: pointer; }
-
-.str { color: #080 }
-.kwd { color: #008 }
-.com { color: #800 }
-.typ { color: #606 }
-.lit { color: #066 }
-.pun { color: #660 }
-.pln { color: #000 }
-.tag { color: #008 }
-.atn { color: #606 }
-.atv { color: #080 }
-.dec { color: #606 }
-
-pre.prettyprint {
-   margin: 0; padding: 1px;
-}
-
-@media print {
-   .str { color: #060 }
-   .kwd { color: #006; font-weight: bold }
-   .com { color: #600; font-style: italic }
-   .typ { color: #404; font-weight: bold }
-   .lit { color: #044 }
-   .pun { color: #440 }
-   .pln { color: #000 }
-   .tag { color: #006; font-weight: bold }
-   .atn { color: #404 }
-   .atv { color: #060 }
-}
