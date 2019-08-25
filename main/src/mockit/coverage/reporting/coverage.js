@@ -76,12 +76,12 @@ function sortRows(tbl) {
    var endRow = tbl.rows.length;
 
    if (tbl.id == 'packages') {
-      metricCol = 1;
+      metricCol = 2;
       startRow = 1;
       endRow--;
    }
    else {
-      metricCol = 0;
+      metricCol = 1;
    }
 
    var rs = new Array();
