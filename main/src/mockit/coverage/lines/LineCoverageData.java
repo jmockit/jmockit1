@@ -69,11 +69,6 @@ public final class LineCoverageData extends LineSegmentData
       }
 
       int n = branches.size();
-
-      if (n == 0) {
-         return 1;
-      }
-
       int count = 1;
 
       for (int targetBranchIndex = 1; targetBranchIndex < n; targetBranchIndex += 2) {
@@ -99,7 +94,7 @@ public final class LineCoverageData extends LineSegmentData
    }
 
    public int getNumberOfCoveredSegments() {
-      int segmentsCovered = executionCount > 0 ? 1 : 0;
+      int segmentsCovered = isCovered() ? 1 : 0;
       int n = branches.size();
 
       if (n == 0) {

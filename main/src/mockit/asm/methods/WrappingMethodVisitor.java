@@ -123,7 +123,7 @@ public class WrappingMethodVisitor extends MethodVisitor
    }
 
    @Override
-   public final void visitMaxStack(@Nonnegative int maxStack) {
+   public void visitMaxStack(@Nonnegative int maxStack) {
       mw.visitMaxStack(maxStack);
    }
 }

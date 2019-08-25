@@ -36,7 +36,6 @@ final class CoverageModifier extends WrappingClassVisitor
    private final boolean forInnerClass;
    private boolean forEnumClass;
    @Nullable private String kindOfTopLevelType;
-   private int currentLine;
 
    CoverageModifier(@Nonnull ClassReader cr) { this(cr, false); }
 
@@ -207,11 +206,13 @@ final class CoverageModifier extends WrappingClassVisitor
       @Nonnull private final List<Label> jumpTargetsForCurrentLine;
       @Nonnull private final List<Integer> pendingBranches;
       @Nonnull private final PerFileLineCoverage lineCoverageInfo;
+      private int currentLine;
       private int lineExpectingInstructionAfterJump;
       boolean assertFoundInCurrentLine;
       boolean ignoreUntilNextLabel;
       @SuppressWarnings("unused") private boolean foundPotentialAssertFalse;
       private int foundPotentialBooleanExpressionValue;
+      private boolean foundInterestingInstruction;
       int ignoreUntilNextSwitch;
 
       BaseMethodModifier(@Nonnull MethodWriter mw) {
@@ -355,7 +356,16 @@ final class CoverageModifier extends WrappingClassVisitor
 
       @Override
       public void visitInsn(int opcode) {
-         if ((opcode == ICONST_0 || opcode == ICONST_1) && foundPotentialBooleanExpressionValue == 0) {
+         boolean isReturn = opcode >= IRETURN && opcode <= RETURN;
+
+         if (!isReturn && !isDefaultReturnValue(opcode)) {
+            foundInterestingInstruction = true;
+         }
+
+         if (isReturn && !foundInterestingInstruction && visitedLabels.size() == 1) {
+            lineCoverageInfo.getOrCreateLineData(currentLine).markAsUnreachable();
+         }
+         else if ((opcode == ICONST_0 || opcode == ICONST_1) && foundPotentialBooleanExpressionValue == 0) {
             generateCallToRegisterBranchTargetExecutionIfPending();
             foundPotentialBooleanExpressionValue = 1;
          }
@@ -366,8 +376,13 @@ final class CoverageModifier extends WrappingClassVisitor
          mw.visitInsn(opcode);
       }
 
+      private boolean isDefaultReturnValue(int opcode) {
+         return opcode == ACONST_NULL || opcode == ICONST_0 || opcode == LCONST_0 || opcode == FCONST_0 || opcode == DCONST_0;
+      }
+
       @Override
       public void visitIntInsn(int opcode, int operand) {
+         foundInterestingInstruction = true;
          generateCallToRegisterBranchTargetExecutionIfPending();
          mw.visitIntInsn(opcode, operand);
       }
@@ -399,6 +414,10 @@ final class CoverageModifier extends WrappingClassVisitor
 
       @Override
       public void visitMethodInsn(int opcode, @Nonnull String owner, @Nonnull String name, @Nonnull String desc, boolean itf) {
+         if (opcode != INVOKESPECIAL || !"()V".equals(desc)) {
+            foundInterestingInstruction = true;
+         }
+
          generateCallToRegisterBranchTargetExecutionIfPending();
          mw.visitMethodInsn(opcode, owner, name, desc, itf);
 
@@ -409,6 +428,7 @@ final class CoverageModifier extends WrappingClassVisitor
 
       @Override
       public void visitLdcInsn(@Nonnull Object cst) {
+         foundInterestingInstruction = true;
          generateCallToRegisterBranchTargetExecutionIfPending();
          mw.visitLdcInsn(cst);
       }
@@ -441,6 +461,15 @@ final class CoverageModifier extends WrappingClassVisitor
       public void visitMultiANewArrayInsn(@Nonnull String desc, @Nonnegative int dims) {
          generateCallToRegisterBranchTargetExecutionIfPending();
          mw.visitMultiANewArrayInsn(desc, dims);
+      }
+
+      @Override
+      public void visitMaxStack(@Nonnegative int maxStack) {
+         if (maxStack > 1) {
+            lineCoverageInfo.markLineAsReachable(currentLine);
+         }
+
+         mw.visitMaxStack(maxStack);
       }
    }
 

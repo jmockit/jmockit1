@@ -142,6 +142,14 @@ public final class PerFileLineCoverage implements PerFileCoverage
       return data;
    }
 
+   public void markLineAsReachable(@Nonnegative int line) {
+      LineCoverageData data = lineToLineData.get(line);
+
+      if (data != null) {
+         data.markAsReachable();
+      }
+   }
+
    public int getExecutionCount(@Nonnegative int line) {
       return line < executionCounts.length ? executionCounts[line] : -1;
    }

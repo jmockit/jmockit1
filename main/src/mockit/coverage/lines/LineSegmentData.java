@@ -24,6 +24,7 @@ public class LineSegmentData implements Serializable
    @Nullable private List<CallPoint> callPoints;
 
    public final void markAsUnreachable() { unreachable = true; }
+   final void markAsReachable() { unreachable = false; }
 
    public final boolean isEmpty() { return empty; }
    final void markAsEmpty() { empty = true; }
