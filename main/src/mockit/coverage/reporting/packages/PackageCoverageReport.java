@@ -75,7 +75,7 @@ final class PackageCoverageReport extends ListWithFilesAndPercentages
          output.write(fileNameWithSpaces);
       }
       else {
-         output.write("<a target='_blank' href='");
+         output.write("<a href='");
          int p = filePath.lastIndexOf('.');
          output.write(filePath.substring(0, p));
          output.write(".html'>");

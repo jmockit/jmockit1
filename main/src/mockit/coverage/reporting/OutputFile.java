@@ -69,6 +69,7 @@ public final class OutputFile extends PrintWriter
       println("  <link rel='stylesheet' type='text/css' href='" + relPathToOutDir + (sourceFile ? "source" : "index") + ".css'>");
       println("  <link rel='shortcut icon' type='image/png' href='" + relPathToOutDir + "logo.png'>");
       println("  <script src='" + relPathToOutDir + "coverage.js'></script>");
+      println("  <base target='_blank'>");
 
       if (sourceFile) {
          println("  <script src='" + relPathToOutDir + "prettify.js'></script>");
