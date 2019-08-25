@@ -39,19 +39,19 @@ final class OutputFileGenerator
    @Nonnull
    private static String[] getOutputFormat() {
       String format = Configuration.getProperty("output", "");
-      return format.isEmpty() ? new String[] {"html-nocp"} : format.trim().split("\\s*,\\s*|\\s+");
+      return format.isEmpty() ? new String[] {"html"} : format.trim().split("\\s*,\\s*|\\s+");
    }
 
    boolean isOutputToBeGenerated() {
-      return isOutputWithCallPointsToBeGenerated() || hasOutputFormat("html-nocp") || hasOutputFormat("xml");
+      return isHTMLWithNoCallPoints() || isWithCallPoints() || hasOutputFormat("xml");
    }
 
-   private boolean isOutputWithCallPointsToBeGenerated() {
-      return hasOutputFormat("html") || hasOutputFormat("serial") || hasOutputFormat("serial-append");
+   private boolean isHTMLWithNoCallPoints() {
+      return hasOutputFormat("html") || hasOutputFormat("html-nocp");
    }
 
    boolean isWithCallPoints() {
-      return isOutputWithCallPointsToBeGenerated() && !hasOutputFormat("html-nocp");
+      return hasOutputFormat("html-cp");
    }
 
    private boolean hasOutputFormat(@Nonnull String format) {
@@ -137,10 +137,10 @@ final class OutputFileGenerator
    }
 
    private void generateHTMLReportIfRequested(@Nonnull CoverageData coverageData, boolean outputDirCreated) throws IOException {
-      if (hasOutputFormat("html-nocp")) {
+      if (isHTMLWithNoCallPoints()) {
          new BasicCoverageReport(outputDir, outputDirCreated, sourceDirs, coverageData).generate();
       }
-      else if (hasOutputFormat("html")) {
+      else if (isWithCallPoints()) {
          new FullCoverageReport(outputDir, outputDirCreated, sourceDirs, coverageData).generate();
       }
    }
