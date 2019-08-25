@@ -49,7 +49,7 @@ final class NeutralOutput
          }
          else {
             writeOpeningForCollapsibleBlockOfLines();
-            output.write("      <td class='cm' onclick='showHideLines(this)'><div>");
+            output.write("      <td class='cm' onclick='shLns(this)'><div>");
             extractLineIndentation(lineText);
             previousLineInComments = true;
          }
@@ -102,7 +102,7 @@ final class NeutralOutput
          }
          else {
             writeOpeningForCollapsibleBlockOfLines();
-            output.write("      <td><pre class='ims pp' onclick='showHideLines(this)'><div>");
+            output.write("      <td><pre class='ims pp' onclick='shLns(this)'><div>");
             previousLineInImports = true;
          }
 

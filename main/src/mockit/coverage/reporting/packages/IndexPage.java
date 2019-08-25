@@ -173,7 +173,7 @@ public final class IndexPage extends ListWithFilesAndPercentages
       List<String> filesInPackage = packageToFiles.get(packageName);
 
       if (filesInPackage.size() > 1) {
-         output.write(" class='click' onclick='showHideFiles(this)'");
+         output.write(" class='click' onclick='shFls(this)'");
       }
 
       output.write('>');

@@ -88,7 +88,7 @@ final class LineSegmentsFormatter
 
       if (segmentData.isCovered()) {
          if (segmentData.containsCallPoints()) {
-            formattedLine.append("class='cvd cp' onclick='showHide(this,").append(segmentIndex).append(")'>");
+            formattedLine.append("class='cvd cp' onclick='sh(this,").append(segmentIndex).append(")'>");
          }
          else {
             formattedLine.append("class='cvd'>");

@@ -52,7 +52,7 @@ final class LineCoverageFormatter
       List<CallPoint> callPoints = lineData.getCallPoints();
 
       if (listOfCallPoints != null && callPoints != null) {
-         formattedLine.append(" cp' onclick='showHide(this)");
+         formattedLine.append(" cp' onclick='sh(this)");
       }
 
       formattedLine.append("' id='l").append(lineParser.getNumber()).append("s0'>");
