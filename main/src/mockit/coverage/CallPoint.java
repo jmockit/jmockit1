@@ -107,20 +107,21 @@ public final class CallPoint implements Serializable
    }
 
    private static boolean isTestMethod(@Nonnull StackTraceElement ste) {
-      String className = ste.getClassName();
-      String methodName = ste.getMethodName();
-
-      if (steCache.containsKey(ste)){
+      if (steCache.containsKey(ste)) {
          return steCache.get(ste);
       }
 
       boolean isTestMethod = false;
 
-      if (ste.getFileName() != null && ste.getLineNumber() >= 0 && !isClassInExcludedPackage(className)) {
-         Class<?> aClass = loadClass(className);
+      if (ste.getFileName() != null && ste.getLineNumber() >= 0) {
+         String className = ste.getClassName();
 
-         if (aClass != null) {
-            isTestMethod = isTestMethod(aClass, methodName);
+         if (!isClassInExcludedPackage(className)) {
+            Class<?> aClass = loadClass(className);
+
+            if (aClass != null) {
+               isTestMethod = isTestMethod(aClass, ste.getMethodName());
+            }
          }
       }
 
