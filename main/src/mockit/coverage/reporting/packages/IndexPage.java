@@ -138,12 +138,10 @@ public final class IndexPage extends ListWithFilesAndPercentages
          "An executable line of code contains one or more executable segments, separated by branching points\n" +
          "(if..else instructions, logical operators, etc.).\n\n" +
          "A non-final field must have the last value assigned to it read by at least one test, to be considered as covered.\n\n" +
-         "Percentages are calculated as\n" +
-         "                                                           100 × (CS + CF)\n" +
+         "Percentages are calculated as          100 × (CS + CF)\n" +
          "                                                         ────────\n" +
          "                                                                   S + F\n\n" +
-         "where S is the number of segments, F the number of non-final fields, CS the number of covered segments,\n" +
-         "and CF the number of covered fields." +
+         "where S+F is the total number of segments and fields, and CS+CF the covered segments and fields." +
          "'>Cvrg</th>");
    }
 
