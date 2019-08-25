@@ -134,12 +134,16 @@ public final class IndexPage extends ListWithFilesAndPercentages
    private void writeHeaderCellWithMetricNameAndDescription() {
       output.println(
          "      <th onclick='sortTables()' style='cursor: n-resize' title='" +
-         "Measures how much of the executable production code (executable lines and fields) was exercised by tests.\r\n" +
-         "An executable line of code contains one or more executable segments, separated by branching points\r\n" +
-         "(if..else instructions, logical operators, etc.).\r\n" +
-         "To be fully exercised, a field must have the last value assigned to it read by at least one test.\r\n" +
-         "Percentages are calculated as 100*(NE + NFE)/(NS + NF), where NS is the number of segments, NF the number\r\n" +
-         "of non-final fields, NE the number of executed segments, and NFE the number of fully exercised fields." +
+         "Measures how much of the executable production code (executable lines and fields) was exercised by tests.\n\n" +
+         "An executable line of code contains one or more executable segments, separated by branching points\n" +
+         "(if..else instructions, logical operators, etc.).\n\n" +
+         "A non-final field must have the last value assigned to it read by at least one test, to be considered as covered.\n\n" +
+         "Percentages are calculated as\n" +
+         "                                                           100 × (CS + CF)\n" +
+         "                                                         ────────\n" +
+         "                                                                   S + F\n\n" +
+         "where S is the number of segments, F the number of non-final fields, CS the number of covered segments,\n" +
+         "and CF the number of covered fields." +
          "'>Cvrg</th>");
    }
 
