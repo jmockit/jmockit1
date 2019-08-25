@@ -16,7 +16,7 @@ public final class TestCoverage
    @Nullable public static final TestCoverage INSTANCE;
 
    static {
-      INSTANCE = "true".equals(Configuration.getProperty("redundancy", "true")) ? new TestCoverage() : null;
+      INSTANCE = "true".equals(Configuration.getProperty("redundancy")) ? new TestCoverage() : null;
    }
 
    @Nonnull private final Map<Method, Integer> testsToItemsCovered = new LinkedHashMap<>();
