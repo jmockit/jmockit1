@@ -62,7 +62,12 @@ import static java.lang.annotation.RetentionPolicy.*;
  * <p/>
  * When the {@link #fullyInitialized} attribute is <tt>true</tt>, all eligible fields in the tested object will get initialized with a
  * suitable instance, which itself is recursively initialized in the same way.
- *
+ * <p/>
+ * Finally, if the {@link #global} attribute is <tt>true</tt>, then a single <em>global</em> instance will be created during the test run,
+ * for the name of the annotated field/parameter.
+ * This is useful for the creation of scenario-oriented tests, where each test in a test class exercises a step in the scenario, with all of
+ * them accessing the same state in one (or more) global tested objects.
+ * <p/>
  * @see <a href="http://jmockit.github.io/tutorial/Mocking.html#tested" target="tutorial">Tutorial</a>
  */
 @Retention(RUNTIME)
@@ -138,4 +143,10 @@ public @interface Tested
     * Finally, objects made available during setup are also available during the execution of any tear-down methods.
     */
    boolean availableDuringSetup() default false;
+
+   /**
+    * Indicates whether a single <em>named</em> instance of the tested class is to be created and used for the whole test run.
+    * The name is the same as the annotated field or test method parameter.
+    */
+   boolean global() default false;
 }

@@ -66,21 +66,22 @@ abstract class TestedObject
 
       Object testedObject = getExistingTestedInstanceIfApplicable(testClassInstance);
       Class<?> testedObjectClass = testedClass.targetClass;
+      InjectionPoint injectionPoint = new InjectionPoint(testedClass.declaredType, testedName);
 
       if (isNonInstantiableType(testedObjectClass, testedObject)) {
-         reusePreviouslyCreatedInstance(testClassInstance);
+         reusePreviouslyCreatedInstance(testClassInstance, injectionPoint);
          return;
       }
 
       if (testedObject == null && createAutomatically) {
-         if (reusePreviouslyCreatedInstance(testClassInstance)) {
+         if (reusePreviouslyCreatedInstance(testClassInstance, injectionPoint)) {
             return;
          }
 
-         testedObject = createAndRegisterNewObject(testClassInstance);
+         testedObject = createAndRegisterNewObject(testClassInstance, injectionPoint);
       }
       else if (testedObject != null) {
-         registerTestedObject(testedObject);
+         registerTestedObject(injectionPoint, testedObject);
          testedObjectClass = testedObject.getClass();
       }
 
@@ -106,8 +107,8 @@ abstract class TestedObject
          );
    }
 
-   private boolean reusePreviouslyCreatedInstance(@Nonnull Object testClassInstance) {
-      Object previousInstance = injectionState.getTestedInstance(testedClass.declaredType, testedName);
+   private boolean reusePreviouslyCreatedInstance(@Nonnull Object testClassInstance, @Nonnull InjectionPoint injectionPoint) {
+      Object previousInstance = injectionState.getTestedInstance(injectionPoint, metadata.global());
 
       if (previousInstance != null) {
          setInstance(testClassInstance, previousInstance);
@@ -120,7 +121,7 @@ abstract class TestedObject
    abstract void setInstance(@Nonnull Object testClassInstance, @Nullable Object testedInstance);
 
    @Nullable
-   private Object createAndRegisterNewObject(@Nonnull Object testClassInstance) {
+   private Object createAndRegisterNewObject(@Nonnull Object testClassInstance, @Nonnull InjectionPoint injectionPoint) {
       Object testedInstance = null;
 
       if (testedObjectCreation != null) {
@@ -128,16 +129,15 @@ abstract class TestedObject
 
          if (testedInstance != null) {
             setInstance(testClassInstance, testedInstance);
-            registerTestedObject(testedInstance);
+            registerTestedObject(injectionPoint, testedInstance);
          }
       }
 
       return testedInstance;
    }
 
-   private void registerTestedObject(@Nonnull Object testedObject) {
-      InjectionPoint injectionPoint = new InjectionPoint(testedClass.declaredType, testedName);
-      injectionState.saveTestedObject(injectionPoint, testedObject);
+   private void registerTestedObject(@Nonnull InjectionPoint injectionPoint, @Nonnull Object testedObject) {
+      injectionState.saveTestedObject(injectionPoint, testedObject, metadata.global());
    }
 
    private void performFieldInjection(@Nonnull Class<?> targetClass, @Nonnull Object testedObject) {
