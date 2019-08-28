@@ -15,7 +15,7 @@ import javax.annotation.*;
 public final class ClassesNotLoaded
 {
    @Nonnull private final ClassModification classModification;
-   private int firstPosAfterParentDir;
+   @Nonnegative private int firstPosAfterParentDir;
 
    public ClassesNotLoaded(@Nonnull ClassModification classModification) { this.classModification = classModification; }
 

@@ -86,7 +86,7 @@ public final class FileCoverageReport
       }
    }
 
-   private void writeOpeningOfNewLine(int lineNumber) {
+   private void writeOpeningOfNewLine(@Nonnegative int lineNumber) {
       output.println("    <tr>");
       output.write("      <td>");
       output.print(lineNumber);

@@ -9,28 +9,28 @@ import javax.annotation.*;
 import mockit.coverage.reporting.parsing.LineElement.*;
 
 /**
- * Parses a source line into one or more consecutive segments, identifying which ones contain Java code and which ones
- * contain only comments.
+ * Parses a source line into one or more consecutive segments, identifying which ones contain Java code and which ones contain only
+ * comments.
  * Block comments initiated in a previous line are kept track of until the end of the block is reached.
  */
 public final class LineParser
 {
    private static final String SEPARATORS = ".,;()";
 
-   private int lineNum;
-   @Nonnull private String line;
+   @Nonnegative private int lineNum;
+   private String line;
    @Nullable private LineElement initialElement;
    private boolean inComments;
 
    // Helper fields:
    @Nullable private LineElement currentElement;
-   private int lineLength;
+   @Nonnegative private int lineLength;
    private int startPos;
    private boolean inCodeElement;
-   private int pos;
+   @Nonnegative private int pos;
    private int currChar;
 
-   public int getNumber() { return lineNum; }
+   @Nonnegative public int getNumber() { return lineNum; }
 
    public boolean isInComments() { return inComments; }
 
@@ -173,9 +173,8 @@ public final class LineParser
          currChar = line.codePointAt(pos);
          return false;
       }
-      else {
-         return true;
-      }
+
+      return true;
    }
 
    private void addFinalElement() {

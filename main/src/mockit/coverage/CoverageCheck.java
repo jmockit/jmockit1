@@ -68,7 +68,7 @@ final class CoverageCheck
          return percentage < 0 || verifyMinimum(percentage);
       }
 
-      private boolean verifyMinimum(int percentage) {
+      private boolean verifyMinimum(@Nonnegative int percentage) {
          if (percentage < minPercentage) {
             System.out.println("JMockit: coverage too low" + scopeDescription + ": " + percentage + "% < " + minPercentage + '%');
             return false;

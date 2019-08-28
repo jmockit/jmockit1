@@ -94,9 +94,9 @@ public final class IndexPage extends ListWithFilesAndPercentages
       }
    }
 
-   private static int removeRedundantSourceDirectory(@Nonnull List<File> dirs, @Nonnegative int i) {
-      String dir1 = dirs.get(i).getPath();
-      int j = i + 1;
+   private static int removeRedundantSourceDirectory(@Nonnull List<File> dirs, @Nonnegative int dirIndex) {
+      String dir1 = dirs.get(dirIndex).getPath();
+      int j = dirIndex + 1;
 
       while (j < dirs.size()) {
          String dir2 = dirs.get(j).getPath();
@@ -105,8 +105,8 @@ public final class IndexPage extends ListWithFilesAndPercentages
             dirs.remove(j);
          }
          else if (dir2.startsWith(dir1)) {
-            dirs.remove(i);
-            i--;
+            dirs.remove(dirIndex);
+            dirIndex--;
             break;
          }
          else {
@@ -114,7 +114,7 @@ public final class IndexPage extends ListWithFilesAndPercentages
          }
       }
 
-      return i;
+      return dirIndex;
    }
 
    private void writeTableFirstRowWithColumnTitles() {

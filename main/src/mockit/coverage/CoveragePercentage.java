@@ -30,7 +30,7 @@ public final class CoveragePercentage
 
       double percentage = 100.0 * coveredCount / totalCount;
       //noinspection NumericCastThatLosesPrecision
-      int green = (int) (0xFF * percentage / 100 + 0.5);
+      int green = (int) (0xFF * percentage / 100.0 + 0.5);
       int red = 0xFF - green;
 
       StringBuilder color = new StringBuilder(6);
@@ -41,7 +41,7 @@ public final class CoveragePercentage
       return color.toString();
    }
 
-   private static void appendColorInHexadecimal(@Nonnull StringBuilder colorInHexa, int rgb) {
+   private static void appendColorInHexadecimal(@Nonnull StringBuilder colorInHexa, @Nonnegative int rgb) {
       String hex = Integer.toHexString(rgb);
 
       if (hex.length() == 1) {

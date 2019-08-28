@@ -68,12 +68,12 @@ public final class CallPoint implements Serializable
    }
 
    @Nonnull private final StackTraceElement ste;
-   private int repetitionCount;
+   @Nonnegative private int repetitionCount;
 
    private CallPoint(@Nonnull StackTraceElement ste) { this.ste = ste; }
 
    @Nonnull public StackTraceElement getStackTraceElement() { return ste; }
-   public int getRepetitionCount() { return repetitionCount; }
+   @Nonnegative public int getRepetitionCount() { return repetitionCount; }
 
    public void incrementRepetitionCount() { repetitionCount++; }
 

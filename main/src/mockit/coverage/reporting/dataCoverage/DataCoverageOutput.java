@@ -13,7 +13,7 @@ public final class DataCoverageOutput
 {
    @Nonnull private final StringBuilder openingTag;
    @Nonnull private final PerFileDataCoverage coverageInfo;
-   private int nextField;
+   @Nonnegative private int nextField;
    @Nullable private String classAndFieldNames;
    @Nullable private String className;
    @Nullable private String fieldName;

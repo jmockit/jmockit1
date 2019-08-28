@@ -11,8 +11,8 @@ public abstract class FieldData implements Serializable
 {
    private static final long serialVersionUID = 8565599590976858508L;
 
-   int readCount;
-   int writeCount;
+   @Nonnegative int readCount;
+   @Nonnegative int writeCount;
    @Nullable Boolean covered;
 
    private void writeObject(@Nonnull ObjectOutputStream out) throws IOException {
@@ -20,8 +20,8 @@ public abstract class FieldData implements Serializable
       out.defaultWriteObject();
    }
 
-   public final int getReadCount() { return readCount; }
-   public final int getWriteCount() { return writeCount; }
+   @Nonnegative public final int getReadCount()  { return readCount; }
+   @Nonnegative public final int getWriteCount() { return writeCount; }
 
    public final boolean isCovered() {
       if (covered == null) {

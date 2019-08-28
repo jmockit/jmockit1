@@ -40,7 +40,7 @@ public final class LineCoverageOutput
       return true;
    }
 
-   private void writeLineExecutionCount(int lineExecutionCount) {
+   private void writeLineExecutionCount(@Nonnegative int lineExecutionCount) {
       output.write("<td class='ct'>");
       output.print(lineExecutionCount);
       output.println("</td>");
