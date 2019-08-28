@@ -51,11 +51,6 @@ public final class Label
    }
 
    /**
-    * Field used to associate user information to a label.
-    */
-   @Nullable public Object info;
-
-   /**
     * Flags that indicate the {@link Status Status} of this label.
     */
    private int status;
@@ -64,6 +59,11 @@ public final class Label
     * The line number corresponding to this label, if known.
     */
    @Nonnegative public int line;
+
+   /**
+    * Line number of label which is the target of a JMP instruction.
+    */
+   @Nonnegative public int jumpTargetLine;
 
    /**
     * The position of this label in the code, if known.
@@ -141,7 +141,7 @@ public final class Label
     * The next basic block in the basic block stack.
     * This stack is used in the main loop of the fix point algorithm used in the second step of the control flow analysis algorithms.
     */
-   @Nullable Label next;
+   @Nullable Label next; // TODO: replace with List<Label> in CFGAnalysis
 
    /**
     * Returns the {@link #frame} this basic block belongs to, if any.
