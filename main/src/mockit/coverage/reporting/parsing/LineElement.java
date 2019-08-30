@@ -49,14 +49,14 @@ public final class LineElement implements Iterable<LineElement>
       this.text = OPEN_TAG.matcher(text).replaceAll("&lt;");
    }
 
-   public boolean isCode() { return type == ElementType.CODE; }
+   public boolean isCode()    { return type == ElementType.CODE; }
    public boolean isComment() { return type == ElementType.COMMENT; }
 
    public boolean isKeyword(@Nonnull String keyword) {
       return isCode() && text.equals(keyword);
    }
 
-   public boolean isDotSeparator() {
+   boolean isDotSeparator() {
       return type == ElementType.SEPARATOR && text.charAt(0) == '.';
    }
 
@@ -151,7 +151,11 @@ public final class LineElement implements Iterable<LineElement>
    public boolean isBranchingElement() {
       if (conditionalStatement == ConditionalStatement.FOR) {
          int p = text.indexOf(':');
-         if (p < 0) p = text.indexOf(';');
+
+         if (p < 0) {
+            p = text.indexOf(';');
+         }
+
          return p >= 0 && text.trim().length() == 1;
       }
 
@@ -188,7 +192,7 @@ public final class LineElement implements Iterable<LineElement>
       return null;
    }
 
-   public int getBraceBalanceUntilEndOfLine() {
+   int getBraceBalanceUntilEndOfLine() {
       int balance = 0;
 
       for (LineElement element : this) {

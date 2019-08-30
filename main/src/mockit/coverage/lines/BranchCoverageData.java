@@ -21,7 +21,13 @@ public final class BranchCoverageData extends LineSegmentData
 
    BranchCoverageData(@Nonnull Label label) { this.label = label; }
 
-   int getLine() { return label.info == null ? label.line : (Integer) label.info; }
+   @Override
+   public boolean isEmpty() {
+      return empty || label.line == 0 && label.jumpTargetLine == 0;
+   }
+
+   @Nonnegative
+   int getLine() { return label.jumpTargetLine == 0 ? label.line : label.jumpTargetLine; }
 
    private void readObject(@Nonnull ObjectInputStream in) throws IOException, ClassNotFoundException {
       label = new Label();

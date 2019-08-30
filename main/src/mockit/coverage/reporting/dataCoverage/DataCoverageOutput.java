@@ -13,7 +13,7 @@ public final class DataCoverageOutput
 {
    @Nonnull private final StringBuilder openingTag;
    @Nonnull private final PerFileDataCoverage coverageInfo;
-   private int nextField;
+   @Nonnegative private int nextField;
    @Nullable private String classAndFieldNames;
    @Nullable private String className;
    @Nullable private String fieldName;
@@ -68,7 +68,7 @@ public final class DataCoverageOutput
       boolean staticField = staticData != null;
       openingTag.append(staticField ? "static" : "instance");
 
-      openingTag.append(coverageInfo.isCovered(classAndFieldNames) ? " covered" : " uncovered");
+      openingTag.append(coverageInfo.isCovered(classAndFieldNames) ? " cvd" : " uncvd");
 
       InstanceFieldData instanceData = coverageInfo.getInstanceFieldData(classAndFieldNames);
 

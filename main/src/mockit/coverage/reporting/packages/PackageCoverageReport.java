@@ -50,8 +50,8 @@ final class PackageCoverageReport extends ListWithFilesAndPercentages
 
       writeRowStart();
       printIndent();
-      output.write("  <td class='file ");
-      output.write(fileData.kindOfTopLevelType != null ? fileData.kindOfTopLevelType : "class");
+      output.write("  <td class='");
+      output.write(fileData.kindOfTopLevelType != null ? fileData.kindOfTopLevelType : "cls");
       output.write("'>");
 
       int fileNameLength = buildFileNameWithTrailingSpaces(fileName);
@@ -75,7 +75,7 @@ final class PackageCoverageReport extends ListWithFilesAndPercentages
          output.write(fileNameWithSpaces);
       }
       else {
-         output.write("<a target='_blank' href='");
+         output.write("<a href='");
          int p = filePath.lastIndexOf('.');
          output.write(filePath.substring(0, p));
          output.write(".html'>");
@@ -97,7 +97,4 @@ final class PackageCoverageReport extends ListWithFilesAndPercentages
 
       printCoveragePercentage(covered, total, percentage);
    }
-
-   @Override
-   protected void writeClassAttributeForCoveragePercentageCell() {}
 }

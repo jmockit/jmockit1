@@ -3,8 +3,8 @@ package petclinic.vets;
 import java.util.*;
 import static java.util.Arrays.*;
 
-import org.junit.*;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import petclinic.util.*;
 
@@ -12,13 +12,13 @@ import petclinic.util.*;
  * Integration tests for {@link Vet}-related operations, at the application service level.
  * Each test runs in a database transaction that is rolled back at the end of the test.
  */
-public final class VetScreenTest
+final class VetScreenTest
 {
    @TestUtil VetData vetData;
    @SUT VetScreen vetScreen;
 
    @Test
-   public void findVets() {
+   void findVets() {
       Vet vet2 = vetData.create("Helen Leary", "radiology");
       Vet vet0 = vetData.create("James Carter");
       Vet vet1 = vetData.create("Linda Douglas", "surgery", "dentistry");

@@ -22,21 +22,30 @@ public final class CallPoint implements Serializable
    private static final boolean checkIfTestCaseSubclass;
 
    static {
-      boolean checkOnClassAlso = true;
-      Class<?> annotation;
+      Class<?> annotation = getJUnitAnnotationIfAvailable();
+      boolean checkOnClassAlso = false;
 
-      try {
-         annotation = Class.forName("org.junit.Test");
-         checkOnClassAlso = false;
-      }
-      catch (ClassNotFoundException ignore) {
+      if (annotation == null) {
          annotation = getTestNGAnnotationIfAvailable();
+         checkOnClassAlso = true;
       }
 
       //noinspection unchecked
       testAnnotation = (Class<? extends Annotation>) annotation;
       checkTestAnnotationOnClass = checkOnClassAlso;
       checkIfTestCaseSubclass = checkForJUnit3Availability();
+   }
+
+   @Nullable
+   private static Class<?> getJUnitAnnotationIfAvailable() {
+      try {
+         // JUnit 5:
+         return Class.forName("org.junit.jupiter.api.Test");
+      }
+      catch (ClassNotFoundException ignore) {
+         // JUnit 4:
+         try { return Class.forName("org.junit.Test"); } catch (ClassNotFoundException ignored) { return null; }
+      }
    }
 
    @Nullable
@@ -59,12 +68,12 @@ public final class CallPoint implements Serializable
    }
 
    @Nonnull private final StackTraceElement ste;
-   private int repetitionCount;
+   @Nonnegative private int repetitionCount;
 
    private CallPoint(@Nonnull StackTraceElement ste) { this.ste = ste; }
 
    @Nonnull public StackTraceElement getStackTraceElement() { return ste; }
-   public int getRepetitionCount() { return repetitionCount; }
+   @Nonnegative public int getRepetitionCount() { return repetitionCount; }
 
    public void incrementRepetitionCount() { repetitionCount++; }
 
@@ -98,24 +107,21 @@ public final class CallPoint implements Serializable
    }
 
    private static boolean isTestMethod(@Nonnull StackTraceElement ste) {
-      String className = ste.getClassName();
-      String methodName = ste.getMethodName();
-
-      if (className == null || methodName == null) {
-         return false;
-      }
-
-      if (steCache.containsKey(ste)){
+      if (steCache.containsKey(ste)) {
          return steCache.get(ste);
       }
 
       boolean isTestMethod = false;
 
-      if (ste.getFileName() != null && ste.getLineNumber() >= 0 && !isClassInExcludedPackage(className)) {
-         Class<?> aClass = loadClass(className);
+      if (ste.getFileName() != null && ste.getLineNumber() >= 0) {
+         String className = ste.getClassName();
 
-         if (aClass != null) {
-            isTestMethod = isTestMethod(aClass, methodName);
+         if (!isClassInExcludedPackage(className)) {
+            Class<?> aClass = loadClass(className);
+
+            if (aClass != null) {
+               isTestMethod = isTestMethod(aClass, ste.getMethodName());
+            }
          }
       }
 

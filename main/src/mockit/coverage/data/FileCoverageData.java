@@ -31,7 +31,7 @@ public final class FileCoverageData implements Serializable
    @Nullable public String kindOfTopLevelType;
 
    // Used to track the last time the ".class" file was modified, to decide if merging can be done.
-   long lastModified;
+   @Nonnegative long lastModified;
 
    private final boolean loadedAfterTestCompletion;
 

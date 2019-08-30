@@ -29,8 +29,8 @@ final class MockedClassModifier extends BaseClassModifier
    private static final int PUBLIC_OR_PROTECTED = PUBLIC + PROTECTED;
 
    @Nullable private final MockedType mockedType;
-   private final boolean classFromNonBootstrapClassLoader;
    private String className;
+   private String methodSignature;
    @Nullable private String baseClassNameForCapturedInstanceMethods;
    @Nonnull private ExecutionMode executionMode;
    private boolean isProxy;
@@ -40,7 +40,6 @@ final class MockedClassModifier extends BaseClassModifier
    MockedClassModifier(@Nullable ClassLoader classLoader, @Nonnull ClassReader classReader, @Nullable MockedType typeMetadata) {
       super(classReader);
       mockedType = typeMetadata;
-      classFromNonBootstrapClassLoader = classLoader != null;
       setUseClassLoadingBridge(classLoader);
       executionMode = typeMetadata != null && typeMetadata.injectable ? ExecutionMode.PerInstance : ExecutionMode.Regular;
    }
@@ -62,7 +61,6 @@ final class MockedClassModifier extends BaseClassModifier
 
       if (isProxy) {
          className = additionalInfo.interfaces[0];
-         defaultFilters = null;
       }
       else {
          className = name;
@@ -71,6 +69,10 @@ final class MockedClassModifier extends BaseClassModifier
          if (defaultFilters != null && defaultFilters.isEmpty()) {
             throw VisitInterruptedException.INSTANCE;
          }
+      }
+
+      if (baseClassNameForCapturedInstanceMethods != null) {
+         className = baseClassNameForCapturedInstanceMethods;
       }
    }
 
@@ -105,53 +107,38 @@ final class MockedClassModifier extends BaseClassModifier
 
    @Nullable @Override
    public MethodVisitor visitMethod(
-      int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nullable String[] exceptions
+      final int access, @Nonnull final String name, @Nonnull final String desc, @Nullable final String signature,
+      @Nullable String[] exceptions
    ) {
       if ((access & METHOD_ACCESS_MASK) != 0) {
          return unmodifiedBytecode(access, name, desc, signature, exceptions);
       }
 
-      boolean visitingConstructor = "<init>".equals(name);
-      String internalClassName = className;
+      methodSignature = signature;
 
-      if (visitingConstructor) {
+      if ("<init>".equals(name)) {
          if (isConstructorNotAllowedByMockingFilters(name)) {
             return unmodifiedBytecode(access, name, desc, signature, exceptions);
          }
-
-         startModifiedMethodVersion(access, name, desc, signature, exceptions);
-         generateCallToSuperConstructor();
       }
       else {
-         if (isMethodNotToBeMocked(access, name, desc)) {
-            return unmodifiedBytecode(access, name, desc, signature, exceptions);
-         }
-
          if (stubOutFinalizeMethod(access, name, desc)) {
             return null;
          }
 
-         if (isMethodNotAllowedByMockingFilters(access, name)) {
+         if (isMethodNotToBeMocked(access, name, desc) || isMethodNotAllowedByMockingFilters(access, name)) {
             return unmodifiedBytecode(access, name, desc, signature, exceptions);
          }
-
-         startModifiedMethodVersion(access, name, desc, signature, exceptions);
-
-         if (baseClassNameForCapturedInstanceMethods != null) {
-            internalClassName = baseClassNameForCapturedInstanceMethods;
-         }
       }
 
-      if (useClassLoadingBridge) {
-         return generateCallToHandlerThroughMockingBridge(signature, internalClassName, visitingConstructor);
+      startModifiedMethodVersion(access, name, desc, signature, exceptions);
+
+      if (isNative(methodAccess)) {
+         generateEmptyImplementation(methodDesc);
+         return methodAnnotationsVisitor;
       }
 
-      generateDirectCallToHandler(internalClassName, access, name, desc, signature, executionMode);
-      generateDecisionBetweenReturningOrContinuingToRealImplementation();
-
-      // Constructors of non-JRE classes can't be modified (unless running with "-noverify") in a way that
-      // "super(...)/this(...)" get called twice, so we disregard such calls when copying the original bytecode.
-      return copyOriginalImplementationCode(visitingConstructor);
+      return copyOriginalImplementationWithInjectedInterceptionCode();
    }
 
    @Nonnull
@@ -191,10 +178,19 @@ final class MockedClassModifier extends BaseClassModifier
          isUnmockableInvocation(defaultFilters, name);
    }
 
-   @Nonnull
-   private MethodVisitor generateCallToHandlerThroughMockingBridge(
-      @Nullable String genericSignature, @Nonnull String internalClassName, boolean visitingConstructor
-   ) {
+   @Override
+   protected void generateInterceptionCode() {
+      if (useClassLoadingBridge) {
+         generateCallToHandlerThroughMockingBridge();
+      }
+      else {
+         generateDirectCallToHandler(className, methodAccess, methodName, methodDesc, methodSignature, executionMode);
+      }
+
+      generateDecisionBetweenReturningOrContinuingToRealImplementation();
+   }
+
+   private void generateCallToHandlerThroughMockingBridge() {
       generateCodeToObtainInstanceOfClassLoadingBridge(MockedBridge.MB);
 
       // First and second "invoke" arguments:
@@ -207,21 +203,14 @@ final class MockedClassModifier extends BaseClassModifier
 
       int i = 0;
       generateCodeToFillArrayElement(i++, methodAccess);
-      generateCodeToFillArrayElement(i++, internalClassName);
+      generateCodeToFillArrayElement(i++, className);
       generateCodeToFillArrayElement(i++, methodName);
       generateCodeToFillArrayElement(i++, methodDesc);
-      generateCodeToFillArrayElement(i++, genericSignature);
+      generateCodeToFillArrayElement(i++, methodSignature);
       generateCodeToFillArrayElement(i++, executionMode.ordinal());
 
       generateCodeToFillArrayWithParameterValues(argTypes, i, isStatic ? 0 : 1);
       generateCallToInvocationHandler();
-
-      generateDecisionBetweenReturningOrContinuingToRealImplementation();
-
-      // Copies the entire original implementation even for a constructor, in which case the complete bytecode inside
-      // the constructor fails the strict verification activated by "-Xfuture". However, this is necessary to allow the
-      // full execution of a bootstrap class constructor when the call was not meant to be mocked.
-      return copyOriginalImplementationCode(visitingConstructor && classFromNonBootstrapClassLoader);
    }
 
    private void generateDecisionBetweenReturningOrContinuingToRealImplementation() {

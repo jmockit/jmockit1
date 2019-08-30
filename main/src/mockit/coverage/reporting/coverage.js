@@ -1,4 +1,5 @@
-function showHide(callPoints, listIndex) {
+// showHide
+function sh(callPoints, listIndex) {
    var tableCell = callPoints.parentNode;
 
    if (listIndex >= 0) {
@@ -25,7 +26,8 @@ function showHideAllFiles() {
    }
 }
 
-function showHideFiles(files) {
+// showHideFiles
+function shFls(files) {
    var filesCell = files.parentNode.cells[1];
    var filesTable = filesCell.getElementsByTagName('table')[0];
    var fileCount = filesCell.getElementsByTagName('span')[0];
@@ -41,7 +43,8 @@ function showHideFiles(files) {
    }
 }
 
-function showHideLines(cell) {
+// showHideLines
+function shLns(cell) {
    var content = cell.children;
    var expanded = content[0].style;
    var collapsed = content[1].style;
@@ -76,12 +79,12 @@ function sortRows(tbl) {
    var endRow = tbl.rows.length;
 
    if (tbl.id == 'packages') {
-      metricCol = 1;
+      metricCol = 2;
       startRow = 1;
       endRow--;
    }
    else {
-      metricCol = 0;
+      metricCol = 1;
    }
 
    var rs = new Array();

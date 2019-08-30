@@ -136,7 +136,8 @@ public final class PerFileDataCoverage implements PerFileCoverage
          return -1;
       }
 
-      return CoveragePercentage.calculate(getCoveredItems(), totalFields);
+      int coveredFields = getCoveredItems();
+      return CoveragePercentage.calculate(coveredFields, totalFields);
    }
 
    public void mergeInformation(@Nonnull PerFileDataCoverage previousInfo) {

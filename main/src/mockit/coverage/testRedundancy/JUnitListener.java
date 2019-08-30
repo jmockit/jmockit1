@@ -6,6 +6,8 @@ package mockit.coverage.testRedundancy;
 
 import java.lang.reflect.*;
 
+import javax.annotation.*;
+
 import org.junit.runner.*;
 import org.junit.runner.notification.*;
 
@@ -13,13 +15,14 @@ import org.junit.runner.notification.*;
 public final class JUnitListener extends RunListener
 {
    @Override
-   public void testStarted(Description description) {
+   public void testStarted(@Nonnull Description description) {
       if (description.isTest()) {
          Class<?> testClass = description.getTestClass();
          String testMethodName = description.getMethodName();
 
          for (Method testMethod : testClass.getDeclaredMethods()) {
             if (testMethod.getName().equals(testMethodName)) {
+               //noinspection ConstantConditions
                TestCoverage.INSTANCE.setCurrentTestMethod(testMethod);
                return;
             }
@@ -28,8 +31,9 @@ public final class JUnitListener extends RunListener
    }
 
    @Override
-   public void testFinished(Description description) {
+   public void testFinished(@Nonnull Description description) {
       if (description.isTest()) {
+         //noinspection ConstantConditions
          TestCoverage.INSTANCE.setCurrentTestMethod(null);
       }
    }

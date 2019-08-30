@@ -20,8 +20,7 @@ final class LineSegmentsFormatter
 
    // Helper fields:
    private int lineNumber;
-   private int segmentIndex;
-   private LineSegmentData segmentData;
+   @Nonnegative private int segmentIndex;
    @Nullable private LineElement element;
 
    LineSegmentsFormatter(boolean withCallPoints, @Nonnull StringBuilder formattedLine) {
@@ -38,13 +37,12 @@ final class LineSegmentsFormatter
       element = lineParser.getInitialElement().appendUntilNextCodeElement(formattedLine);
 
       segmentIndex = 0;
-      segmentData = lineData;
-      appendUntilNextBranchingPoint();
+      appendUntilNextBranchingPoint(lineData);
 
       while (element != null && segmentIndex < numSegments) {
-         segmentData = segmentIndex == 0 ? lineData : branchData.get(segmentIndex - 1);
+         LineSegmentData segmentData = segmentIndex == 0 ? lineData : branchData.get(segmentIndex - 1);
          element = element.appendUntilNextCodeElement(formattedLine);
-         appendUntilNextBranchingPoint();
+         appendUntilNextBranchingPoint(segmentData);
       }
 
       if (element != null) {
@@ -58,12 +56,12 @@ final class LineSegmentsFormatter
       }
    }
 
-   private void appendUntilNextBranchingPoint() {
+   private void appendUntilNextBranchingPoint(@Nonnull LineSegmentData segmentData) {
       if (element != null) {
          LineElement firstElement = element;
          element = element.findNextBranchingPoint();
 
-         appendToFormattedLine(firstElement);
+         appendToFormattedLine(segmentData, firstElement);
 
          if (element != null && element.isBranchingElement()) {
             formattedLine.append(element.getText());
@@ -72,34 +70,34 @@ final class LineSegmentsFormatter
       }
    }
 
-   private void appendToFormattedLine(@Nonnull LineElement firstElement) {
+   private void appendToFormattedLine(@Nonnull LineSegmentData segmentData, @Nonnull LineElement firstElement) {
       if (firstElement != element) {
-         appendStartTag();
+         appendStartTag(segmentData);
          firstElement.appendAllBefore(formattedLine, element);
-         appendEndTag();
+         appendEndTag(segmentData);
 
          segmentIndex++;
       }
    }
 
-   private void appendStartTag() {
+   private void appendStartTag(@Nonnull LineSegmentData segmentData) {
       formattedLine.append("<span id='l").append(lineNumber).append('s').append(segmentIndex);
       formattedLine.append("' title='Executions: ").append(segmentData.getExecutionCount()).append("' ");
 
       if (segmentData.isCovered()) {
          if (segmentData.containsCallPoints()) {
-            formattedLine.append("class='covered cp' onclick='showHide(this,").append(segmentIndex).append(")'>");
+            formattedLine.append("class='cvd cp' onclick='sh(this,").append(segmentIndex).append(")'>");
          }
          else {
-            formattedLine.append("class='covered'>");
+            formattedLine.append("class='cvd'>");
          }
       }
       else {
-         formattedLine.append("class='uncovered'>");
+         formattedLine.append("class='uncvd'>");
       }
    }
 
-   private void appendEndTag() {
+   private void appendEndTag(@Nonnull LineSegmentData segmentData) {
       int i = formattedLine.length() - 1;
 
       while (isWhitespace(formattedLine.charAt(i))) {

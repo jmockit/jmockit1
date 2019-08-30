@@ -4,10 +4,9 @@ import java.util.*;
 import javax.validation.ValidationException;
 import static java.util.Arrays.*;
 
-import org.junit.*;
-import org.junit.rules.*;
-import static org.junit.Assert.*;
-import static org.junit.Assume.*;
+import org.junit.jupiter.api.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.*;
 
 import petclinic.owners.*;
 import petclinic.util.*;
@@ -16,15 +15,14 @@ import petclinic.util.*;
  * Integration tests for {@link Pet}-related operations, at the application service level.
  * Each test runs in a database transaction that is rolled back at the end of the test.
  */
-public final class PetScreenTest
+final class PetScreenTest
 {
-   @Rule public final ExpectedException thrown = ExpectedException.none();
    @TestUtil OwnerData ownerData;
    @TestUtil PetData petData;
    @SUT PetScreen petScreen;
 
    @Test
-   public void findAllPetTypes() {
+   void findAllPetTypes() {
       PetType type1 = petData.createType("type1");
       PetType type2 = petData.createType("Another type");
 
@@ -38,7 +36,7 @@ public final class PetScreenTest
    }
 
    @Test
-   public void createPetWithGeneratedId() {
+   void createPetWithGeneratedId() {
       String petName = "bowser";
       Owner owner = ownerData.create("The Owner");
       assumeTrue(owner.getPet(petName) == null);
@@ -61,7 +59,7 @@ public final class PetScreenTest
    }
 
    @Test
-   public void attemptToCreatePetWithDuplicateNameForSameOwner() {
+   void attemptToCreatePetWithDuplicateNameForSameOwner() {
       Owner owner = ownerData.create("The Owner");
       petScreen.selectOwner(owner.getId());
       Date birthDate = new GregorianCalendar(2005, Calendar.AUGUST, 6).getTime();
@@ -71,21 +69,20 @@ public final class PetScreenTest
       Pet secondPet = petScreen.getPet();
       secondPet.setName(ownedPet.getName());
 
-      thrown.expect(ValidationException.class);
-      thrown.expectMessage("owner already has a pet with this name");
+      ValidationException thrown = assertThrows(ValidationException.class, () -> petScreen.createOrUpdatePet());
 
-      petScreen.createOrUpdatePet();
+      assertTrue(thrown.getMessage().contains("owner already has a pet with this name"));
    }
 
    @Test
-   public void attemptToCreatePetWithoutAnOwnerHavingBeenSelected() {
+   void attemptToCreatePetWithoutAnOwnerHavingBeenSelected() {
       petScreen.createOrUpdatePet();
 
       assertNull(petScreen.getPet());
    }
 
    @Test
-   public void updatePetName() {
+   void updatePetName() {
       Date birthDate = new GregorianCalendar(2005, Calendar.AUGUST, 6).getTime();
       Pet pet = petData.create("Pet", birthDate, "cat");
       petScreen.selectPet(pet.getId());

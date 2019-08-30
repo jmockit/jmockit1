@@ -6,10 +6,10 @@ import javax.persistence.*;
 import javax.sql.*;
 
 import org.junit.*;
-import org.junit.runners.*;
 import static org.junit.Assert.*;
+import static org.junit.runners.MethodSorters.*;
 
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+@FixMethodOrder(NAME_ASCENDING)
 public final class TestedClassWithFullDITest
 {
    public static class TestedClass {
@@ -135,5 +135,14 @@ public final class TestedClassWithFullDITest
       // until the end of the test run; therefore, the assertion needs to allow for that.
       assertTrue(tested6.emFactory == null || tested6.emFactory.getClass().getName().contains("FakeEntityManagerFactory"));
       assertNull(tested6.em);
+   }
+
+   static class ClassWithUnsatisfiableConstructor { ClassWithUnsatisfiableConstructor(@SuppressWarnings("unused") int someValue) {} }
+   static class ClassWithFieldToInject { ClassWithUnsatisfiableConstructor dependency; }
+
+   @Test
+   public void instantiateClassWithFieldToInjectWhoseTypeCannotBeInstantiated(@Tested(fullyInitialized = true) ClassWithFieldToInject cut) {
+      assertNotNull(cut);
+      assertNull(cut.dependency);
    }
 }

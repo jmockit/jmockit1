@@ -26,7 +26,7 @@ final class LineCoverageFormatter
 
    String format(@Nonnull LineParser lineParser, @Nonnull PerFileLineCoverage lineCoverageData) {
       formattedLine.setLength(0);
-      formattedLine.append("<pre class='prettyprint");
+      formattedLine.append("<pre class='pp");
 
       int line = lineParser.getNumber();
       LineCoverageData lineData = lineCoverageData.getLineData(line);
@@ -47,12 +47,12 @@ final class LineCoverageFormatter
    }
 
    private void formatLineWithSingleSegment(@Nonnull LineParser lineParser, @Nonnull LineCoverageData lineData) {
-      formattedLine.append(lineData.isCovered() ? " covered" : " uncovered");
+      formattedLine.append(lineData.isCovered() ? " cvd" : " uncvd");
 
       List<CallPoint> callPoints = lineData.getCallPoints();
 
       if (listOfCallPoints != null && callPoints != null) {
-         formattedLine.append(" cp' onclick='showHide(this)");
+         formattedLine.append(" cp' onclick='sh(this)");
       }
 
       formattedLine.append("' id='l").append(lineParser.getNumber()).append("s0'>");

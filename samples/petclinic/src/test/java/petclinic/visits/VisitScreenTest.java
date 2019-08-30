@@ -3,8 +3,8 @@ package petclinic.visits;
 import java.util.*;
 import static java.util.Arrays.*;
 
-import org.junit.*;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import petclinic.pets.*;
 import petclinic.util.*;
@@ -13,14 +13,14 @@ import petclinic.util.*;
  * Integration tests for {@link Visit}-related operations, at the application service level.
  * Each test runs in a database transaction that is rolled back at the end of the test.
  */
-public final class VisitScreenTest
+final class VisitScreenTest
 {
    @TestUtil PetData petData;
    @TestUtil VisitData visitData;
    @SUT VisitScreen visitScreen;
 
    @Test
-   public void showVisitsForSelectedPet() {
+   void showVisitsForSelectedPet() {
       Visit v1 = visitData.create("Visit 1 for pet");
       Visit v2 = visitData.create("Visit 2 for pet");
       visitScreen.selectPet(v1.getPet().getId());
@@ -32,14 +32,14 @@ public final class VisitScreenTest
    }
 
    @Test
-   public void attemptToShowVisitsWithoutFirstSelectingAPet() {
+   void attemptToShowVisitsWithoutFirstSelectingAPet() {
       visitScreen.showVisits();
 
       assertNull(visitScreen.getVisits());
    }
 
    @Test
-   public void attemptToSelectVisitWithNonExistingId() {
+   void attemptToSelectVisitWithNonExistingId() {
       Visit visit = visitData.create("Visit 1 for pet");
       visitScreen.selectVisit(visit.getId());
 
@@ -50,7 +50,7 @@ public final class VisitScreenTest
    }
 
    @Test
-   public void addNewVisitForPet() {
+   void addNewVisitForPet() {
       Pet pet = petData.create("Samantha", null, "hamster");
 
       visitScreen.requestNewVisit();
@@ -70,7 +70,7 @@ public final class VisitScreenTest
    }
 
    @Test
-   public void updateExistingVisit() {
+   void updateExistingVisit() {
       Visit visit = visitData.create();
       visitScreen.selectVisit(visit.getId());
 
@@ -86,14 +86,14 @@ public final class VisitScreenTest
    }
 
    @Test
-   public void attemptToCreateOrUpdateVisitWithoutFirstSelectingAPet() {
+   void attemptToCreateOrUpdateVisitWithoutFirstSelectingAPet() {
       visitScreen.createOrUpdateVisit();
 
       assertNull(visitScreen.getVisit());
    }
 
    @Test
-   public void attemptToUpdateVisitWithoutFirstSelectingAVisit() {
+   void attemptToUpdateVisitWithoutFirstSelectingAVisit() {
       Pet pet = petData.create("Samantha", null, "hamster");
       visitScreen.selectPet(pet.getId());
 

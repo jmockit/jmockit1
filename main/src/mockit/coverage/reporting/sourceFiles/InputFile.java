@@ -68,7 +68,7 @@ public final class InputFile
       return null;
    }
 
-   private static void giveCurrentSourceDirHighestPriority(@Nonnull List<File> sourceDirs, int currentSourceDirIndex) {
+   private static void giveCurrentSourceDirHighestPriority(@Nonnull List<File> sourceDirs, @Nonnegative int currentSourceDirIndex) {
       if (currentSourceDirIndex > 0) {
          File firstSourceDir = sourceDirs.get(0);
          File currentSourceDir = sourceDirs.get(currentSourceDirIndex);

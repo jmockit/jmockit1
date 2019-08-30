@@ -18,8 +18,8 @@ import static mockit.internal.util.DefaultValues.*;
 abstract class TestedObject
 {
    @Nonnull private final InjectionState injectionState;
-   @Nonnull private final String testedName;
    @Nonnull final Tested metadata;
+   @Nonnull private final String testedName;
    @Nullable private final FullInjection fullInjection;
    @Nonnull private final TestedClass testedClass;
    @Nullable private final TestedObjectCreation testedObjectCreation;
@@ -40,8 +40,8 @@ abstract class TestedObject
       @Nonnull String testedName, @Nonnull Type testedType, @Nonnull Class<?> testedClass
    ) {
       this.injectionState = injectionState;
-      this.testedName = testedName;
       this.metadata = metadata;
+      this.testedName = testedName;
       fullInjection = metadata.fullyInitialized() ? new FullInjection(injectionState, testedClass, testedName) : null;
 
       if (testedClass.isInterface() || testedClass.isEnum() || testedClass.isPrimitive() || testedClass.isArray()) {
@@ -66,21 +66,22 @@ abstract class TestedObject
 
       Object testedObject = getExistingTestedInstanceIfApplicable(testClassInstance);
       Class<?> testedObjectClass = testedClass.targetClass;
+      InjectionPoint injectionPoint = new InjectionPoint(testedClass.declaredType, testedName);
 
       if (isNonInstantiableType(testedObjectClass, testedObject)) {
-         reusePreviouslyCreatedInstance(testClassInstance);
+         reusePreviouslyCreatedInstance(testClassInstance, injectionPoint);
          return;
       }
 
       if (testedObject == null && createAutomatically) {
-         if (reusePreviouslyCreatedInstance(testClassInstance)) {
+         if (reusePreviouslyCreatedInstance(testClassInstance, injectionPoint)) {
             return;
          }
 
-         testedObject = createAndRegisterNewObject(testClassInstance);
+         testedObject = createAndRegisterNewObject(testClassInstance, injectionPoint);
       }
       else if (testedObject != null) {
-         registerTestedObject(testedObject);
+         registerTestedObject(injectionPoint, testedObject);
          testedObjectClass = testedObject.getClass();
       }
 
@@ -106,8 +107,8 @@ abstract class TestedObject
          );
    }
 
-   private boolean reusePreviouslyCreatedInstance(@Nonnull Object testClassInstance) {
-      Object previousInstance = injectionState.getTestedInstance(testedClass.declaredType, testedName);
+   private boolean reusePreviouslyCreatedInstance(@Nonnull Object testClassInstance, @Nonnull InjectionPoint injectionPoint) {
+      Object previousInstance = injectionState.getTestedInstance(injectionPoint, metadata.global());
 
       if (previousInstance != null) {
          setInstance(testClassInstance, previousInstance);
@@ -120,21 +121,23 @@ abstract class TestedObject
    abstract void setInstance(@Nonnull Object testClassInstance, @Nullable Object testedInstance);
 
    @Nullable
-   private Object createAndRegisterNewObject(@Nonnull Object testClassInstance) {
+   private Object createAndRegisterNewObject(@Nonnull Object testClassInstance, @Nonnull InjectionPoint injectionPoint) {
       Object testedInstance = null;
 
       if (testedObjectCreation != null) {
-         testedInstance = testedObjectCreation.create();
-         setInstance(testClassInstance, testedInstance);
-         registerTestedObject(testedInstance);
+         testedInstance = testedObjectCreation.create(false);
+
+         if (testedInstance != null) {
+            setInstance(testClassInstance, testedInstance);
+            registerTestedObject(injectionPoint, testedInstance);
+         }
       }
 
       return testedInstance;
    }
 
-   private void registerTestedObject(@Nonnull Object testedObject) {
-      InjectionPoint injectionPoint = new InjectionPoint(testedClass.declaredType, testedName);
-      injectionState.saveTestedObject(injectionPoint, testedObject);
+   private void registerTestedObject(@Nonnull InjectionPoint injectionPoint, @Nonnull Object testedObject) {
+      injectionState.saveTestedObject(injectionPoint, testedObject, metadata.global());
    }
 
    private void performFieldInjection(@Nonnull Class<?> targetClass, @Nonnull Object testedObject) {

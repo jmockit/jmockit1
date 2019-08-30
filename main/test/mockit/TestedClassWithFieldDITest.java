@@ -5,6 +5,13 @@ import static org.junit.Assert.*;
 
 public final class TestedClassWithFieldDITest
 {
+   @Tested TestedClassInGlobalScopeTest.TestedClass testedGlobal;
+
+   @Test
+   public void useLocalTestedFieldHavingSameTypeAndNameAsGlobalTestedFieldInPreviousTestClass() {
+      assertNull(testedGlobal.someValue);
+   }
+
    static final class UtilityClass {
       String name;
       int id;

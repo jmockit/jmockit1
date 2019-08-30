@@ -7,6 +7,8 @@ package mockit.coverage.dataItems;
 import java.util.*;
 import javax.annotation.*;
 
+import static java.util.Collections.*;
+
 import mockit.internal.state.*;
 
 public final class InstanceFieldData extends FieldData
@@ -61,7 +63,7 @@ public final class InstanceFieldData extends FieldData
    @Nonnull
    public List<Integer> getOwnerInstancesWithUnreadAssignments() {
       if (isCovered()) {
-         return Collections.emptyList();
+         return emptyList();
       }
 
       Collection<List<Integer>> assignments = testIdsToAssignments.values();

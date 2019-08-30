@@ -71,7 +71,7 @@ public final class CoverageData implements Serializable
    }
 
    @Nonnull public FileCoverageData getFileData(@Nonnull String file) { return fileToFileData.get(file); }
-   @Nonnull public FileCoverageData getFileData(int fileIndex) { return indexedFileData.get(fileIndex); }
+   @Nonnull public FileCoverageData getFileData(@Nonnegative int fileIndex) { return indexedFileData.get(fileIndex); }
 
    public boolean isEmpty() { return fileToFileData.isEmpty(); }
    public void clear() { fileToFileData.clear(); }

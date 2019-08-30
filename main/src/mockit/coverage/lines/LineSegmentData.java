@@ -17,15 +17,16 @@ public class LineSegmentData implements Serializable
 
    // Constant data:
    private boolean unreachable;
-   private boolean empty;
+   protected boolean empty;
 
    // Runtime data:
    @Nonnegative int executionCount;
    @Nullable private List<CallPoint> callPoints;
 
    public final void markAsUnreachable() { unreachable = true; }
+   final void markAsReachable() { unreachable = false; }
 
-   public final boolean isEmpty() { return empty; }
+   public boolean isEmpty() { return empty; }
    final void markAsEmpty() { empty = true; }
 
    final boolean acceptsAdditionalCallPoints() {

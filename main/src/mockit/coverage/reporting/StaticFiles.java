@@ -17,8 +17,8 @@ final class StaticFiles
 
    StaticFiles(@Nonnull String outputDir) { this.outputDir = outputDir; }
 
-   void copyToOutputDir(boolean forSourceFilePages) throws IOException {
-      copyFile("coverage.css");
+   void copyToOutputDir(boolean withSourceFilePages) throws IOException {
+      copyFile("index.css");
       copyFile("coverage.js");
       copyFile("logo.png");
       copyFile("package.png");
@@ -29,7 +29,8 @@ final class StaticFiles
       copyFile("exception.png");
       copyFile("enum.png");
 
-      if (forSourceFilePages) {
+      if (withSourceFilePages) {
+         copyFile("source.css");
          copyFile("prettify.js");
       }
    }

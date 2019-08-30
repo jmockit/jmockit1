@@ -42,7 +42,8 @@ public final class FileParser
       return true;
    }
 
-   @Nullable private LineElement findClassNameInNewClassDeclaration() {
+   @Nullable
+   private LineElement findClassNameInNewClassDeclaration() {
       LineElement previous = null;
 
       for (LineElement element : lineParser.getInitialElement()) {

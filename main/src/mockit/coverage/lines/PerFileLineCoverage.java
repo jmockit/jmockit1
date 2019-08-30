@@ -6,6 +6,7 @@ package mockit.coverage.lines;
 
 import java.io.*;
 import java.util.*;
+import java.util.Map.*;
 import javax.annotation.*;
 
 import mockit.coverage.*;
@@ -118,6 +119,7 @@ public final class PerFileLineCoverage implements PerFileCoverage
       return lineData.acceptsAdditionalCallPoints(branchIndex);
    }
 
+   @Nonnegative
    public int registerExecution(@Nonnegative int line, @Nonnegative int branchIndex, @Nullable CallPoint callPoint) {
       LineCoverageData lineData = lineToLineData.get(line);
       return lineData.registerExecution(branchIndex, callPoint);
@@ -140,6 +142,14 @@ public final class PerFileLineCoverage implements PerFileCoverage
 
       data.setExecutionCount(executionCounts[line]);
       return data;
+   }
+
+   public void markLineAsReachable(@Nonnegative int line) {
+      LineCoverageData data = lineToLineData.get(line);
+
+      if (data != null) {
+         data.markAsReachable();
+      }
    }
 
    public int getExecutionCount(@Nonnegative int line) {
@@ -214,7 +224,7 @@ public final class PerFileLineCoverage implements PerFileCoverage
       Map<Integer, LineCoverageData> previousInfo = previousCoverage.lineToLineData;
       boolean previousRunHadLinesExecuted = previousCoverage.executionCounts.length > 0;
 
-      for (Map.Entry<Integer, LineCoverageData> lineAndInfo : lineToLineData.entrySet()) {
+      for (Entry<Integer, LineCoverageData> lineAndInfo : lineToLineData.entrySet()) {
          Integer line = lineAndInfo.getKey();
          LineCoverageData previousLineInfo = previousInfo.get(line);
 
@@ -235,7 +245,7 @@ public final class PerFileLineCoverage implements PerFileCoverage
          }
       }
 
-      for (Map.Entry<Integer, LineCoverageData> lineAndInfo : previousInfo.entrySet()) {
+      for (Entry<Integer, LineCoverageData> lineAndInfo : previousInfo.entrySet()) {
          Integer line = lineAndInfo.getKey();
 
          if (!lineToLineData.containsKey(line)) {

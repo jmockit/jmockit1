@@ -30,8 +30,8 @@ public final class ConstructorInjection extends Injector
       this.constructor = constructor;
    }
 
-   @Nonnull
-   public Object instantiate(@Nonnull List<InjectionProvider> parameterProviders, @Nonnull TestedClass testedClass) {
+   @Nullable
+   public Object instantiate(@Nonnull List<InjectionProvider> parameterProviders, @Nonnull TestedClass testedClass, boolean required) {
       Type[] parameterTypes = constructor.getGenericParameterTypes();
       int n = parameterTypes.length;
       List<InjectionProvider> consumedInjectables = n == 0 ? null : injectionState.injectionProviders.saveConsumedInjectionProviders();
@@ -47,13 +47,17 @@ public final class ConstructorInjection extends Injector
          Object value;
 
          if (parameterProvider instanceof ConstructorParameter) {
-            value = createOrReuseArgumentValue((ConstructorParameter) parameterProvider);
+            value = createOrReuseArgumentValue((ConstructorParameter) parameterProvider, required);
+
+            if (value == null) {
+               return null;
+            }
          }
          else {
             value = getArgumentValueToInject(parameterProvider, i);
          }
 
-         if (value != null) {
+         if (value != NULL) {
             Type parameterType = parameterTypes[i];
             arguments[i] = wrapInProviderIfNeeded(parameterType, value);
          }
@@ -71,26 +75,33 @@ public final class ConstructorInjection extends Injector
       return invokeConstructor(arguments);
    }
 
-   @Nonnull
-   private Object createOrReuseArgumentValue(@Nonnull ConstructorParameter constructorParameter) {
+   @Nullable
+   private Object createOrReuseArgumentValue(@Nonnull ConstructorParameter constructorParameter, boolean required) {
       Object givenValue = constructorParameter.getValue(null);
 
       if (givenValue != null) {
          return givenValue;
       }
 
-      Type parameterType = constructorParameter.getDeclaredType();
-      KindOfInjectionPoint kindOfInjectionPoint = kindOfInjectionPoint(constructor);
-      injectionState.injectionProviders.setTypeOfInjectionPoint(parameterType, kindOfInjectionPoint);
-      String qualifiedName = getQualifiedName(constructorParameter.getAnnotations());
+      assert fullInjection != null;
 
       Class<?> parameterClass = constructorParameter.getClassOfDeclaredType();
-      TestedClass nextTestedClass = new TestedClass(parameterType, parameterClass);
+      Object newOrReusedValue = null;
 
-      assert fullInjection != null;
-      Object newOrReusedValue = fullInjection.createOrReuseInstance(nextTestedClass, this, constructorParameter, qualifiedName);
+      if (FullInjection.isInstantiableType(parameterClass)) {
+         Type parameterType = constructorParameter.getDeclaredType();
+         KindOfInjectionPoint kindOfInjectionPoint = kindOfInjectionPoint(constructor);
+         injectionState.injectionProviders.setTypeOfInjectionPoint(parameterType, kindOfInjectionPoint);
+         String qualifiedName = getQualifiedName(constructorParameter.getAnnotations());
+         TestedClass nextTestedClass = new TestedClass(parameterType, parameterClass);
 
-      if (newOrReusedValue == null) {
+         newOrReusedValue = fullInjection.createOrReuseInstance(nextTestedClass, this, constructorParameter, qualifiedName);
+      }
+      else {
+         fullInjection.setInjectionProvider(constructorParameter);
+      }
+
+      if (newOrReusedValue == null && required) {
          String parameterName = constructorParameter.getName();
          String message =
             "Missing @Tested or @Injectable" + missingValueDescription(parameterName) +
@@ -103,7 +114,7 @@ public final class ConstructorInjection extends Injector
       return newOrReusedValue;
    }
 
-   @Nullable
+   @Nonnull
    private Object getArgumentValueToInject(@Nonnull InjectionProvider injectable, int parameterIndex) {
       Object argument = injectionState.getValueToInject(injectable);
 
@@ -119,7 +130,7 @@ public final class ConstructorInjection extends Injector
          throw new IllegalArgumentException("No injectable value available" + missingValueDescription(parameterName));
       }
 
-      return argument == NULL ? null : argument;
+      return argument;
    }
 
    @Nonnull

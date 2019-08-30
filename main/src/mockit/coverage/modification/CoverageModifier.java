@@ -29,11 +29,6 @@ final class CoverageModifier extends WrappingClassVisitor
       return modifier == null ? null : modifier.toByteArray();
    }
 
-   @Nullable
-   static ClassReader createClassReader(@Nonnull Class<?> aClass) {
-      return ClassFile.createClassReader(aClass.getClassLoader(), aClass.getName().replace('.', '/'));
-   }
-
    @Nullable private String internalClassName;
    @Nullable private String simpleClassName;
    @Nonnull private String sourceFileName;
@@ -41,7 +36,6 @@ final class CoverageModifier extends WrappingClassVisitor
    private final boolean forInnerClass;
    private boolean forEnumClass;
    @Nullable private String kindOfTopLevelType;
-   private int currentLine;
 
    CoverageModifier(@Nonnull ClassReader cr) { this(cr, false); }
 
@@ -94,12 +88,12 @@ final class CoverageModifier extends WrappingClassVisitor
 
    @Nonnull
    private static String getKindOfJavaType(int typeModifiers, @Nonnull String superName) {
-      if ((typeModifiers & ANNOTATION) != 0) return "annotation";
-      if ((typeModifiers & INTERFACE) != 0) return "interface";
-      if ((typeModifiers & ENUM) != 0) return "enum";
-      if ((typeModifiers & ABSTRACT) != 0) return "abstractClass";
-      if (superName.endsWith("Exception") || superName.endsWith("Error")) return "exception";
-      return "class";
+      if ((typeModifiers & ANNOTATION) != 0) return "ant";
+      if ((typeModifiers & INTERFACE) != 0) return "itf";
+      if ((typeModifiers & ENUM) != 0) return "enm";
+      if ((typeModifiers & ABSTRACT) != 0) return "absCls";
+      if (superName.endsWith("Exception") || superName.endsWith("Error")) return "exc";
+      return "cls";
    }
 
    @Nonnull
@@ -212,12 +206,14 @@ final class CoverageModifier extends WrappingClassVisitor
       @Nonnull private final List<Label> jumpTargetsForCurrentLine;
       @Nonnull private final List<Integer> pendingBranches;
       @Nonnull private final PerFileLineCoverage lineCoverageInfo;
-      private int lineExpectingInstructionAfterJump;
+      @Nonnegative private int currentLine;
+      @Nonnegative private int lineExpectingInstructionAfterJump;
       boolean assertFoundInCurrentLine;
       boolean ignoreUntilNextLabel;
       @SuppressWarnings("unused") private boolean foundPotentialAssertFalse;
-      private int foundPotentialBooleanExpressionValue;
-      int ignoreUntilNextSwitch;
+      @Nonnegative private int foundPotentialBooleanExpressionValue;
+      private boolean foundInterestingInstruction;
+      @Nonnegative int ignoreUntilNextSwitch;
 
       BaseMethodModifier(@Nonnull MethodWriter mw) {
          super(mw);
@@ -262,7 +258,7 @@ final class CoverageModifier extends WrappingClassVisitor
       }
 
       @Override
-      public void visitJumpInsn(int opcode, @Nonnull Label label) {
+      public void visitJumpInsn(@Nonnegative int opcode, @Nonnull Label label) {
          if (
             currentLine == 0 || ignoreUntilNextLabel || ignoreUntilNextSwitch > 0 ||
             visitedLabels.contains(label) || !isConditionalJump(opcode)
@@ -279,7 +275,7 @@ final class CoverageModifier extends WrappingClassVisitor
 
          Label jumpingFrom = mw.getCurrentBlock();
          assert jumpingFrom != null;
-         jumpingFrom.info = currentLine;
+         jumpingFrom.jumpTargetLine = currentLine;
 
          if (!jumpTargetsForCurrentLine.contains(label)) {
             jumpTargetsForCurrentLine.add(label);
@@ -300,7 +296,7 @@ final class CoverageModifier extends WrappingClassVisitor
          lineExpectingInstructionAfterJump = currentLine;
       }
 
-      final boolean isConditionalJump(int opcode) { return opcode != GOTO; }
+      final boolean isConditionalJump(@Nonnegative int opcode) { return opcode != GOTO; }
 
       private void generateCallToRegisterBranchTargetExecutionIfPending() {
          if (ignoreUntilNextLabel || ignoreUntilNextSwitch > 0) {
@@ -349,7 +345,7 @@ final class CoverageModifier extends WrappingClassVisitor
          int jumpTargetIndex = jumpTargetsForCurrentLine.indexOf(label);
 
          if (jumpTargetIndex >= 0) {
-            label.info = label.line > 0 ? label.line : currentLine;
+            label.jumpTargetLine = label.line > 0 ? label.line : currentLine;
             int targetBranchIndex = 2 * jumpTargetIndex + 1;
             pendingBranches.add(targetBranchIndex);
             assertFoundInCurrentLine = false;
@@ -359,8 +355,17 @@ final class CoverageModifier extends WrappingClassVisitor
       }
 
       @Override
-      public void visitInsn(int opcode) {
-         if ((opcode == ICONST_0 || opcode == ICONST_1) && foundPotentialBooleanExpressionValue == 0) {
+      public void visitInsn(@Nonnegative int opcode) {
+         boolean isReturn = opcode >= IRETURN && opcode <= RETURN;
+
+         if (!isReturn && !isDefaultReturnValue(opcode)) {
+            foundInterestingInstruction = true;
+         }
+
+         if (isReturn && !foundInterestingInstruction && visitedLabels.size() == 1) {
+            lineCoverageInfo.getOrCreateLineData(currentLine).markAsUnreachable();
+         }
+         else if ((opcode == ICONST_0 || opcode == ICONST_1) && foundPotentialBooleanExpressionValue == 0) {
             generateCallToRegisterBranchTargetExecutionIfPending();
             foundPotentialBooleanExpressionValue = 1;
          }
@@ -371,26 +376,31 @@ final class CoverageModifier extends WrappingClassVisitor
          mw.visitInsn(opcode);
       }
 
+      private boolean isDefaultReturnValue(@Nonnegative int opcode) {
+         return opcode == ACONST_NULL || opcode == ICONST_0 || opcode == LCONST_0 || opcode == FCONST_0 || opcode == DCONST_0;
+      }
+
       @Override
-      public void visitIntInsn(int opcode, int operand) {
+      public void visitIntInsn(@Nonnegative int opcode, int operand) {
+         foundInterestingInstruction = true;
          generateCallToRegisterBranchTargetExecutionIfPending();
          mw.visitIntInsn(opcode, operand);
       }
 
       @Override
-      public void visitVarInsn(int opcode, @Nonnegative int varIndex) {
+      public void visitVarInsn(@Nonnegative int opcode, @Nonnegative int varIndex) {
          generateCallToRegisterBranchTargetExecutionIfPending();
          mw.visitVarInsn(opcode, varIndex);
       }
 
       @Override
-      public void visitTypeInsn(int opcode, @Nonnull String typeDesc) {
+      public void visitTypeInsn(@Nonnegative int opcode, @Nonnull String typeDesc) {
          generateCallToRegisterBranchTargetExecutionIfPending();
          mw.visitTypeInsn(opcode, typeDesc);
       }
 
       @Override
-      public void visitFieldInsn(int opcode, @Nonnull String owner, @Nonnull String name, @Nonnull String desc) {
+      public void visitFieldInsn(@Nonnegative int opcode, @Nonnull String owner, @Nonnull String name, @Nonnull String desc) {
          generateCallToRegisterBranchTargetExecutionIfPending();
          mw.visitFieldInsn(opcode, owner, name, desc);
 
@@ -403,7 +413,11 @@ final class CoverageModifier extends WrappingClassVisitor
       }
 
       @Override
-      public void visitMethodInsn(int opcode, @Nonnull String owner, @Nonnull String name, @Nonnull String desc, boolean itf) {
+      public void visitMethodInsn(@Nonnegative int opcode, @Nonnull String owner, @Nonnull String name, @Nonnull String desc, boolean itf) {
+         if (opcode != INVOKESPECIAL || !"()V".equals(desc)) {
+            foundInterestingInstruction = true;
+         }
+
          generateCallToRegisterBranchTargetExecutionIfPending();
          mw.visitMethodInsn(opcode, owner, name, desc, itf);
 
@@ -414,6 +428,7 @@ final class CoverageModifier extends WrappingClassVisitor
 
       @Override
       public void visitLdcInsn(@Nonnull Object cst) {
+         foundInterestingInstruction = true;
          generateCallToRegisterBranchTargetExecutionIfPending();
          mw.visitLdcInsn(cst);
       }
@@ -437,7 +452,7 @@ final class CoverageModifier extends WrappingClassVisitor
       }
 
       @Override
-      public void visitTableSwitchInsn(int min, int max, @Nonnull Label dflt, @Nonnull Label... labels) {
+      public void visitTableSwitchInsn(@Nonnegative int min, @Nonnegative int max, @Nonnull Label dflt, @Nonnull Label... labels) {
          generateCallToRegisterBranchTargetExecutionIfPending();
          mw.visitTableSwitchInsn(min, max, dflt, labels);
       }
@@ -447,13 +462,22 @@ final class CoverageModifier extends WrappingClassVisitor
          generateCallToRegisterBranchTargetExecutionIfPending();
          mw.visitMultiANewArrayInsn(desc, dims);
       }
+
+      @Override
+      public void visitMaxStack(@Nonnegative int maxStack) {
+         if (maxStack > 1) {
+            lineCoverageInfo.markLineAsReachable(currentLine);
+         }
+
+         mw.visitMaxStack(maxStack);
+      }
    }
 
    private class MethodOrConstructorModifier extends BaseMethodModifier {
       MethodOrConstructorModifier(@Nonnull MethodWriter mw) { super(mw); }
 
       @Override
-      public final void visitFieldInsn(int opcode, @Nonnull String owner, @Nonnull String name, @Nonnull String desc) {
+      public final void visitFieldInsn(@Nonnegative int opcode, @Nonnull String owner, @Nonnull String name, @Nonnull String desc) {
          // TODO: need to also process field instructions inside accessor methods (STATIC + SYNTHETIC, "access$nnn")
          boolean getField = opcode == GETSTATIC || opcode == GETFIELD;
          boolean isStatic = opcode == PUTSTATIC || opcode == GETSTATIC;
@@ -556,7 +580,7 @@ final class CoverageModifier extends WrappingClassVisitor
       StaticBlockModifier(@Nonnull MethodWriter mw) { super(mw); }
 
       @Override
-      public void visitMethodInsn(int opcode, @Nonnull String owner, @Nonnull String name, @Nonnull String desc, boolean itf) {
+      public void visitMethodInsn(@Nonnegative int opcode, @Nonnull String owner, @Nonnull String name, @Nonnull String desc, boolean itf) {
          // This is to ignore bytecode belonging to a static initialization block inserted in a regular line of code by the Java
          // compiler when the class contains at least one "assert" statement.
          // Otherwise, that line of code would always appear as partially covered when running with assertions enabled.

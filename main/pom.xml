@@ -3,7 +3,6 @@
    xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
    <modelVersion>4.0.0</modelVersion>
-
    <groupId>org.jmockit</groupId><artifactId>jmockit</artifactId><version>1.47_flydy</version>
    <packaging>jar</packaging>
 
@@ -51,7 +50,7 @@
          <resource>
             <directory>src</directory>
             <includes>
-               <include>mockit/coverage/reporting/coverage.css</include>
+               <include>mockit/coverage/reporting/*.css</include>
                <include>mockit/coverage/reporting/*.js</include>
                <include>mockit/coverage/reporting/*.png</include>
             </includes>
@@ -194,7 +193,7 @@
          <optional>true</optional>
       </dependency>
       <dependency>
-         <groupId>org.junit.jupiter</groupId><artifactId>junit-jupiter-engine</artifactId><version>5.5.0</version>
+         <groupId>org.junit.jupiter</groupId><artifactId>junit-jupiter-engine</artifactId><version>5.5.1</version>
          <optional>true</optional>
          <exclusions>
             <exclusion><groupId>org.apiguardian</groupId><artifactId>apiguardian-api</artifactId></exclusion>

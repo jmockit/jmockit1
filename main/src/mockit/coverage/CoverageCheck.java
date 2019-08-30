@@ -13,6 +13,11 @@ import mockit.coverage.data.*;
 
 final class CoverageCheck
 {
+   private static final String configuration = Configuration.getProperty("check", "");
+
+   @Nullable
+   static CoverageCheck createIfApplicable() { return configuration.isEmpty() ? null : new CoverageCheck(); }
+
    private static final class Threshold {
       private static final Pattern PARAMETER_SEPARATORS = Pattern.compile(":|=");
 
@@ -63,7 +68,7 @@ final class CoverageCheck
          return percentage < 0 || verifyMinimum(percentage);
       }
 
-      private boolean verifyMinimum(int percentage) {
+      private boolean verifyMinimum(@Nonnegative int percentage) {
          if (percentage < minPercentage) {
             System.out.println("JMockit: coverage too low" + scopeDescription + ": " + percentage + "% < " + minPercentage + '%');
             return false;
@@ -73,17 +78,10 @@ final class CoverageCheck
       }
    }
 
-   @Nullable private final List<Threshold> thresholds;
+   @Nonnull private final List<Threshold> thresholds;
    private boolean allThresholdsSatisfied;
 
-   CoverageCheck() {
-      String configuration = Configuration.getProperty("check", "");
-
-      if (configuration.isEmpty()) {
-         thresholds = null;
-         return;
-      }
-
+   private CoverageCheck() {
       String[] configurationParameters = configuration.split(";");
       int n = configurationParameters.length;
       thresholds = new ArrayList<>(n);
@@ -94,7 +92,6 @@ final class CoverageCheck
    }
 
    void verifyThresholds() {
-      if (thresholds == null) return;
       allThresholdsSatisfied = true;
 
       for (Threshold threshold : thresholds) {

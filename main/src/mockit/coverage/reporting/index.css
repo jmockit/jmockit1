@@ -1,0 +1,64 @@
+body {
+   font-family: "Helvetica", "Arial", sans-serif; font-size: medium;
+}
+
+table { border-spacing: 1px; }
+table table { width: 100%; border-spacing: 0; }
+caption {
+   background-color: #483d8b; color: white; font-size: larger;
+   padding: 4px; text-shadow: 2px 2px 2px black; border-radius: 4px;
+}
+caption div { text-shadow: 0 0 0; }
+tr { height: 3ex; }
+
+img { border: none; vertical-align: middle; }
+
+th { background-color: #6495ed; color: white; }
+td { padding: 0; font-size: 0.95em; }
+table table td { border-right: 1px solid white; }
+
+ol {
+   background-color: #e0ffff; margin: 1ex 2em 1ex 4em; font-size: 0.8em;
+}
+
+.click { cursor: row-resize; }
+
+td:first-child {
+   background-color: #e0e0e0; padding: 2px; border-bottom: white solid 1px;
+}
+table#packages table td:first-child {
+   font-family: monospace; white-space: pre;
+}
+
+td:nth-child(3), table#packages table td {
+   font-size: 1em;
+   border-bottom: white solid 1px; padding-right: 2px;
+}
+td:nth-child(3), table#packages table td:nth-child(2) {
+    width: 2.875em; text-align: right;
+}
+
+td:first-child, td.cls, td.absCls, td.exc, td.itf, td.ant, td.enm {
+   padding-left: 18px;
+   background-position: left center;
+   background-repeat: no-repeat;
+}
+td:first-child { background-image: url(package.png); }
+td.cls { background-image: url(class.png); }
+td.exc { background-image: url(exception.png); }
+td.itf { background-image: url(interface.png); }
+td.ant { background-image: url(annotation.png); }
+td.enm { background-image: url(enum.png); }
+td.absCls { background-image: url(abstractClass.png); }
+
+tr.total td {
+   text-align: right; font-weight: bold; background-color: #e0e0e0;
+   padding-right: 2px; border-bottom: none;
+}
+
+td.nocode { background-color: #999999; text-align: center; border-bottom: white solid 1px; }
+table#packages table td.nocode { text-align: center; }
+
+table#packages span { display: none; width: 100%; text-align: center; }
+
+.cp { cursor: pointer; }

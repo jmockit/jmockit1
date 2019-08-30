@@ -18,7 +18,7 @@ public final class TestRun
 
    private TestRun() {}
 
-   public static void lineExecuted(int fileIndex, int line) {
+   public static void lineExecuted(@Nonnegative int fileIndex, @Nonnegative int line) {
       if (terminated) return;
 
       synchronized (LOCK) {
@@ -43,7 +43,7 @@ public final class TestRun
       }
    }
 
-   public static void branchExecuted(int fileIndex, int line, int branchIndex) {
+   public static void branchExecuted(@Nonnegative int fileIndex, @Nonnegative int line, @Nonnegative int branchIndex) {
       if (terminated) return;
 
       synchronized (LOCK) {

@@ -5,7 +5,7 @@ import javax.annotation.*;
 import javax.inject.*;
 import javax.persistence.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Base test utility class for domain-specific "EntityXData" classes, which allow each test to create
@@ -72,12 +72,12 @@ public class TestDatabase
     */
    public final void assertCreated(BaseEntity newEntity, String qlStatement, Object... qlArgs) {
       Integer newId = newEntity.getId();
-      assertNotNull("id is still null", newId);
+      assertNotNull(newId, "id is still null");
       assertTrue(newId >= 0);
 
       List<? extends BaseEntity> found = db.find(qlStatement, qlArgs);
 
-      if (found.stream().filter(e -> e.getId().equals(newId)).count() > 0) {
+      if (found.stream().anyMatch(e -> e.getId().equals(newId))) {
          return;
       }
 

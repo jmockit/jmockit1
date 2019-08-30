@@ -94,9 +94,9 @@ public final class IndexPage extends ListWithFilesAndPercentages
       }
    }
 
-   private static int removeRedundantSourceDirectory(@Nonnull List<File> dirs, @Nonnegative int i) {
-      String dir1 = dirs.get(i).getPath();
-      int j = i + 1;
+   private static int removeRedundantSourceDirectory(@Nonnull List<File> dirs, @Nonnegative int dirIndex) {
+      String dir1 = dirs.get(dirIndex).getPath();
+      int j = dirIndex + 1;
 
       while (j < dirs.size()) {
          String dir2 = dirs.get(j).getPath();
@@ -105,8 +105,8 @@ public final class IndexPage extends ListWithFilesAndPercentages
             dirs.remove(j);
          }
          else if (dir2.startsWith(dir1)) {
-            dirs.remove(i);
-            i--;
+            dirs.remove(dirIndex);
+            dirIndex--;
             break;
          }
          else {
@@ -114,7 +114,7 @@ public final class IndexPage extends ListWithFilesAndPercentages
          }
       }
 
-      return i;
+      return dirIndex;
    }
 
    private void writeTableFirstRowWithColumnTitles() {
@@ -132,14 +132,16 @@ public final class IndexPage extends ListWithFilesAndPercentages
    }
 
    private void writeHeaderCellWithMetricNameAndDescription() {
-      output.write(
+      output.println(
          "      <th onclick='sortTables()' style='cursor: n-resize' title='" +
-         "Measures how much of the executable production code (executable lines and fields) was exercised by tests.\r\n" +
-         "An executable line of code contains one or more executable segments, separated by branching points\r\n" +
-         "(if..else instructions, logical operators, etc.).\r\n" +
-         "To be fully exercised, a field must have the last value assigned to it read by at least one test.\r\n" +
-         "Percentages are calculated as 100*(NE + NFE)/(NS + NF), where NS is the number of segments, NF the number\r\n" +
-         "of non-final fields, NE the number of executed segments, and NFE the number of fully exercised fields." +
+         "Measures how much of the executable production code (executable lines and fields) was exercised by tests.\n\n" +
+         "An executable line of code contains one or more executable segments, separated by branching points\n" +
+         "(if..else instructions, logical operators, etc.).\n\n" +
+         "A non-final field must have the last value assigned to it read by at least one test, to be considered as covered.\n\n" +
+         "Percentages are calculated as          100 × (CS + CF)\n" +
+         "                                                         ────────\n" +
+         "                                                                   S + F\n\n" +
+         "where S+F is the total number of segments and fields, and CS+CF the covered segments and fields." +
          "'>Cvrg</th>");
    }
 
@@ -166,15 +168,15 @@ public final class IndexPage extends ListWithFilesAndPercentages
 
    private void writeTableCellWithPackageName(@Nonnull String packageName) {
       printIndent();
-      output.write("  <td class='package");
+      output.write("  <td");
 
       List<String> filesInPackage = packageToFiles.get(packageName);
 
       if (filesInPackage.size() > 1) {
-         output.write(" click' onclick='showHideFiles(this)");
+         output.write(" class='click' onclick='shFls(this)'");
       }
 
-      output.write("'>");
+      output.write('>');
       output.write(packageName.replace('/', '.'));
       output.println("</td>");
    }
@@ -184,7 +186,7 @@ public final class IndexPage extends ListWithFilesAndPercentages
       output.println("  <td>");
 
       printIndent();
-      output.println("    <table width='100%'>");
+      output.println("    <table>");
 
       List<String> fileNames = packageToFiles.get(packageName);
       packageReport.writeMetricsForEachFile(packageName, fileNames);
@@ -196,6 +198,7 @@ public final class IndexPage extends ListWithFilesAndPercentages
       printIndent();
 
       writeInitiallyHiddenSourceFileCount(fileNames.size());
+      printIndent();
       output.println("  </td>");
    }
 
@@ -220,11 +223,6 @@ public final class IndexPage extends ListWithFilesAndPercentages
       printCoveragePercentage(packageReport.coveredItems, packageReport.totalItems, filePercentage);
    }
 
-   @Override
-   protected void writeClassAttributeForCoveragePercentageCell() {
-      output.write("class='pt' ");
-   }
-
    private void writeListOfRedundantTestsIfAny() {
       TestCoverage testCoverage = TestCoverage.INSTANCE;
 
@@ -235,7 +233,7 @@ public final class IndexPage extends ListWithFilesAndPercentages
       List<Method> redundantTests = testCoverage.getRedundantTests();
 
       if (!redundantTests.isEmpty()) {
-         output.println("  <br/>Redundant tests:");
+         output.println("  <br>Redundant tests:");
          output.println(
             "  <ol title=\"Tests are regarded as redundant when they don't cover any additional line " +
             "segments or fields that haven't already been covered by a previous test.\n" +

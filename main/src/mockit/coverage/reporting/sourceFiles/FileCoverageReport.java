@@ -57,7 +57,7 @@ public final class FileCoverageReport
 
    private void writeHeader() {
       output.writeCommonHeader(inputFile.getSourceFileName());
-      output.println("  <table cellpadding='0' cellspacing='1'>");
+      output.println("  <table>");
       output.println("    <caption>" + inputFile.getSourceFilePath() + "</caption>");
    }
 
@@ -86,17 +86,17 @@ public final class FileCoverageReport
       }
    }
 
-   private void writeOpeningOfNewLine(int lineNumber) {
+   private void writeOpeningOfNewLine(@Nonnegative int lineNumber) {
       output.println("    <tr>");
-      output.write("      <td class='line'>");
+      output.write("      <td>");
       output.print(lineNumber);
       output.write("</td>");
    }
 
    private void writeLineWithoutCoverageInfo(@Nonnull LineElement initialElement) {
-      output.println("<td>&nbsp;</td>");
+      output.println("<td></td>");
       output.write("      <td><pre class='");
-      output.write(initialElement.isComment() ? "comment'>" : "prettyprint'>");
+      output.write(initialElement.isComment() ? "cm'>" : "pp'>");
       output.write(initialElement.toString());
       output.println("</pre></td>");
    }

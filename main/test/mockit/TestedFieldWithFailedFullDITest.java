@@ -1,5 +1,7 @@
 package mockit;
 
+import javax.inject.*;
+
 import org.junit.*;
 import org.junit.rules.*;
 
@@ -17,7 +19,7 @@ public final class TestedFieldWithFailedFullDITest
       thrown.expectMessage("of @Tested object \"" + ClassWithFieldOfClassHavingParameterizedConstructor.class.getSimpleName() + " tested");
    }
 
-   static class ClassWithFieldOfClassHavingParameterizedConstructor { ClassWithParameterizedConstructor dependency; }
+   static class ClassWithFieldOfClassHavingParameterizedConstructor { @Inject ClassWithParameterizedConstructor dependency; }
    static class ClassWithParameterizedConstructor { ClassWithParameterizedConstructor(@SuppressWarnings("unused") int value) {} }
 
    @Tested(fullyInitialized = true) ClassWithFieldOfClassHavingParameterizedConstructor tested;

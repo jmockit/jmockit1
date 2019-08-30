@@ -29,7 +29,6 @@ final class XmlFile
    @Nonnull private final String srcDir;
    @Nonnull private final File outputFile;
    @Nonnull private final CoverageData coverageData;
-   private Writer output;
 
    XmlFile(@Nonnull String outputDir, @Nonnull CoverageData coverageData) {
       //noinspection DynamicRegexReplaceableByCompiledPattern
@@ -42,61 +41,56 @@ final class XmlFile
    }
 
    void generate() throws IOException {
-      output = new FileWriter(outputFile);
-
-      try {
-         output.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-         output.write("<coverage version=\"1\">\n");
+      try (Writer out = new FileWriter(outputFile)) {
+         out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+         out.write("<coverage version=\"1\">\n");
 
          for (Entry<String, FileCoverageData> fileAndData : coverageData.getFileToFileDataMap().entrySet()) {
             String sourceFileName = fileAndData.getKey();
-            writeOpeningXmlElementForSourceFile(sourceFileName);
+            writeOpeningXmlElementForSourceFile(out, sourceFileName);
 
             PerFileLineCoverage lineInfo = fileAndData.getValue().lineCoverageInfo;
-            writeXmlElementsForExecutableLines(lineInfo);
+            writeXmlElementsForExecutableLines(out, lineInfo);
 
-            output.write("\t</file>\n");
+            out.write("\t</file>\n");
          }
 
-         output.write("</coverage>\n");
-      }
-      finally {
-         output.close();
+         out.write("</coverage>\n");
       }
 
       System.out.println("JMockit: Coverage data written to " + outputFile.getCanonicalPath());
    }
 
-   private void writeOpeningXmlElementForSourceFile(@Nonnull String sourceFileName) throws IOException {
-      output.write("\t<file path=\"");
-      output.write(srcDir);
-      output.write(sourceFileName);
-      output.write("\">\n");
+   private void writeOpeningXmlElementForSourceFile(@Nonnull Writer out, @Nonnull String sourceFileName) throws IOException {
+      out.write("\t<file path=\"");
+      out.write(srcDir);
+      out.write(sourceFileName);
+      out.write("\">\n");
    }
 
-   private void writeXmlElementsForExecutableLines(@Nonnull PerFileLineCoverage lineInfo) throws IOException {
+   private static void writeXmlElementsForExecutableLines(@Nonnull Writer out, @Nonnull PerFileLineCoverage lineInfo) throws IOException {
       int lineCount = lineInfo.getLineCount();
 
       for (int lineNum = 1; lineNum <= lineCount; lineNum++) {
          if (lineInfo.hasLineData(lineNum)) {
             LineCoverageData lineData = lineInfo.getLineData(lineNum);
 
-            output.write("\t\t<lineToCover lineNumber=\"");
-            writeNumber(lineNum);
-            output.write("\" covered=\"");
-            output.write(Boolean.toString(lineData.isCovered()));
+            out.write("\t\t<lineToCover lineNumber=\"");
+            writeNumber(out, lineNum);
+            out.write("\" covered=\"");
+            out.write(Boolean.toString(lineData.isCovered()));
 
             if (lineData.containsBranches()) {
-               output.write("\" branchesToCover=\"");
-               writeNumber(lineData.getNumberOfBranchingSourcesAndTargets());
-               output.write("\" coveredBranches=\"");
-               writeNumber(lineData.getNumberOfCoveredBranchingSourcesAndTargets());
+               out.write("\" branchesToCover=\"");
+               writeNumber(out, lineData.getNumberOfBranchingSourcesAndTargets());
+               out.write("\" coveredBranches=\"");
+               writeNumber(out, lineData.getNumberOfCoveredBranchingSourcesAndTargets());
             }
 
-            output.write("\"/>\n");
+            out.write("\"/>\n");
          }
       }
    }
 
-   private void writeNumber(int value) throws IOException { output.write(Integer.toString(value)); }
+   private static void writeNumber(@Nonnull Writer out, @Nonnegative int value) throws IOException { out.write(Integer.toString(value)); }
 }

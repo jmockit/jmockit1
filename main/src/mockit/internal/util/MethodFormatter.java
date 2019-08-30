@@ -5,12 +5,16 @@
 package mockit.internal.util;
 
 import java.util.*;
+import java.util.regex.*;
 import javax.annotation.*;
 
 import mockit.internal.state.*;
 
 public final class MethodFormatter
 {
+   private static final Pattern CONSTRUCTOR_NAME = Pattern.compile("<init>");
+   private static final Pattern JAVA_LANG_PREFIX = Pattern.compile("java/lang/");
+
    @Nonnull private final StringBuilder out;
    @Nonnull private final List<String> parameterTypes;
    @Nonnull private final String classDesc;
@@ -45,7 +49,7 @@ public final class MethodFormatter
       out.append(className).append('#');
 
       String constructorName = getConstructorName(className);
-      String friendlyDesc = methodDesc.replace("<init>", constructorName);
+      String friendlyDesc = CONSTRUCTOR_NAME.matcher(methodDesc).replaceFirst(constructorName);
 
       int leftParenNextPos = friendlyDesc.indexOf('(') + 1;
       int rightParenPos = friendlyDesc.indexOf(')');
@@ -104,7 +108,7 @@ public final class MethodFormatter
 
    @Nonnull
    private static String friendlyReferenceType(@Nonnull String typeDesc) {
-      return typeDesc.substring(1).replace("java/lang/", "").replace('/', '.');
+      return JAVA_LANG_PREFIX.matcher(typeDesc.substring(1)).replaceAll("").replace('/', '.');
    }
 
    private void appendParameterType(@Nonnull String friendlyTypeDesc) {

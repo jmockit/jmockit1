@@ -71,18 +71,6 @@ final class FakedClassModifier extends BaseClassModifier
       }
    }
 
-   /**
-    * If the specified method has a fake definition, then generates bytecode to redirect calls made to it to the fake method.
-    * If it has no fake, does nothing.
-    *
-    * @param access not relevant
-    * @param name together with desc, used to identity the method in given set of fake methods
-    * @param signature not relevant
-    * @param exceptions not relevant
-    *
-    * @return <tt>null</tt> if the method was redefined, otherwise a <tt>MethodWriter</tt> that writes out the visited method code without
-    * changes
-    */
    @Override
    public MethodVisitor visitMethod(
       int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nullable String[] exceptions
@@ -110,19 +98,12 @@ final class FakedClassModifier extends BaseClassModifier
 
       startModifiedMethodVersion(access, name, desc, signature, exceptions);
 
-      if (isConstructor) {
-         generateCallToSuperConstructor();
-      }
-      else if (isNative(methodAccess)) {
-         generateCallToUpdateFakeState();
-         generateCallToFakeMethod();
-         generateMethodReturn();
-         mw.visitMaxStack(1); // dummy value, real one is calculated by ASM
+      if (isNative(methodAccess)) {
+         generateCodeForInterceptedNativeMethod();
          return methodAnnotationsVisitor;
       }
 
-      generateDynamicCallToFake();
-      return copyOriginalImplementationCode(isConstructor);
+      return copyOriginalImplementationWithInjectedInterceptionCode();
    }
 
    private boolean hasFake(int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature) {
@@ -146,7 +127,15 @@ final class FakedClassModifier extends BaseClassModifier
 
    private boolean isFakedSuperclass() { return fakedClass != fakeMethods.getRealClass(); }
 
-   private void generateDynamicCallToFake() {
+   private void generateCodeForInterceptedNativeMethod() {
+      generateCallToUpdateFakeState();
+      generateCallToFakeMethod();
+      generateMethodReturn();
+      mw.visitMaxStack(1); // dummy value, real one is calculated by ASM
+   }
+
+   @Override
+   protected void generateInterceptionCode() {
       Label startOfRealImplementation = null;
 
       if (!isStatic(methodAccess) && !isConstructor && isFakedSuperclass()) {
