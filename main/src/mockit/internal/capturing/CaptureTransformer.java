@@ -18,6 +18,7 @@ import mockit.internal.*;
 import mockit.internal.startup.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
+import static mockit.internal.capturing.CapturedType.*;
 
 public final class CaptureTransformer<M> implements ClassFileTransformer
 {
@@ -62,7 +63,7 @@ public final class CaptureTransformer<M> implements ClassFileTransformer
       @Nullable ClassLoader loader, @Nonnull String classDesc, @Nullable Class<?> classBeingRedefined,
       @Nullable ProtectionDomain protectionDomain, @Nonnull byte[] classfileBuffer
    ) {
-      if (classBeingRedefined != null || inactive || CapturedType.isNotToBeCaptured(loader, protectionDomain, classDesc)) {
+      if (classBeingRedefined != null || inactive || isNotToBeCaptured(protectionDomain, classDesc)) {
          return null;
       }
 
@@ -184,7 +185,7 @@ public final class CaptureTransformer<M> implements ClassFileTransformer
 
    @Nullable
    public <C extends CaptureOfImplementations<?>> C getCaptureOfImplementationsIfApplicable(@Nonnull Class<?> aType) {
-      if (capturedType.baseType.isAssignableFrom(aType) && typeMetadata != null) {
+      if (typeMetadata != null && capturedType.baseType.isAssignableFrom(aType)) {
          //noinspection unchecked
          return (C) captureOfImplementations;
       }

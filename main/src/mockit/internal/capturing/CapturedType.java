@@ -18,12 +18,11 @@ final class CapturedType
    CapturedType(@Nonnull Class<?> baseType) { this.baseType = baseType; }
 
    boolean isToBeCaptured(@Nonnull Class<?> aClass) {
-      //noinspection SimplifiableIfStatement
       if (aClass == baseType || aClass.isArray() || !baseType.isAssignableFrom(aClass) || extendsJMockitBaseType(aClass)) {
          return false;
       }
 
-      return !aClass.isInterface() && !isNotToBeCaptured(aClass.getClassLoader(), aClass.getProtectionDomain(), aClass.getName());
+      return !aClass.isInterface() && !isNotToBeCaptured(aClass.getProtectionDomain(), aClass.getName());
    }
 
    @SuppressWarnings("UnnecessaryFullyQualifiedName")
@@ -34,29 +33,43 @@ final class CapturedType
          mockit.Delegate.class.isAssignableFrom(aClass);
    }
 
-   @SuppressWarnings("OverlyComplexMethod")
-   static boolean isNotToBeCaptured(@Nullable ClassLoader loader, @Nullable ProtectionDomain pd, @Nonnull String classNameOrDesc) {
-      //noinspection SimplifiableIfStatement
-      if (
-         loader == null && (classNameOrDesc.startsWith("java") || classNameOrDesc.startsWith("jdk/")) ||
-         pd == JMOCKIT_DOMAIN || isGeneratedClass(classNameOrDesc)
-      ) {
-         return true;
-      }
-
+   static boolean isNotToBeCaptured(@Nullable ProtectionDomain pd, @Nonnull String classNameOrDesc) {
       return
+         pd == JMOCKIT_DOMAIN ||
          classNameOrDesc.endsWith("Test") ||
-         classNameOrDesc.startsWith("junit") ||
-         classNameOrDesc.startsWith("sun") && !hasSubPackage(classNameOrDesc, 4, "management") ||
-         classNameOrDesc.startsWith("org") && hasSubPackage(classNameOrDesc, 4, "junit testng hamcrest gradle") ||
-         classNameOrDesc.startsWith("com") && (
-            hasSubPackage(classNameOrDesc, 4, "sun") && !hasSubPackage(classNameOrDesc, 8, "proxy org") ||
-            hasSubPackage(classNameOrDesc, 4, "intellij")
-         ) ||
-         isExternallyGeneratedSubclass(classNameOrDesc);
+         isNonEligibleInternalJDKClass(classNameOrDesc) ||
+         isNonEligibleStandardJavaClass(classNameOrDesc) ||
+         isNonEligibleClassFromIDERuntime(classNameOrDesc) ||
+         isNonEligibleClassFromThirdPartyLibrary(classNameOrDesc) ||
+         isGeneratedClass(classNameOrDesc) || isExternallyGeneratedSubclass(classNameOrDesc);
    }
 
-   private static boolean hasSubPackage(@Nonnull String nameOrDesc, int offset, @Nonnull String subPackages) {
+   private static boolean isNonEligibleInternalJDKClass(@Nonnull String classNameOrDesc) {
+      return
+         classNameOrDesc.startsWith("jdk/") ||
+         classNameOrDesc.startsWith("sun") && !hasSubPackage(classNameOrDesc, 4, "management") ||
+         classNameOrDesc.startsWith("com") &&  hasSubPackage(classNameOrDesc, 4, "sun") && !hasSubPackages(classNameOrDesc, 8, "proxy org");
+   }
+
+   private static boolean isNonEligibleStandardJavaClass(@Nonnull String classNameOrDesc) {
+      return classNameOrDesc.startsWith("java") && !hasSubPackage(classNameOrDesc, 10, "concurrent");
+   }
+
+   private static boolean isNonEligibleClassFromIDERuntime(@Nonnull String classNameOrDesc) {
+      return classNameOrDesc.startsWith("com") && hasSubPackage(classNameOrDesc, 4, "intellij");
+   }
+
+   private static boolean isNonEligibleClassFromThirdPartyLibrary(@Nonnull String classNameOrDesc) {
+      return
+         classNameOrDesc.startsWith("junit") ||
+         classNameOrDesc.startsWith("org") && hasSubPackages(classNameOrDesc, 4, "junit testng hamcrest gradle");
+   }
+
+   private static boolean hasSubPackage(@Nonnull String nameOrDesc, @Nonnegative int offset, @Nonnull String subPackage) {
+      return nameOrDesc.regionMatches(offset, subPackage, 0, subPackage.length());
+   }
+
+   private static boolean hasSubPackages(@Nonnull String nameOrDesc, @Nonnegative int offset, @Nonnull String subPackages) {
       int subPackageStart = 0;
       int subPackageEnd;
 

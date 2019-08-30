@@ -2,6 +2,7 @@ package mockit;
 
 import java.lang.management.*;
 import java.lang.reflect.*;
+import java.util.concurrent.*;
 
 import javax.faces.event.*;
 import javax.servlet.*;
@@ -106,8 +107,7 @@ public final class CapturingImplementationsTest
    }
 
    @Test
-   public void captureClassPreviouslyLoadedByClassLoaderOtherThanContext(@Capturing final Service2 mock)
-   {
+   public void captureClassPreviouslyLoadedByClassLoaderOtherThanContext(@Capturing final Service2 mock) {
       new Expectations() {{ mock.doSomething(); result = 15; }};
 
       assertEquals(15, service2.doSomething());
@@ -164,6 +164,18 @@ public final class CapturingImplementationsTest
       boolean b = parser.isNamespaceAware();
 
       assertTrue(b);
+   }
+
+   @Test
+   public void captureClassesFromTheJavaConcurrencyAPI(@Capturing ExecutorService anyExecutorService) {
+      ExecutorService singleThreadExecutor = Executors.newSingleThreadExecutor();
+      ExecutorService threadPoolExecutor = Executors.newFixedThreadPool(2);
+      ExecutorService cachedThreadPoolExecutor = Executors.newCachedThreadPool();
+
+      // These calls would throw a NPE unless mocked.
+      singleThreadExecutor.submit((Runnable) null);
+      threadPoolExecutor.submit((Runnable) null);
+      cachedThreadPoolExecutor.submit((Runnable) null);
    }
 
    interface Interface2 { int doSomething(); }
