@@ -171,11 +171,13 @@ public final class CapturingImplementationsTest
       ExecutorService singleThreadExecutor = Executors.newSingleThreadExecutor();
       ExecutorService threadPoolExecutor = Executors.newFixedThreadPool(2);
       ExecutorService cachedThreadPoolExecutor = Executors.newCachedThreadPool();
+      ExecutorService scheduledThreadPoolExecutor = Executors.newScheduledThreadPool(3);
 
       // These calls would throw a NPE unless mocked.
       singleThreadExecutor.submit((Runnable) null);
       threadPoolExecutor.submit((Runnable) null);
       cachedThreadPoolExecutor.submit((Runnable) null);
+      scheduledThreadPoolExecutor.submit((Callable<Object>) null);
    }
 
    interface Interface2 { int doSomething(); }
