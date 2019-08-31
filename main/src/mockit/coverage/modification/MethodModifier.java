@@ -4,7 +4,6 @@
  */
 package mockit.coverage.modification;
 
-import java.util.*;
 import javax.annotation.*;
 
 import mockit.asm.annotations.*;
@@ -18,29 +17,19 @@ final class MethodModifier extends WrappingMethodVisitor
 {
    private static final String DATA_RECORDING_CLASS = "mockit/coverage/TestRun";
 
-   @Nonnull private final List<Label> visitedLabels;
-   @Nonnull private final List<Label> jumpTargetsForCurrentLine;
-   @Nonnull private final List<Integer> pendingBranches;
    @Nonnull private final String sourceFileName;
    @Nonnull private final FileCoverageData fileData;
    @Nonnull private final PerFileLineCoverage lineCoverageInfo;
-   @Nonnegative private int currentLine;
-   @Nonnegative private int lineExpectingInstructionAfterJump;
-   private boolean assertFoundInCurrentLine;
-   private boolean ignoreUntilNextLabel;
-   @SuppressWarnings("unused") private boolean foundPotentialAssertFalse;
-   @Nonnegative private int foundPotentialBooleanExpressionValue;
+   @Nonnull private final CFGTracking cfgTracking;
    private boolean foundInterestingInstruction;
-   @Nonnegative int ignoreUntilNextSwitch;
+   @Nonnegative int currentLine;
 
    MethodModifier(@Nonnull MethodWriter mw, @Nonnull String sourceFileName, @Nonnull FileCoverageData fileData) {
       super(mw);
-      visitedLabels = new ArrayList<>();
-      jumpTargetsForCurrentLine = new ArrayList<>(4);
-      pendingBranches = new ArrayList<>(6);
       this.sourceFileName = sourceFileName;
       this.fileData = fileData;
       lineCoverageInfo = fileData.getLineCoverageData();
+      cfgTracking = new CFGTracking(lineCoverageInfo);
    }
 
    @Override
@@ -56,17 +45,10 @@ final class MethodModifier extends WrappingMethodVisitor
 
    @Override
    public void visitLineNumber(@Nonnegative int line, @Nonnull Label start) {
-      if (!pendingBranches.isEmpty()) {
-         pendingBranches.clear();
-      }
-
       lineCoverageInfo.addLine(line);
       currentLine = line;
-
-      jumpTargetsForCurrentLine.clear();
-
+      cfgTracking.startNewLine();
       generateCallToRegisterLineExecution();
-
       mw.visitLineNumber(line, start);
    }
 
@@ -86,94 +68,35 @@ final class MethodModifier extends WrappingMethodVisitor
    }
 
    @Override
+   public void visitLabel(@Nonnull Label label) {
+      mw.visitLabel(label);
+      cfgTracking.afterNewLabel(currentLine, label);
+   }
+
+   @Override
    public void visitJumpInsn(@Nonnegative int opcode, @Nonnull Label label) {
-      if (opcode == GOTO || currentLine == 0 || ignoreUntilNextLabel || ignoreUntilNextSwitch > 0 || visitedLabels.contains(label)) {
-         assertFoundInCurrentLine = false;
-         mw.visitJumpInsn(opcode, label);
-
-         if (opcode == GOTO && foundPotentialBooleanExpressionValue == 1) {
-            foundPotentialBooleanExpressionValue = 2;
-         }
-
-         return;
-      }
-
-      Label jumpingFrom = mw.getCurrentBlock();
-      assert jumpingFrom != null;
-      jumpingFrom.jumpTargetLine = currentLine;
-
-      if (!jumpTargetsForCurrentLine.contains(label)) {
-         jumpTargetsForCurrentLine.add(label);
-      }
-
-      LineCoverageData lineData = lineCoverageInfo.getOrCreateLineData(currentLine);
-      int sourceBranchIndex = lineData.addBranchingPoint(jumpingFrom, label);
-      pendingBranches.add(sourceBranchIndex);
-
-      if (assertFoundInCurrentLine) {
-         BranchCoverageData branchData = lineCoverageInfo.getBranchData(currentLine, sourceBranchIndex + 1);
-         branchData.markAsUnreachable();
-      }
+      Label jumpSource = mw.getCurrentBlock();
+      assert jumpSource != null;
 
       mw.visitJumpInsn(opcode, label);
-      lineExpectingInstructionAfterJump = 0;
-      generateCallToRegisterBranchTargetExecutionIfPending();
-      lineExpectingInstructionAfterJump = currentLine;
+
+      if (opcode == GOTO) {
+         cfgTracking.afterGoto();
+      }
+      else {
+         cfgTracking.afterConditionalJump(this, jumpSource, label);
+      }
    }
 
    private void generateCallToRegisterBranchTargetExecutionIfPending() {
-      if (ignoreUntilNextLabel || ignoreUntilNextSwitch > 0) {
-         return;
-      }
-
-      foundPotentialAssertFalse = false;
-      foundPotentialBooleanExpressionValue = 0;
-
-      if (!pendingBranches.isEmpty()) {
-         for (Integer pendingBranchIndex : pendingBranches) {
-            generateCallToRegisterBranchTargetExecution(pendingBranchIndex);
-         }
-
-         pendingBranches.clear();
-      }
-
-      if (lineExpectingInstructionAfterJump > 0) {
-         if (currentLine > lineExpectingInstructionAfterJump) {
-            lineCoverageInfo.markLastLineSegmentAsEmpty(lineExpectingInstructionAfterJump);
-         }
-
-         lineExpectingInstructionAfterJump = 0;
-      }
+      cfgTracking.generateCallToRegisterBranchTargetExecutionIfPending(this);
    }
 
-   private void generateCallToRegisterBranchTargetExecution(@Nonnegative int branchIndex) {
+   void generateCallToRegisterBranchTargetExecution(@Nonnegative int branchIndex) {
       mw.visitIntInsn(SIPUSH, fileData.index);
       pushCurrentLineOnTheStack();
       mw.visitIntInsn(SIPUSH, branchIndex);
       mw.visitMethodInsn(INVOKESTATIC, DATA_RECORDING_CLASS, "branchExecuted", "(III)V", false);
-   }
-
-   @Override
-   public void visitLabel(@Nonnull Label label) {
-      if (ignoreUntilNextLabel || ignoreUntilNextSwitch > 0) {
-         mw.visitLabel(label);
-         ignoreUntilNextLabel = false;
-         return;
-      }
-
-      visitedLabels.add(label);
-      mw.visitLabel(label);
-
-      int jumpTargetIndex = jumpTargetsForCurrentLine.indexOf(label);
-
-      if (jumpTargetIndex >= 0) {
-         label.jumpTargetLine = label.line > 0 ? label.line : currentLine;
-         int targetBranchIndex = 2 * jumpTargetIndex + 1;
-         pendingBranches.add(targetBranchIndex);
-         assertFoundInCurrentLine = false;
-      }
-
-      foundPotentialBooleanExpressionValue = 0;
    }
 
    @Override
@@ -184,15 +107,11 @@ final class MethodModifier extends WrappingMethodVisitor
          foundInterestingInstruction = true;
       }
 
-      if (isReturn && !foundInterestingInstruction && visitedLabels.size() == 1) {
+      if (isReturn && !foundInterestingInstruction && cfgTracking.hasOnlyOneLabelBeingVisited()) {
          lineCoverageInfo.getOrCreateLineData(currentLine).markAsUnreachable();
       }
-      else if ((opcode == ICONST_0 || opcode == ICONST_1) && foundPotentialBooleanExpressionValue == 0) {
-         generateCallToRegisterBranchTargetExecutionIfPending();
-         foundPotentialBooleanExpressionValue = 1;
-      }
       else {
-         generateCallToRegisterBranchTargetExecutionIfPending();
+         cfgTracking.beforeNoOperandInstruction(this, opcode);
       }
 
       mw.visitInsn(opcode);
@@ -244,11 +163,10 @@ final class MethodModifier extends WrappingMethodVisitor
       mw.visitFieldInsn(opcode, owner, name, desc);
 
       if (opcode == GETSTATIC && "$assertionsDisabled".equals(name)) {
-         assertFoundInCurrentLine = true;
-         ignoreUntilNextLabel = true;
+         cfgTracking.registerAssertFoundInCurrentLine();
       }
 
-      foundPotentialAssertFalse = true;
+      cfgTracking.registerFindingPotentialAssertFalse();
 
       if (fieldHasData) {
          generateCallToRegisterFieldCoverage(getField, isStatic, size2, classAndFieldNames);
@@ -303,8 +221,7 @@ final class MethodModifier extends WrappingMethodVisitor
       // compiler when the class contains at least one "assert" statement.
       // Otherwise, that line of code would always appear as partially covered when running with assertions enabled.
       if (opcode == INVOKEVIRTUAL && "java/lang/Class".equals(owner) && "desiredAssertionStatus".equals(name)) {
-         assertFoundInCurrentLine = true;
-         ignoreUntilNextLabel = true;
+         cfgTracking.registerAssertFoundInCurrentLine();
       }
 
       if (opcode != INVOKESPECIAL || !"()V".equals(desc)) {
@@ -313,10 +230,7 @@ final class MethodModifier extends WrappingMethodVisitor
 
       generateCallToRegisterBranchTargetExecutionIfPending();
       mw.visitMethodInsn(opcode, owner, name, desc, itf);
-
-      if (opcode == INVOKEVIRTUAL && "hashCode".equals(name) && "java/lang/String".equals(owner) && ignoreUntilNextSwitch == 0) {
-         ignoreUntilNextSwitch = 1;
-      }
+      cfgTracking.afterMethodInstruction(opcode, owner, name);
    }
 
    @Override
@@ -340,10 +254,7 @@ final class MethodModifier extends WrappingMethodVisitor
 
    @Override
    public void visitLookupSwitchInsn(@Nonnull Label dflt, @Nonnull int[] keys, @Nonnull Label[] labels) {
-      if (ignoreUntilNextSwitch == 1) {
-         ignoreUntilNextSwitch = 2;
-      }
-
+      cfgTracking.beforeLookupSwitchInstruction();
       generateCallToRegisterBranchTargetExecutionIfPending();
       mw.visitLookupSwitchInsn(dflt, keys, labels);
    }
