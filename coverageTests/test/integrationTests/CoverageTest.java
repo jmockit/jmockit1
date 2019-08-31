@@ -34,7 +34,7 @@ public class CoverageTest
       testedClassSimpleName = testedClass.getSimpleName();
 
       String classFilePath = testedClass.getName().replace('.', '/') + ".java";
-      Map<String, FileCoverageData> data = CoverageData.instance().getRawFileToFileData();
+      Map<String, FileCoverageData> data = CoverageData.instance().getFileToFileData();
       fileData = data.get(classFilePath);
 
       assertNotNull("FileCoverageData not found for " + classFilePath, fileData);
@@ -73,7 +73,9 @@ public class CoverageTest
       return fileData;
    }
 
-   protected final void assertLines(int startingLine, int endingLine, int expectedLinesExecuted) {
+   // Line Coverage assertions ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+   protected final void assertLines(@Nonnegative int startingLine, @Nonnegative int endingLine, @Nonnegative int expectedLinesExecuted) {
       PerFileLineCoverage lineCoverageInfo = fileData().lineCoverageInfo;
       int lineCount = lineCoverageInfo.getLineCount();
       assertTrue("Starting line not found", lineCount >= startingLine);
@@ -90,7 +92,9 @@ public class CoverageTest
       assertEquals("Unexpected number of lines executed:", expectedLinesExecuted, linesExecuted);
    }
 
-   protected final void assertLine(int line, int expectedSegments, int expectedCoveredSegments, int... expectedExecutionCounts) {
+   protected final void assertLine(
+      @Nonnegative int line, @Nonnegative int expectedSegments, @Nonnegative int expectedCoveredSegments, int... expectedExecutionCounts
+   ) {
       PerFileLineCoverage info = fileData().lineCoverageInfo;
       LineCoverageData lineData = info.getLineData(line);
 
@@ -120,7 +124,9 @@ public class CoverageTest
       }
    }
 
-   protected final void assertBranchingPoints(int line, int expectedSourcesAndTargets, int expectedCoveredSourcesAndTargets) {
+   protected final void assertBranchingPoints(
+      @Nonnegative int line, @Nonnegative int expectedSourcesAndTargets, @Nonnegative int expectedCoveredSourcesAndTargets
+   ) {
       PerFileLineCoverage lineCoverageInfo = fileData().lineCoverageInfo;
       LineCoverageData lineData = lineCoverageInfo.getLineData(line);
 
@@ -128,8 +134,10 @@ public class CoverageTest
       assertEquals("Sources and targets:", expectedSourcesAndTargets, sourcesAndTargets);
 
       int coveredSourcesAndTargets = lineData.getNumberOfCoveredBranchingSourcesAndTargets();
-//      assertEquals("Covered sources and targets:", expectedCoveredSourcesAndTargets, coveredSourcesAndTargets);
+      assertEquals("Covered sources and targets:", expectedCoveredSourcesAndTargets, coveredSourcesAndTargets);
    }
+
+   // Data Coverage assertions ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
    protected final void assertFieldIgnored(@Nonnull String fieldName) {
       String fieldId = testedClassSimpleName + '.' + fieldName;
@@ -183,7 +191,9 @@ public class CoverageTest
       }
    }
 
-   protected static void verifyDataCoverage(int expectedItems, int expectedCoveredItems, int expectedCoverage) {
+   protected static void verifyDataCoverage(
+      @Nonnegative int expectedItems, @Nonnegative int expectedCoveredItems, @Nonnegative int expectedCoverage
+   ) {
       PerFileDataCoverage info = fileData.dataCoverageInfo;
       assertEquals("Total data items:", expectedItems, info.getTotalItems());
       assertEquals("Covered data items:", expectedCoveredItems, info.getCoveredItems());

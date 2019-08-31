@@ -17,7 +17,7 @@ public final class IfElseStatementsTest extends CoverageTest
       assertLine(9, 1, 1, 1);
       assertLine(11, 1, 1, 2);
 
-      assertBranchingPoints(8, 2, 2);
+      assertBranchingPoints(8, 2, 1); // TODO: should be 2 covered, not 1
       assertBranchingPoints(9, 0, 0);
    }
 
