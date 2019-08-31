@@ -17,7 +17,7 @@ function sh(callPoints, listIndex) {
 var allFilesShown = true;
 function showHideAllFiles() {
    allFilesShown = !allFilesShown;
-   var newDisplay = allFilesShown ? 'block' : 'none';
+   var newDisplay = allFilesShown ? 'table-cell' : 'none';
    var rows = document.getElementById('packages').rows;
 
    for (var i = 0; i < rows.length; i++) {
@@ -28,18 +28,18 @@ function showHideAllFiles() {
 
 // showHideFiles
 function shFls(files) {
-   var filesCell = files.parentNode.cells[1];
+   var filesCell  = files.parentNode.cells[1];
    var filesTable = filesCell.getElementsByTagName('table')[0];
-   var fileCount = filesCell.getElementsByTagName('span')[0];
+   var fileCount  = filesCell.getElementsByTagName('span')[0];
    var filesShown = filesCell.style.display != 'none' && filesTable.style.display != 'none';
 
    if (filesShown) {
       filesTable.style.display = 'none';
-      fileCount.style.display = 'block';
+      fileCount.style.display = 'inline';
    }
    else {
       fileCount.style.display = 'none';
-      filesTable.style.display = 'block';
+      filesTable.style.display = 'table';
    }
 }
 
