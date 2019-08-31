@@ -366,7 +366,7 @@ public final class MethodWriter extends MethodVisitor
          stackMapTableWriter.createAndVisitFirstFrame(firstFrame, cw.getInternalClassName(), descriptor, classOrMemberAccess);
 
          computedMaxStack = cfgAnalysis.computeMaxStackSizeFromComputedFrames();
-         computedMaxStack = visitAllFramesToBeStoredInStackMap(computedMaxStack);
+         visitAllFramesToBeStoredInStackMap();
 
          exceptionHandling.countNumberOfHandlers();
       }
@@ -381,8 +381,7 @@ public final class MethodWriter extends MethodVisitor
       stackMapTableWriter.setMaxStack(computedMaxStack);
    }
 
-   @Nonnegative
-   private int visitAllFramesToBeStoredInStackMap(@Nonnegative int max) {
+   private void visitAllFramesToBeStoredInStackMap() {
       Label label = cfgAnalysis.getLabelForFirstBasicBlock();
 
       while (label != null) {
@@ -392,39 +391,8 @@ public final class MethodWriter extends MethodVisitor
             stackMapTableWriter.visitFrame(frame);
          }
 
-         if (!label.isReachable()) {
-            // Finds start and end of dead basic block.
-            Label k = label.getSuccessor();
-            int start = label.position;
-            int end = (k == null ? code.getLength() : k.position) - 1;
-
-            // If non empty basic block.
-            if (end >= start) {
-               max = Math.max(max, 1);
-
-               replaceInstructionsWithNOPAndATHROW(start, end);
-
-               stackMapTableWriter.emitFrameForUnreachableBlock(start);
-               exceptionHandling.removeStartEndRange(label, k);
-            }
-         }
-
          label = label.getSuccessor();
       }
-
-      return max;
-   }
-
-   // Replaces instructions with NOP ... NOP ATHROW.
-   private void replaceInstructionsWithNOPAndATHROW(@Nonnegative int start, @Nonnegative int end) {
-      byte[] data = code.getData();
-
-      for (int i = start; i < end; i++) {
-         data[i] = NOP;
-      }
-
-      //noinspection NumericCastThatLosesPrecision
-      data[end] = (byte) ATHROW;
    }
 
    /**

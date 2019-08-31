@@ -52,54 +52,6 @@ final class ExceptionHandler
    @Nonnull
    String getCatchTypeDesc() { return desc == null ? "java/lang/Throwable" : desc; }
 
-   /**
-    * Removes the range between start and end from the given exception handlers.
-    *
-    * @param h     an exception handler list.
-    * @param start the start of the range to be removed.
-    * @param end   the end of the range to be removed. Maybe null.
-    * @return the exception handler list with the start-end range removed.
-    */
-   @Nullable
-   static ExceptionHandler remove(@Nullable ExceptionHandler h, @Nonnull Label start, @Nullable Label end) {
-      if (h == null) {
-         return null;
-      }
-
-      h.next = remove(h.next, start, end);
-      int hStart = h.start.position;
-      int hEnd = h.end.position;
-      int s = start.position;
-      int e = end == null ? Integer.MAX_VALUE : end.position;
-
-      // If [hStart,hEnd[ and [s,e[ intervals intersect...
-      if (s < hEnd && e > hStart) {
-         if (s <= hStart) {
-            if (e >= hEnd) {
-               // [hStart,hEnd[ fully included in [s,e[, h removed
-               h = h.next;
-            }
-            else {
-               // [hStart,hEnd[ minus [s,e[ = [e,hEnd[
-               h.start = end;
-            }
-         }
-         else if (e >= hEnd) {
-            // [hStart,hEnd[ minus [s,e[ = [hStart,s[
-            h.end = start;
-         }
-         else {
-            // [hStart,hEnd[ minus [s,e[ = [hStart,s[ + [e,hEnd[
-            ExceptionHandler g = new ExceptionHandler(end, h.end, h.handler, h.desc, h.type);
-            g.next = h.next;
-            h.end = start;
-            h.next = g;
-         }
-      }
-
-      return h;
-   }
-
    void put(@Nonnull ByteVector out) {
       out.putShort(start.position).putShort(end.position);
       out.putShort(handler.position).putShort(type);

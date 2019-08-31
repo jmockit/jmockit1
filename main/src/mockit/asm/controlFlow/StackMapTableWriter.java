@@ -483,13 +483,6 @@ public final class StackMapTableWriter extends AttributeWriter
       }
    }
 
-   public void emitFrameForUnreachableBlock(@Nonnegative int startOffset) {
-      startFrame(startOffset, 0, 1);
-      int frameValue = FrameTypeMask.OBJECT | cp.addNormalType("java/lang/Throwable");
-      writeFrameDefinition(frameValue);
-      endFrame();
-   }
-
    @Nonnegative @Override
    public int getSize() { return stackMap == null ? 0 : 8 + stackMap.getLength(); }
 

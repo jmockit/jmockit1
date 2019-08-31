@@ -91,11 +91,6 @@ public final class ExceptionHandling
       }
    }
 
-   // Removes the start-end range from the exception handlers.
-   public void removeStartEndRange(@Nonnull Label start, @Nullable Label end) {
-      firstExceptionHandler = ExceptionHandler.remove(firstExceptionHandler, start, end);
-   }
-
    public boolean hasHandlers() { return handlerCount > 0; }
 
    @Nonnegative
