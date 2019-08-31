@@ -7,7 +7,7 @@ caption {
    background-color: #483d8b; color: white; font-size: larger;
    padding: 4px; text-shadow: 2px 2px 2px black; border-radius: 4px;
 }
-tr { height: 2.5ex; }
+tr { height: 1em; }
 td { padding: 0; font-size: 0.95em; }
 
 ol {
