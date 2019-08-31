@@ -138,10 +138,10 @@ final class OutputFileGenerator
 
    private void generateHTMLReportIfRequested(@Nonnull CoverageData coverageData, boolean outputDirCreated) throws IOException {
       if (isHTMLWithNoCallPoints()) {
-         new BasicCoverageReport(outputDir, outputDirCreated, sourceDirs, coverageData).generate();
+         new CoverageReport(outputDir, outputDirCreated, sourceDirs, coverageData, false).generate();
       }
       else if (isWithCallPoints()) {
-         new FullCoverageReport(outputDir, outputDirCreated, sourceDirs, coverageData).generate();
+         new CoverageReport(outputDir, outputDirCreated, sourceDirs, coverageData, true).generate();
       }
    }
 }

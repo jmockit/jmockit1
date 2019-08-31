@@ -14,7 +14,7 @@ import mockit.coverage.data.*;
 import mockit.coverage.reporting.packages.*;
 import mockit.coverage.reporting.sourceFiles.*;
 
-class CoverageReport
+public final class CoverageReport
 {
    @Nonnull private final String outputDir;
    private boolean outputDirCreated;
@@ -24,7 +24,7 @@ class CoverageReport
    private final boolean withCallPoints;
    @Nullable private final Collection<String> sourceFilesNotFound;
 
-   CoverageReport(
+   public CoverageReport(
       @Nonnull String outputDir, boolean outputDirCreated, @Nullable String[] srcDirs, @Nonnull CoverageData coverageData,
       boolean withCallPoints
    ) {
@@ -37,7 +37,7 @@ class CoverageReport
       sourceFilesNotFound = srcDirs == null ? null : new ArrayList<String>();
    }
 
-   public final void generate() throws IOException {
+   public void generate() throws IOException {
       createReportOutputDirIfNotExists();
 
       File outputFile = createOutputFileForIndexPage();
