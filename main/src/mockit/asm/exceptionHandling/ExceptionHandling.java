@@ -1,5 +1,6 @@
 package mockit.asm.exceptionHandling;
 
+import java.util.*;
 import javax.annotation.*;
 
 import mockit.asm.constantPool.*;
@@ -8,55 +9,21 @@ import mockit.asm.util.*;
 
 public final class ExceptionHandling
 {
+   @Nonnull private final List<ExceptionHandler> handlers;
    @Nonnull private final ConstantPoolGeneration cp;
 
-   /**
-    * Number of elements in the exception handler list.
-    */
-   @Nonnegative private int handlerCount;
-
-   /**
-    * The first element in the exception handler list.
-    */
-   @Nullable private ExceptionHandler firstExceptionHandler;
-
-   /**
-    * The last element in the exception handler list.
-    */
-   @Nullable private ExceptionHandler lastExceptionHandler;
-
-   public ExceptionHandling(@Nonnull ConstantPoolGeneration cp) { this.cp = cp; }
-
-   public void addHandler(@Nonnull Label start, @Nonnull Label end, @Nonnull Label handler, @Nullable String type) {
-      handlerCount++;
-
-      int handlerType = type != null ? cp.newClass(type) : 0;
-      ExceptionHandler h = new ExceptionHandler(start, end, handler, type, handlerType);
-
-      if (lastExceptionHandler == null) {
-         firstExceptionHandler = h;
-      }
-      else {
-         lastExceptionHandler.next = h;
-      }
-
-      lastExceptionHandler = h;
+   public ExceptionHandling(@Nonnull ConstantPoolGeneration cp) {
+      handlers = new ArrayList<>();
+      this.cp = cp;
    }
 
-   public void countNumberOfHandlers() {
-      ExceptionHandler exceptionHandler = firstExceptionHandler;
-      handlerCount = 0;
-
-      while (exceptionHandler != null) {
-         handlerCount++;
-         exceptionHandler = exceptionHandler.next;
-      }
+   public void addHandler(@Nonnull Label start, @Nonnull Label end, @Nonnull Label handler, @Nullable String type) {
+      int handlerType = type == null ? 0 : cp.newClass(type);
+      handlers.add(new ExceptionHandler(start, end, handler, type, handlerType));
    }
 
    public void completeControlFlowGraphWithExceptionHandlerBlocksFromComputedFrames() {
-      ExceptionHandler exceptionHandler = firstExceptionHandler;
-
-      while (exceptionHandler != null) {
+      for (ExceptionHandler exceptionHandler : handlers) {
          Label handler = exceptionHandler.handler.getFirst();
          Label start = exceptionHandler.start.getFirst();
          Label end = exceptionHandler.end.getFirst();
@@ -69,16 +36,12 @@ public final class ExceptionHandling
          handler.markAsTarget();
 
          addHandlerLabelAsSuccessor(kindOfEdge, handler, start, end);
-         exceptionHandler = exceptionHandler.next;
       }
    }
 
    public void completeControlFlowGraphWithExceptionHandlerBlocks() {
-      ExceptionHandler exceptionHandler = firstExceptionHandler;
-
-      while (exceptionHandler != null) {
+      for (ExceptionHandler exceptionHandler : handlers) {
          addHandlerLabelAsSuccessor(Edge.EXCEPTION, exceptionHandler.handler, exceptionHandler.start, exceptionHandler.end);
-         exceptionHandler = exceptionHandler.next;
       }
    }
 
@@ -91,21 +54,16 @@ public final class ExceptionHandling
       }
    }
 
-   public boolean hasHandlers() { return handlerCount > 0; }
+   public boolean hasHandlers() { return !handlers.isEmpty(); }
 
    @Nonnegative
-   public int getSize() { return 8 * handlerCount; }
+   public int getSize() { return 8 * handlers.size(); }
 
    public void put(@Nonnull ByteVector out) {
-      out.putShort(handlerCount);
+      out.putShort(handlers.size());
 
-      if (handlerCount > 0) {
-         ExceptionHandler h = firstExceptionHandler;
-
-         while (h != null) {
-            h.put(out);
-            h = h.next;
-         }
+      for (ExceptionHandler exceptionHandler : handlers) {
+         exceptionHandler.put(out);
       }
    }
 }

@@ -367,8 +367,6 @@ public final class MethodWriter extends MethodVisitor
 
          computedMaxStack = cfgAnalysis.computeMaxStackSizeFromComputedFrames();
          visitAllFramesToBeStoredInStackMap();
-
-         exceptionHandling.countNumberOfHandlers();
       }
       else {
          // TODO: figure out if/when the next call is needed, since no tests fail if commented out
