@@ -31,7 +31,7 @@ public final class CoverageReport
       this.outputDir = Configuration.getOrChooseOutputDirectory(outputDir, "coverage-report");
       this.outputDirCreated = outputDirCreated;
       sourceDirs = srcDirs == null ? null : new SourceFiles().buildListOfSourceDirectories(srcDirs);
-      fileToFileData = coverageData.getFileToFileDataMap();
+      fileToFileData = coverageData.getFileToFileData();
       packageToFiles = new HashMap<>();
       this.withCallPoints = withCallPoints;
       sourceFilesNotFound = srcDirs == null ? null : new ArrayList<String>();

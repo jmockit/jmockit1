@@ -45,7 +45,7 @@ final class XmlFile
          out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
          out.write("<coverage version=\"1\">\n");
 
-         for (Entry<String, FileCoverageData> fileAndData : coverageData.getFileToFileDataMap().entrySet()) {
+         for (Entry<String, FileCoverageData> fileAndData : coverageData.getFileToFileData().entrySet()) {
             String sourceFileName = fileAndData.getKey();
             writeOpeningXmlElementForSourceFile(out, sourceFileName);
 

@@ -31,26 +31,7 @@ public final class CoverageData implements Serializable
    public boolean isWithCallPoints() { return withCallPoints; }
    public void setWithCallPoints(boolean withCallPoints) { this.withCallPoints = withCallPoints; }
 
-   @Nonnull public Map<String, FileCoverageData> getRawFileToFileData() { return fileToFileData; }
-
-   /**
-    * Returns an immutable map containing all source files with the corresponding coverage data gathered for each file during a test run.
-    */
-   @Nonnull
-   public Map<String, FileCoverageData> getFileToFileDataMap() {
-      Map<String, FileCoverageData> copy = new LinkedHashMap<>(fileToFileData);
-
-      for (Iterator<Entry<String, FileCoverageData>> itr = copy.entrySet().iterator(); itr.hasNext(); ) {
-         Entry<String, FileCoverageData> fileAndFileData = itr.next();
-         FileCoverageData fileData = fileAndFileData.getValue();
-
-         if (fileData.getTotalItems() == 0) {
-            itr.remove();
-         }
-      }
-
-      return Collections.unmodifiableMap(copy);
-   }
+   @Nonnull public Map<String, FileCoverageData> getFileToFileData() { return fileToFileData; }
 
    @Nonnull
    public FileCoverageData getOrAddFile(@Nonnull String file, @Nullable String kindOfTopLevelType) {
