@@ -141,7 +141,7 @@ public final class Label
     * The next basic block in the basic block stack.
     * This stack is used in the main loop of the fix point algorithm used in the second step of the control flow analysis algorithms.
     */
-   @Nullable Label next; // TODO: replace with List<Label> in CFGAnalysis
+   @Nullable Label next;
 
    /**
     * Returns the {@link #frame} this basic block belongs to, if any.
