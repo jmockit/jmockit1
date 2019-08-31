@@ -47,14 +47,11 @@ public abstract class AnnotatedReader extends BytecodeReader
          }
 
          if (outcome == null) {
-            if ("RuntimeVisibleAnnotations".equals(attributeName)) {
-               annotationsCodeIndex = codeIndex;
-            }
-            else if ("Deprecated".equals(attributeName)) {
-               access = Access.asDeprecated(access);
-            }
-            else if ("Synthetic".equals(attributeName)) {
-               access = Access.asSynthetic(access);
+            //noinspection SwitchStatementWithoutDefaultBranch
+            switch (attributeName) {
+               case "RuntimeVisibleAnnotations": annotationsCodeIndex = codeIndex; break;
+               case "Deprecated": access = Access.asDeprecated(access); break;
+               case "Synthetic":  access = Access.asSynthetic(access);
             }
          }
 
