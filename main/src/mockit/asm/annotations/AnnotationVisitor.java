@@ -43,7 +43,7 @@ public final class AnnotationVisitor
    /**
     * Next annotation visitor. This field is used to store annotation lists.
     */
-   @Nullable AnnotationVisitor next;
+   @Nullable private AnnotationVisitor next;
 
    /**
     * Previous annotation visitor. This field is used to store annotation lists.
