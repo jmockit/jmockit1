@@ -21,13 +21,12 @@ final class JMockitInitialization
 {
    private JMockitInitialization() {}
 
-   static void initialize(@Nonnull Instrumentation inst) {
-      applyInternalStartupFakesAsNeeded();
-
-      if (CodeCoverage.active()) {
+   static void initialize(@Nonnull Instrumentation inst, boolean activateCoverage) {
+      if (activateCoverage || CodeCoverage.active()) {
          inst.addTransformer(new CodeCoverage());
       }
 
+      applyInternalStartupFakesAsNeeded();
       applyUserSpecifiedStartupFakesIfAny();
    }
 

@@ -11,9 +11,12 @@ import javax.annotation.*;
 import org.junit.runner.*;
 import org.junit.runner.notification.*;
 
-@SuppressWarnings("unused")
 public final class JUnitListener extends RunListener
 {
+   @Nonnull private final TestCoverage testCoverage;
+
+   public JUnitListener(@Nonnull TestCoverage testCoverage) { this.testCoverage = testCoverage; }
+
    @Override
    public void testStarted(@Nonnull Description description) {
       if (description.isTest()) {
@@ -22,8 +25,7 @@ public final class JUnitListener extends RunListener
 
          for (Method testMethod : testClass.getDeclaredMethods()) {
             if (testMethod.getName().equals(testMethodName)) {
-               //noinspection ConstantConditions
-               TestCoverage.INSTANCE.setCurrentTestMethod(testMethod);
+               testCoverage.setCurrentTestMethod(testMethod);
                return;
             }
          }
@@ -33,8 +35,7 @@ public final class JUnitListener extends RunListener
    @Override
    public void testFinished(@Nonnull Description description) {
       if (description.isTest()) {
-         //noinspection ConstantConditions
-         TestCoverage.INSTANCE.setCurrentTestMethod(null);
+         testCoverage.setCurrentTestMethod(null);
       }
    }
 }

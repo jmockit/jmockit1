@@ -29,21 +29,9 @@
                <disableXmlReport>true</disableXmlReport>
                <excludes><exclude>**/CoverageTest.class</exclude></excludes>
                <argLine>
-                  -javaagent:${settings.localRepository}/org/jmockit/jmockit/${jmockit.version}/jmockit-${jmockit.version}.jar
-                  -Dcoverage-output=html
+                  -javaagent:${settings.localRepository}/org/jmockit/jmockit/${jmockit.version}/jmockit-${jmockit.version}.jar=coverage
                </argLine>
             </configuration>
-            <executions>
-               <execution>
-                  <id>xml</id>
-                  <phase>test</phase>
-                  <goals><goal>test</goal></goals>
-                  <configuration>
-                     <argLine>-Dcoverage-output=xml -Dcoverage-classes=loaded</argLine>
-                     <includes><include>**/XmlFileTest.class</include></includes>
-                  </configuration>
-               </execution>
-            </executions>
          </plugin>
       </plugins>
    </build>

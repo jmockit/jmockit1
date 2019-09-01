@@ -13,43 +13,34 @@ import mockit.internal.state.*;
 import static mockit.internal.startup.ClassLoadingBridgeFields.createSyntheticFieldsInJREClassToHoldClassLoadingBridges;
 
 /**
- * This is the "agent class" that initializes the JMockit "Java agent". It is not intended for use in client code.
- * Instead, the JVM needs to be initialized with <tt>-javaagent:&lt;properPathTo>/jmockit-1-x.jar</tt>.
+ * This is the "agent class" that initializes the JMockit "Java agent", provided the JVM is initialized with
+ * <tt>-javaagent:&lt;properPathTo>/jmockit-1-x.jar</tt>.
  *
  * @see #premain(String, Instrumentation)
  */
 public final class Startup
 {
-   public static boolean initializing;
    @Nullable private static Instrumentation instrumentation;
+   public static boolean initializing;
 
    private Startup() {}
 
    /**
-    * This method must only be called by the JVM, to provide the instrumentation object.
-    * In order for this to occur, the JVM must be started with "-javaagent:jmockit-1.x.jar" as a command line parameter
-    * (assuming the jar file is in the current directory).
-    * <p/>
-    * It is also possible to load user-specified fakes at this time, by having set the "fakes" system property.
+    * User-specified fakes will applied at this time, if the "fakes" system property is set to the fully qualified class names.
     *
-    * @param agentArgs coverage configuration parameters, if any
+    * @param agentArgs if "coverage", the coverage tool is activated
     * @param inst      the instrumentation service provided by the JVM
     */
    public static void premain(@Nullable String agentArgs, @Nonnull Instrumentation inst) {
       createSyntheticFieldsInJREClassToHoldClassLoadingBridges(inst);
+
       instrumentation = inst;
-      initialize(inst);
-   }
-
-   private static void initialize(@Nonnull Instrumentation inst) {
       inst.addTransformer(CachedClassfiles.INSTANCE, true);
-      applyStartupFakes(inst);
-      inst.addTransformer(new ExpectationsTransformer());
-   }
 
-   private static void applyStartupFakes(@Nonnull Instrumentation inst) {
       initializing = true;
-      try { JMockitInitialization.initialize(inst); } finally { initializing = false; }
+      try { JMockitInitialization.initialize(inst, "coverage".equals(agentArgs)); } finally { initializing = false; }
+
+      inst.addTransformer(new ExpectationsTransformer());
    }
 
    @Nonnull @SuppressWarnings("ConstantConditions")
