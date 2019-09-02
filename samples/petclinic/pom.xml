@@ -77,9 +77,7 @@
                </argLine>
                <systemPropertyVariables>
                   <java.util.logging.config.file>logging.properties</java.util.logging.config.file>
-                  <coverage-outputDir>target/coverage</coverage-outputDir>
                   <coverage-output>html</coverage-output>
-                  <coverage-metrics>all</coverage-metrics>
                   <coverage-check>85</coverage-check>
                </systemPropertyVariables>
             </configuration>
