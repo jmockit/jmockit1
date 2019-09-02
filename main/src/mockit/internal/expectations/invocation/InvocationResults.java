@@ -51,7 +51,7 @@ public final class InvocationResults
       }
    }
 
-   public void addResults(@Nonnull Object array) {
+   void addResults(@Nonnull Object array) {
       int n = Array.getLength(array);
 
       for (int i = 0; i < n; i++) {
@@ -69,13 +69,13 @@ public final class InvocationResults
       }
    }
 
-   public void addResults(@Nonnull Iterable<?> values) {
+   void addResults(@Nonnull Iterable<?> values) {
       for (Object value : values) {
          addConsecutiveResult(value);
       }
    }
 
-   public void addDeferredResults(@Nonnull Iterator<?> values) {
+   void addDeferredResults(@Nonnull Iterator<?> values) {
       InvocationResult result = new DeferredResults(values);
       addResult(result);
       constraints.setUnlimitedMaxInvocations();
@@ -98,13 +98,13 @@ public final class InvocationResults
 
       if (currentResult == null) {
          currentResult = result;
-         lastResult = result;
       }
       else {
          assert lastResult != null;
          lastResult.next = result;
-         lastResult = result;
       }
+
+      lastResult = result;
    }
 
    @Nullable
