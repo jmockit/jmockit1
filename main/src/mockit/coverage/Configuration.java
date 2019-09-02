@@ -4,6 +4,7 @@
  */
 package mockit.coverage;
 
+import java.io.*;
 import javax.annotation.*;
 
 public final class Configuration
@@ -27,9 +28,10 @@ public final class Configuration
          return outputDir;
       }
 
-      String mavenBaseDir = System.getProperty("basedir");
-      return mavenBaseDir == null ? null : "target";
+      return isTargetSubDirectoryAvailable() ? "target" : null;
    }
+
+   private static boolean isTargetSubDirectoryAvailable() { return System.getProperty("basedir") != null || new File("target").exists(); }
 
    @Nonnull
    public static String getOrChooseOutputDirectory(@Nonnull String outputDir, @Nonnull String defaultDir) {
@@ -37,7 +39,6 @@ public final class Configuration
          return outputDir;
       }
 
-      String mavenBaseDir = System.getProperty("basedir");
-      return mavenBaseDir == null ? defaultDir : "target/" + defaultDir;
+      return isTargetSubDirectoryAvailable() ? "target/" + defaultDir : defaultDir;
    }
 }
