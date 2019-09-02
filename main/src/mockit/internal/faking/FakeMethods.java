@@ -92,7 +92,7 @@ final class FakeMethods
       boolean isMatchByName(@Nonnull String realName) { return isByNameOnly && name.equals(realName); }
 
       @Nonnull Class<?> getRealClass() { return realClass; }
-      @Nonnull String getFakeNameAndDesc() { return name + desc; }
+
       int getIndexForFakeState() { return indexForFakeState; }
 
       boolean isStatic() { return Modifier.isStatic(access); }
@@ -101,17 +101,6 @@ final class FakeMethods
       boolean isForNativeMethod() { return nativeRealMethod; }
       boolean requiresFakeState() { return hasInvocationParameter() || reentrantRealClass; }
       boolean canBeReentered() { return targetTypeIsAClass && !nativeRealMethod; }
-
-      @Override @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
-      public boolean equals(Object obj) {
-         FakeMethod other = (FakeMethod) obj;
-         return realClass == other.getRealClass() && name.equals(other.name) && desc.equals(other.desc);
-      }
-
-      @Override
-      public int hashCode() {
-         return 31 * (31 * realClass.hashCode() + name.hashCode()) + desc.hashCode();
-      }
    }
 
    FakeMethods(@Nonnull Class<?> realClass, @Nonnull Type targetType) {

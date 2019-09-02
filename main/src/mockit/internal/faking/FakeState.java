@@ -142,10 +142,4 @@ final class FakeState
 
       return actualFakeMethod;
    }
-
-   @Override @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
-   public boolean equals(@Nonnull Object other) { return fakeMethod.equals(((FakeState) other).fakeMethod); }
-
-   @Override
-   public int hashCode() { return fakeMethod.hashCode(); }
 }
