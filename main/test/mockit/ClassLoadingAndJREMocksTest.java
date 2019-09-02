@@ -99,7 +99,7 @@ public final class ClassLoadingAndJREMocksTest
       }};
    }
 
-   String readResourceContents() throws IOException {
+   String readResourceContent() throws IOException {
       URL url = new URL("http://remoteHost/aResource");
       URLConnection connection = url.openConnection();
 
@@ -113,12 +113,30 @@ public final class ClassLoadingAndJREMocksTest
    public void cascadingMockedURLWithInjectableCascadedURLConnection(
       @Mocked URL anyUrl, @Injectable final URLConnection cascadedUrlConnection
    ) throws Exception {
-      final String testContents = "testing";
-      new Expectations() {{ cascadedUrlConnection.getContent(); result = testContents; }};
+      String testContent = recordURLConnectionToReturnContent(cascadedUrlConnection);
 
-      String contents = readResourceContents();
+      String content = readResourceContent();
 
-      assertEquals(testContents, contents);
+      assertEquals(testContent, content);
+   }
+
+   String recordURLConnectionToReturnContent(final URLConnection urlConnection) throws IOException {
+      final String testContent = "testing";
+      new Expectations() {{ urlConnection.getContent(); result = testContent; }};
+      return testContent;
+   }
+
+   @Test
+   public void fakeURLUsingInjectableURLConnection(@Injectable final URLConnection urlConnection) throws Exception {
+      final String testContent = recordURLConnectionToReturnContent(urlConnection);
+      new MockUp<URL>() {
+         @Mock void $init(URL context, String spec, URLStreamHandler handler) {}
+         @Mock URLConnection openConnection() { return urlConnection; }
+      };
+
+      String content = readResourceContent();
+
+      assertEquals(testContent, content);
    }
 
    @Test(expected = IllegalArgumentException.class)

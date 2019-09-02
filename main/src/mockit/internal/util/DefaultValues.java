@@ -123,12 +123,6 @@ public final class DefaultValues
    }
 
    @Nullable
-   public static Object computeForReturnType(@Nonnull String methodNameAndDesc) {
-      String typeDesc = getReturnTypeDesc(methodNameAndDesc);
-      return computeForType(typeDesc);
-   }
-
-   @Nullable
    public static Object computeForType(@Nonnull String typeDesc) {
       char typeDescChar = typeDesc.charAt(0);
 
@@ -241,43 +235,6 @@ public final class DefaultValues
       }
 
       if (type == Short.class) {
-         return (T) ZERO_SHORT;
-      }
-
-      return null;
-   }
-
-   @Nullable @SuppressWarnings("unchecked")
-   public static <T> T computeForWrapperType(@Nonnull String typeDesc) {
-      if ("java/lang/Integer".equals(typeDesc)) {
-         return (T) ZERO_INT;
-      }
-
-      if ("java/lang/Boolean".equals(typeDesc)) {
-         return (T) Boolean.FALSE;
-      }
-
-      if ("java/lang/Long".equals(typeDesc)) {
-         return (T) ZERO_LONG;
-      }
-
-      if ("java/lang/Double".equals(typeDesc)) {
-         return (T) ZERO_DOUBLE;
-      }
-
-      if ("java/lang/Float".equals(typeDesc)) {
-         return (T) ZERO_FLOAT;
-      }
-
-      if ("java/lang/Character".equals(typeDesc)) {
-         return (T) ZERO_CHAR;
-      }
-
-      if ("java/lang/Byte".equals(typeDesc)) {
-         return (T) ZERO_BYTE;
-      }
-
-      if ("java/lang/Short".equals(typeDesc)) {
          return (T) ZERO_SHORT;
       }
 

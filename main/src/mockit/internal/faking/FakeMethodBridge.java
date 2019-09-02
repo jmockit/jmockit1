@@ -28,7 +28,7 @@ public final class FakeMethodBridge extends ClassLoadingBridge
       Object fake = TestRun.getFake(fakeClassDesc);
 
       if (notToBeMocked(fakedInstance, fakedClassDesc)) {
-         return DefaultValues.computeForReturnType(fakeDesc);
+         return Void.class;
       }
 
       String fakeName = (String) args[3];
