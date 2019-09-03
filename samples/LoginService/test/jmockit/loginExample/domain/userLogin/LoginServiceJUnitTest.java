@@ -50,7 +50,6 @@ public final class LoginServiceJUnitTest
 
    @Test
    public void notRevokeSecondAccountAfterTwoFailedAttemptsOnFirstAccount(@Mocked UserAccount secondAccount) throws Exception {
-      willMatchPassword(false);
 
       new Expectations() {{
          UserAccount.find("roger"); result = secondAccount;
