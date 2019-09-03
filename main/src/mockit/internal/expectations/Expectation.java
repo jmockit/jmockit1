@@ -127,9 +127,4 @@ final class Expectation
 
    @Nullable
    Error verifyConstraints(int minInvocations) { return constraints.verifyLowerLimit(invocation, minInvocations); }
-
-   @Nullable
-   Object executeRealImplementation(@Nonnull Object replacementInstance, @Nonnull Object[] args) throws Throwable {
-      return getResults().executeRealImplementation(replacementInstance, args);
-   }
 }

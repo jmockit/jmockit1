@@ -42,12 +42,7 @@ final class ReplayPhase extends Phase
       invocations.add(expectation);
       invocationInstances.add(mock);
       invocationArguments.add(args);
-
       expectation.constraints.incrementInvocationCount();
-
-      if (withRealImpl && replacementInstance != null) {
-         return produceResult(expectation, replacementInstance, args);
-      }
 
       return produceResult(expectation, mock, withRealImpl, args);
    }
@@ -71,21 +66,6 @@ final class ReplayPhase extends Phase
          Map<Object, Object> instanceMap = getInstanceMap();
          instanceMap.put(mock, invocation.instance);
       }
-   }
-
-   @Nullable
-   private Object produceResult(
-      @Nonnull Expectation expectation, @Nonnull Object replacementInstance, @Nonnull Object[] args
-   ) throws Throwable {
-      if (expectation.recordPhase == null) {
-         expectation.executedRealImplementation = true;
-      }
-      else if (expectation.constraints.isInvocationCountMoreThanMaximumExpected()) {
-         recordAndReplay.setErrorThrown(expectation.invocation.errorForUnexpectedInvocation(args));
-         return null;
-      }
-
-      return expectation.executeRealImplementation(replacementInstance, args);
    }
 
    @Nullable

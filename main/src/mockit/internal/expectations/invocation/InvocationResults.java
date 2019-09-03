@@ -81,15 +81,6 @@ public final class InvocationResults
       constraints.setUnlimitedMaxInvocations();
    }
 
-   @Nullable
-   public Object executeRealImplementation(@Nonnull Object instanceToInvoke, @Nonnull Object[] invocationArgs) throws Throwable {
-      if (currentResult == null) {
-         currentResult = new RealImplementationResult(invocation, instanceToInvoke);
-      }
-
-      return currentResult.produceResult(invocationArgs);
-   }
-
    public void addThrowable(@Nonnull Throwable t) { addResult(new ThrowableResult(t)); }
 
    private void addResult(@Nonnull InvocationResult result) {
