@@ -13,19 +13,15 @@ public final class ArgumentMismatch
 {
    @Nonnull private final StringBuilder out = new StringBuilder(50);
    @Nullable private String parameterType;
-   private boolean finished;
 
    @Nullable
    public String getParameterType() { return parameterType; }
 
-   public boolean isFinished() { return finished; }
-   void markAsFinished() { finished = true; }
-
    @Override
    public String toString() { return out.toString(); }
 
-   @Nonnull public ArgumentMismatch append(char c) { out.append(c); return this; }
-   @Nonnull public ArgumentMismatch append(int i) { out.append(i); return this; }
+   @Nonnull public ArgumentMismatch append(char c)   { out.append(c); return this; }
+   @Nonnull public ArgumentMismatch append(int i)    { out.append(i); return this; }
    @Nonnull public ArgumentMismatch append(double d) { out.append(d); return this; }
    @Nonnull public ArgumentMismatch append(@Nullable CharSequence str) { out.append(str); return this; }
 
@@ -40,7 +36,7 @@ public final class ArgumentMismatch
    }
 
    @SuppressWarnings("OverlyComplexMethod")
-   public void appendFormatted(@Nullable Object value) {
+   void appendFormatted(@Nullable Object value) {
       if (value == null) {
          out.append("null");
       }

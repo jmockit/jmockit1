@@ -71,25 +71,6 @@ abstract class ArgumentValuesAndMatchers
          !EqualityMatcher.areEqualWhenNonNull(actual, expected);
    }
 
-   @Nullable
-   abstract Error assertMatch(@Nonnull Object[] replayArgs, @Nonnull Map<Object, Object> instanceMap);
-
-   @Nullable
-   final Error assertEquals(
-      @Nonnull Object[] expectedValues, @Nonnull Object[] actualValues, @Nonnegative int count, @Nonnull Map<Object, Object> instanceMap
-   ) {
-      for (int i = 0; i < count; i++) {
-         Object expected = expectedValues[i];
-         Object actual = actualValues[i];
-
-         if (isNotEqual(expected, actual, instanceMap)) {
-            return signature.argumentMismatchMessage(i, expected, actual);
-         }
-      }
-
-      return null;
-   }
-
    abstract boolean hasEquivalentMatchers(@Nonnull ArgumentValuesAndMatchers other);
 
    private static boolean equivalentMatches(

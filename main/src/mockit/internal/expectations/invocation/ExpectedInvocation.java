@@ -338,11 +338,6 @@ public final class ExpectedInvocation
       }
    }
 
-   @Nullable
-   public Error assertThatArgumentsMatch(@Nonnull Object[] replayArgs, @Nonnull Map<Object, Object> instanceMap) {
-      return arguments.assertMatch(replayArgs, instanceMap);
-   }
-
    // Default result //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
    @Nullable

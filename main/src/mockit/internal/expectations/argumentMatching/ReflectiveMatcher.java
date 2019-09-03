@@ -43,7 +43,5 @@ public final class ReflectiveMatcher implements ArgumentMatcher<ReflectiveMatche
       else {
          argumentMismatch.append('?');
       }
-
-      argumentMismatch.markAsFinished();
    }
 }
