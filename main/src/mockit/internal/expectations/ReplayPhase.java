@@ -88,21 +88,6 @@ final class ReplayPhase extends Phase
    }
 
    @Nullable
-   private Object handleUnexpectedInvocation(
-      @Nullable Object mock, @Nonnull String mockClassDesc, @Nonnull String mockNameAndDesc, boolean withRealImpl,
-      @Nonnull Object[] replayArgs
-   ) {
-      if (withRealImpl) {
-         return Void.class;
-      }
-
-      recordAndReplay.setErrorThrown(
-         new ExpectedInvocation(mock, mockClassDesc, mockNameAndDesc, replayArgs).errorForUnexpectedInvocation());
-
-      return null;
-   }
-
-   @Nullable
    Error endExecution() {
       Error missingInvocation = getErrorForFirstExpectationThatIsMissing();
       return missingInvocation;

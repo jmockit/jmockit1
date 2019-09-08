@@ -213,15 +213,6 @@ public final class ExpectedInvocation
 
    // Creation of Error instances for invocation mismatch reporting ///////////////////////////////////////////////////////////////////////
 
-   public ExpectedInvocation(
-      @Nullable Object mockedInstance, @Nonnull String classDesc, @Nonnull String methodNameAndDesc, @Nonnull Object[] args
-   ) {
-      instance = mockedInstance;
-      matchInstance = false;
-      arguments = new InvocationArguments(0, classDesc, methodNameAndDesc, null, args);
-      invocationCause = null;
-   }
-
    @Nonnull
    public UnexpectedInvocation errorForUnexpectedInvocation() {
       String initialMessage = "Unexpected invocation of " + this;
