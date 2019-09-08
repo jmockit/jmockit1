@@ -2,7 +2,7 @@
  * Copyright (c) 2006 JMockit developers
  * This file is subject to the terms of the MIT license (see LICENSE.txt).
  */
-package mockit.internal;
+package mockit.internal.expectations;
 
 import java.util.*;
 import javax.annotation.*;
@@ -42,26 +42,6 @@ public final class MockingFilters
       if (unmockable) {
          throw new IllegalArgumentException(typeDesc.replace('/', '.') + " is not mockable");
       }
-   }
-
-   public static boolean isFullMockingDisallowed(@Nonnull String classDesc) {
-      return classDesc.startsWith("java/io/") && (
-         "java/io/FileOutputStream".equals(classDesc) || "java/io/FileInputStream".equals(classDesc) ||
-         "java/io/FileWriter".equals(classDesc) || "java/io/PrintWriter java/io/Writer java/io/DataInputStream".contains(classDesc)
-      );
-   }
-
-   public static boolean isUnmockableInvocation(@Nullable String mockingFilters, @Nonnull String name) {
-      if (mockingFilters == null) {
-         return false;
-      }
-
-      if (mockingFilters.isEmpty()) {
-         return true;
-      }
-
-      int i = mockingFilters.indexOf(name);
-      return i > -1 && mockingFilters.charAt(i + name.length()) == ' ';
    }
 
    public static boolean isSubclassOfUnmockable(@Nonnull Class<?> aClass) {

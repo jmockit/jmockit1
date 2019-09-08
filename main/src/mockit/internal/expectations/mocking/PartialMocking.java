@@ -7,7 +7,7 @@ package mockit.internal.expectations.mocking;
 import java.util.*;
 import javax.annotation.*;
 
-import mockit.internal.*;
+import mockit.internal.expectations.*;
 import mockit.internal.state.*;
 import static mockit.internal.util.AutoBoxing.*;
 import static mockit.internal.util.GeneratedClasses.*;

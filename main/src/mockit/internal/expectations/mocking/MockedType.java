@@ -10,7 +10,7 @@ import javax.annotation.*;
 import static java.lang.reflect.Modifier.*;
 
 import mockit.*;
-import mockit.internal.*;
+import mockit.internal.expectations.*;
 import mockit.internal.expectations.state.*;
 import mockit.internal.injection.*;
 import mockit.internal.reflection.*;

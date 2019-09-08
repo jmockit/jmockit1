@@ -7,7 +7,7 @@ package mockit.internal.expectations.mocking;
 import java.lang.reflect.*;
 import javax.annotation.*;
 
-import mockit.internal.*;
+import mockit.internal.expectations.*;
 
 class TypeRedefinition extends BaseTypeRedefinition
 {

@@ -12,7 +12,7 @@ import javax.annotation.*;
 import static java.lang.reflect.Modifier.*;
 import static java.util.Collections.synchronizedList;
 
-import mockit.internal.*;
+import mockit.internal.expectations.*;
 import mockit.internal.expectations.mocking.*;
 import mockit.internal.reflection.*;
 import mockit.internal.state.*;

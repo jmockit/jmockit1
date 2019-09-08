@@ -18,7 +18,7 @@ import mockit.internal.util.*;
 import static mockit.asm.jvmConstants.Access.SYNTHETIC;
 import static mockit.asm.jvmConstants.Access.ENUM;
 import static mockit.asm.jvmConstants.Opcodes.*;
-import static mockit.internal.MockingFilters.*;
+import static mockit.internal.expectations.MockingFilters.*;
 import static mockit.internal.util.ObjectMethods.isMethodFromObject;
 import static mockit.internal.util.Utilities.*;
 
@@ -91,6 +91,13 @@ final class MockedClassModifier extends BaseClassModifier
       }
    }
 
+   private static boolean isFullMockingDisallowed(@Nonnull String classDesc) {
+      return classDesc.startsWith("java/io/") && (
+         "java/io/FileOutputStream".equals(classDesc) || "java/io/FileInputStream".equals(classDesc) ||
+         "java/io/FileWriter".equals(classDesc) || "java/io/PrintWriter java/io/Writer java/io/DataInputStream".contains(classDesc)
+      );
+   }
+
    @Override
    public void visitInnerClass(@Nonnull String name, @Nullable String outerName, @Nullable String innerName, int access) {
       cw.visitInnerClass(name, outerName, innerName, access);
@@ -149,7 +156,16 @@ final class MockedClassModifier extends BaseClassModifier
    }
 
    private boolean isConstructorNotAllowedByMockingFilters(@Nonnull String name) {
-      return isProxy || executionMode != ExecutionMode.Regular || isUnmockableInvocation(defaultFilters, name);
+      return isProxy || executionMode != ExecutionMode.Regular || isUnmockableInvocation(name);
+   }
+
+   private boolean isUnmockableInvocation(@Nonnull String name) {
+      if (defaultFilters == null) {
+         return false;
+      }
+
+      int i = defaultFilters.indexOf(name);
+      return i > -1 && defaultFilters.charAt(i + name.length()) == ' ';
    }
 
    private boolean isMethodNotToBeMocked(int access, @Nonnull String name, @Nonnull String desc) {
@@ -175,7 +191,7 @@ final class MockedClassModifier extends BaseClassModifier
       return
          baseClassNameForCapturedInstanceMethods != null && (access & STATIC) != 0 ||
          executionMode.isMethodToBeIgnored(access) ||
-         isUnmockableInvocation(defaultFilters, name);
+         isUnmockableInvocation(name);
    }
 
    @Override
