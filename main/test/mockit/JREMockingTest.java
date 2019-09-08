@@ -96,6 +96,24 @@ public final class JREMockingTest
    // Un-mockable JRE classes /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
    @Test(expected = IllegalArgumentException.class)
+   public void attemptToMockUnmockableJREClass(@Mocked FileInputStream unmockable) { fail("Should never get here"); }
+
+   @Test(expected = IllegalArgumentException.class)
+   public void attemptToMockUnmockableJREClass(@Mocked FileOutputStream unmockable) { fail("Should never get here"); }
+
+   @Test(expected = IllegalArgumentException.class)
+   public void attemptToMockUnmockableJREClass(@Mocked Writer unmockable) { fail("Should never get here"); }
+
+   @Test(expected = IllegalArgumentException.class)
+   public void attemptToMockUnmockableJREClass(@Mocked FileWriter unmockable) { fail("Should never get here"); }
+
+   @Test(expected = IllegalArgumentException.class)
+   public void attemptToMockUnmockableJREClass(@Mocked PrintWriter unmockable) { fail("Should never get here"); }
+
+   @Test(expected = IllegalArgumentException.class)
+   public void attemptToMockUnmockableJREClass(@Mocked DataInputStream unmockable) { fail("Should never get here"); }
+
+   @Test(expected = IllegalArgumentException.class)
    public void attemptToMockUnmockableJREClass(@Mocked StringBuffer unmockable) { fail("Should never get here"); }
 
    @Test(expected = IllegalArgumentException.class)
