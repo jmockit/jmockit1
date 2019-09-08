@@ -190,10 +190,6 @@ public class BaseClassModifier extends WrappingClassVisitor
          mw.visitIntInsn(SIPUSH, (Integer) value);
          mw.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;", false);
       }
-      else if (value instanceof Boolean) {
-         mw.visitInsn((Boolean) value ? ICONST_1 : ICONST_0);
-         mw.visitMethodInsn(INVOKESTATIC, "java/lang/Boolean", "valueOf", "(Z)Ljava/lang/Boolean;", false);
-      }
       else {
          mw.visitLdcInsn(value);
       }
