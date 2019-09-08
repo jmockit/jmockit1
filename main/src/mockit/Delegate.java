@@ -36,14 +36,9 @@ package mockit;
  * <p/>
  * When used with the <tt>with(Delegate)</tt> method, the delegate method must return a <tt>boolean</tt>, being <tt>true</tt> for a
  * successfully matched argument or <tt>false</tt> otherwise.
- * <p/>
- * Finally, note that a <tt>static</tt> method in the mocked type can have a delegate as well.
- * The same is true for <tt>private</tt>, <tt>final</tt>, and <tt>native</tt> methods.
  *
  * @see <a href="http://jmockit.github.io/tutorial/Mocking.html#delegates" target="tutorial">Tutorial</a>
  *
  * @param <T> the type of the argument to be matched, when used with the <tt>with(Delegate)</tt> method
  */
-public interface Delegate<T>
-{
-}
+public interface Delegate<T> {}
