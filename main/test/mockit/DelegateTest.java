@@ -20,6 +20,9 @@ public final class DelegateTest
       static boolean staticMethod() { return true; }
       static boolean staticMethod(int i) { return i > 0; }
       protected native long nativeMethod(boolean b);
+      public native int[] nativeMethodReturningAnArrayOfAPrimitiveType();
+      public native Foo[] nativeMethodReturningAnArrayOfAReferenceType();
+      public native String[][] nativeMethodReturningATwoDimensionalArray();
       final char finalMethod() { return 's'; }
       void addElements(List<String> elements) { elements.add("one element"); }
       Foo getFoo() { return null; }
