@@ -40,12 +40,27 @@ public final class ExpectationsWithArgMatchersTest
 
    @Mocked Collaborator mock;
 
+   @Test
+   public void recordExpectationWithDelegateWithoutTheParameterType() {
+      new Expectations() {{
+         mock.useObject(with(new Delegate() { // only compiles for a parameter of type Object
+            @SuppressWarnings("unused")
+            boolean delegate(Object arg) { return "test".equals(arg); }
+         }));
+      }};
+
+      String result = mock.useObject("test");
+
+      assertNull(result);
+   }
+
    static final class CollectionElementDelegate<T> implements Delegate<Collection<T>> {
       private final T item;
       CollectionElementDelegate(T item) { this.item = item; }
       @SuppressWarnings("unused") boolean hasItem(Collection<T> items) { return items.contains(item); }
    }
 
+   @SuppressWarnings("unused")
    static final class Delegates {
       static <T> Delegate<Collection<T>> collectionElement(T item) { return new CollectionElementDelegate<>(item); }
    }

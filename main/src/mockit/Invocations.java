@@ -360,6 +360,8 @@ class Invocations
     */
    @Nullable
    protected final <T> T with(@Nonnull Delegate<? super T> objectWithDelegateMethod) {
+      addMatcher(new ReflectiveMatcher(objectWithDelegateMethod));
+
       Class<?> delegateClass = objectWithDelegateMethod.getClass();
       Type[] genericInterfaces = delegateClass.getGenericInterfaces();
 
@@ -368,15 +370,13 @@ class Invocations
          genericInterfaces = delegateClass.getGenericInterfaces();
       }
 
-      if (!(genericInterfaces[0] instanceof ParameterizedType)) {
-         throw new IllegalArgumentException("Delegate class lacks the parameter type");
+      Type typeFromDelegateImplementationClass = genericInterfaces[0];
+
+      if (!(typeFromDelegateImplementationClass instanceof ParameterizedType)) {
+         return null;
       }
 
-      ParameterizedType type = (ParameterizedType) genericInterfaces[0];
-      Type parameterType = type.getActualTypeArguments()[0];
-
-      addMatcher(new ReflectiveMatcher(objectWithDelegateMethod));
-
+      Type parameterType = ((ParameterizedType) typeFromDelegateImplementationClass).getActualTypeArguments()[0];
       return DefaultValues.computeForWrapperType(parameterType);
    }
 
