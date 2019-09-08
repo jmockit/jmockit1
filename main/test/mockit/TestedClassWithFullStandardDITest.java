@@ -12,10 +12,10 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 
 import org.junit.*;
-import org.junit.runners.*;
 import static org.junit.Assert.*;
+import static org.junit.runners.MethodSorters.*;
 
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+@FixMethodOrder(NAME_ASCENDING)
 public final class TestedClassWithFullStandardDITest
 {
    public static class TestedClass {

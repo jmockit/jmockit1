@@ -180,4 +180,31 @@ public final class StandardDITest
       assertEquals("Abc", tested1.nonAnnotatedField);
       assertSame(callable, tested1.nonAnnotatedGenericField);
    }
+
+   public static final class DependencyToBeProvided {}
+   public static final class TestedClassWithProvider { @Inject Provider<DependencyToBeProvided> provider; }
+   @Tested(fullyInitialized = true) TestedClassWithProvider tested6;
+
+   @Test
+   public void instantiateClassWithDependencyFromStandardProvider() {
+      DependencyToBeProvided providedDependency1 = tested6.provider.get();
+      DependencyToBeProvided providedDependency2 = tested6.provider.get();
+      assertNotNull(providedDependency1);
+      assertNotNull(providedDependency2);
+      assertNotSame(providedDependency1, providedDependency2);
+   }
+
+
+   @Singleton public static final class SingletonDependencyToBeProvided {}
+   public static final class TestedClassWithSingletonProvider { @Inject Provider<SingletonDependencyToBeProvided> provider; }
+   @Tested(fullyInitialized = true) TestedClassWithSingletonProvider tested7;
+
+   @Test
+   public void instantiateClassWithSingletonDependencyFromStandardProvider() {
+      SingletonDependencyToBeProvided providedDependency1 = tested7.provider.get();
+      SingletonDependencyToBeProvided providedDependency2 = tested7.provider.get();
+      assertNotNull(providedDependency1);
+      assertNotNull(providedDependency2);
+      assertSame(providedDependency1, providedDependency2);
+   }
 }
