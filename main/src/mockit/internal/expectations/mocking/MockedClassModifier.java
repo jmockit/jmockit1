@@ -14,7 +14,6 @@ import mockit.asm.methods.*;
 import mockit.asm.types.*;
 import mockit.internal.*;
 import mockit.internal.expectations.*;
-import mockit.internal.util.*;
 import static mockit.asm.jvmConstants.Access.SYNTHETIC;
 import static mockit.asm.jvmConstants.Access.ENUM;
 import static mockit.asm.jvmConstants.Opcodes.*;
@@ -24,9 +23,17 @@ import static mockit.internal.util.Utilities.*;
 
 final class MockedClassModifier extends BaseClassModifier
 {
-   private static final boolean NATIVE_UNSUPPORTED = !HOTSPOT_VM;
    private static final int METHOD_ACCESS_MASK = PRIVATE + SYNTHETIC + ABSTRACT;
    private static final int PUBLIC_OR_PROTECTED = PUBLIC + PROTECTED;
+   private static final boolean NATIVE_UNSUPPORTED = !HOTSPOT_VM;
+
+   private static final Map<String, String> FILTERS = new HashMap<>(4);
+   static {
+      FILTERS.put("java/lang/Object",         "<init> clone getClass hashCode wait notify notifyAll ");
+      FILTERS.put("java/io/File",             "compareTo equals getName getPath hashCode toString ");
+      FILTERS.put("java/util/logging/Logger", "<init> getName ");
+      FILTERS.put("java/util/jar/JarEntry",   "<init> ");
+   }
 
    @Nullable private final MockedType mockedType;
    private String className;
@@ -64,11 +71,7 @@ final class MockedClassModifier extends BaseClassModifier
       }
       else {
          className = name;
-         defaultFilters = filtersForClass(name);
-
-         if (defaultFilters != null && defaultFilters.isEmpty()) {
-            throw VisitInterruptedException.INSTANCE;
-         }
+         defaultFilters = FILTERS.get(name);
       }
 
       if (baseClassNameForCapturedInstanceMethods != null) {
@@ -85,7 +88,7 @@ final class MockedClassModifier extends BaseClassModifier
 
             if (modifyingClassName.equals(mockedType.getClassType().getName())) {
                throw new IllegalArgumentException(
-                  "Class " + internalName.replace('/', '.') + " cannot be @Mocked fully; instead, use @Injectable or partial mocking");
+                  "Class " + modifyingClassName + " cannot be @Mocked fully; instead, use @Injectable or partial mocking");
             }
          }
       }

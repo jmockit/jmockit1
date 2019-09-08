@@ -11,18 +11,7 @@ import mockit.asm.types.*;
 
 public final class MockingFilters
 {
-   private static final Map<String, String> FILTERS = new HashMap<>();
-   static {
-      FILTERS.put("java/lang/Object", "<init> clone getClass hashCode wait notify notifyAll ");
-      FILTERS.put("java/io/File", "compareTo equals getName getPath hashCode toString ");
-      FILTERS.put("java/util/logging/Logger", "<init> getName ");
-      FILTERS.put("java/util/jar/JarEntry", "<init> ");
-   }
-
    private MockingFilters() {}
-
-   @Nullable
-   public static String filtersForClass(@Nonnull String classDesc) { return FILTERS.get(classDesc); }
 
    public static void validateAsMockable(@Nonnull Class<?> type) {
       String typeDesc = JavaType.getInternalName(type);
