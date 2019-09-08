@@ -9,15 +9,12 @@ import java.security.*;
 import java.util.*;
 import javax.annotation.*;
 
-import static java.lang.Boolean.*;
-
 import mockit.asm.classes.*;
 import mockit.asm.metadata.*;
 import mockit.asm.types.*;
 import mockit.internal.*;
 import mockit.internal.startup.*;
 import mockit.internal.state.*;
-import mockit.internal.util.*;
 import static mockit.internal.capturing.CapturedType.*;
 
 public final class CaptureTransformer<M> implements ClassFileTransformer
@@ -67,101 +64,72 @@ public final class CaptureTransformer<M> implements ClassFileTransformer
          return null;
       }
 
-      SuperTypeCollector superTypeCollector = new SuperTypeCollector(loader);
-      ClassMetadataReader cmr = new ClassMetadataReader(classfileBuffer);
-
-      try {
-         superTypeCollector.visit(cmr);
-      }
-      catch (VisitInterruptedException ignore) {
-         if (superTypeCollector.classExtendsCapturedType) {
-            String className = classDesc.replace('/', '.');
-            ClassReader cr = new ClassReader(classfileBuffer);
-            return modifyAndRegisterClass(loader, className, cr);
-         }
+      if (isClassToBeCaptured(loader, classfileBuffer)) {
+         String className = classDesc.replace('/', '.');
+         ClassReader cr = new ClassReader(classfileBuffer);
+         return modifyAndRegisterClass(loader, className, cr);
       }
 
       return null;
    }
 
-   private final class SuperTypeCollector {
-      @Nullable private final ClassLoader loader;
-      boolean classExtendsCapturedType;
+   private boolean isClassToBeCaptured(@Nullable ClassLoader loader, @Nonnull byte[] classfileBuffer) {
+      ClassMetadataReader cmr = new ClassMetadataReader(classfileBuffer);
+      String superName = cmr.getSuperClass();
 
-      SuperTypeCollector(@Nullable ClassLoader loader) { this.loader = loader; }
-
-      void visit(@Nonnull ClassMetadataReader cmr) {
-         classExtendsCapturedType = false;
-
-         String superName = cmr.getSuperClass();
-
-         if (capturedTypeDesc.equals(superName)) {
-            classExtendsCapturedType = true;
-            throw VisitInterruptedException.INSTANCE;
-         }
-
-         String[] interfaces = cmr.getInterfaces();
-
-         if (interfaces != null) {
-            interruptVisitIfClassImplementsAnInterface(interfaces);
-         }
-
-         if (superName != null) {
-            searchSuperTypes(superName, interfaces);
-         }
-
-         throw VisitInterruptedException.INSTANCE;
+      if (capturedTypeDesc.equals(superName)) {
+         return true;
       }
 
-      private void interruptVisitIfClassImplementsAnInterface(@Nonnull String[] interfaces) {
-         for (String implementedInterface : interfaces) {
-            if (capturedTypeDesc.equals(implementedInterface)) {
-               classExtendsCapturedType = true;
-               throw VisitInterruptedException.INSTANCE;
-            }
+      String[] interfaces = cmr.getInterfaces();
+
+      if (interfaces != null && isClassWhichImplementsACapturingInterface(interfaces)) {
+         return true;
+      }
+
+      return superName != null && searchSuperTypes(loader, superName, interfaces);
+   }
+
+   private boolean isClassWhichImplementsACapturingInterface(@Nonnull String[] interfaces) {
+      for (String implementedInterface : interfaces) {
+         if (capturedTypeDesc.equals(implementedInterface)) {
+            return true;
          }
       }
 
-      private void searchSuperTypes(@Nonnull String superName, @Nullable String[] interfaces) {
-         if (!"java/lang/Object".equals(superName) && !superName.startsWith("mockit/")) {
-            searchSuperType(superName);
-         }
+      return false;
+   }
 
-         if (interfaces != null && interfaces.length > 0) {
-            for (String itf : interfaces) {
-               if (!itf.startsWith("java/") && !itf.startsWith("javax/")) {
-                  searchSuperType(itf);
+   private boolean searchSuperTypes(@Nullable ClassLoader loader, @Nonnull String superName, @Nullable String[] interfaces) {
+      if (!"java/lang/Object".equals(superName) && !superName.startsWith("mockit/")) {
+         if (searchSuperType(loader, superName)) {
+            return true;
+         }
+      }
+
+      if (interfaces != null && interfaces.length > 0) {
+         for (String itf : interfaces) {
+            if (!itf.startsWith("java/") && !itf.startsWith("javax/")) {
+               if (searchSuperType(loader, itf)) {
+                  return true;
                }
             }
          }
       }
 
-      private void searchSuperType(@Nonnull String superName) {
-         Boolean extendsCapturedType = superTypesSearched.get(superName);
+      return false;
+   }
 
-         if (extendsCapturedType == FALSE) {
-            return;
-         }
+   private boolean searchSuperType(@Nullable ClassLoader loader, @Nonnull String superName) {
+      Boolean extendsCapturedType = superTypesSearched.get(superName);
 
-         if (extendsCapturedType == TRUE) {
-            classExtendsCapturedType = true;
-            throw VisitInterruptedException.INSTANCE;
-         }
-
+      if (extendsCapturedType == null) {
          byte[] classfileBytes = ClassFile.getClassFile(loader, superName);
-         ClassMetadataReader cmr = new ClassMetadataReader(classfileBytes);
-
-         try {
-            visit(cmr);
-         }
-         catch (VisitInterruptedException e) {
-            superTypesSearched.put(superName, classExtendsCapturedType);
-
-            if (classExtendsCapturedType) {
-               throw e;
-            }
-         }
+         extendsCapturedType = isClassToBeCaptured(loader, classfileBytes);
+         superTypesSearched.put(superName, extendsCapturedType);
       }
+
+      return extendsCapturedType;
    }
 
    @Nonnull
