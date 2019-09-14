@@ -12,16 +12,11 @@ final class ExpectationError extends AssertionError
 {
    private String message;
 
-   @Override
-   @Nonnull public String toString() { return message; }
-
-   void prepareForDisplay(@Nonnull String title) {
-      message = title;
-      StackTrace.filterStackTrace(this);
-   }
+   @Nonnull @Override public String toString() { return message; }
 
    void defineCause(@Nonnull String title, @Nonnull Throwable error) {
-      prepareForDisplay(title);
+      message = title;
+      StackTrace.filterStackTrace(this);
       error.initCause(this);
    }
 }
