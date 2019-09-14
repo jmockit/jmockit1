@@ -37,7 +37,7 @@ final class OrderedVerificationPhase extends BaseVerificationPhase
    List<ExpectedInvocation> findExpectation(
       @Nullable Object mock, @Nonnull String mockClassDesc, @Nonnull String mockNameAndDesc, @Nonnull Object[] args
    ) {
-      Expectation expectation = expectationBeingVerified();
+      Expectation expectation = currentVerification;
       int i = replayIndex;
 
       while (i >= 0 && i < expectationCount) {
@@ -87,7 +87,7 @@ final class OrderedVerificationPhase extends BaseVerificationPhase
          throw errorThrown;
       }
 
-      Expectation verifying = expectationBeingVerified();
+      Expectation verifying = currentVerification;
 
       if (verifying == null) {
          return;
@@ -157,16 +157,4 @@ final class OrderedVerificationPhase extends BaseVerificationPhase
          }
       }
    }
-
-   @Nullable @Override
-   Error endVerification() {
-      if (pendingError != null) {
-         return pendingError;
-      }
-
-      return super.endVerification();
-   }
-
-   @Override
-   boolean shouldDiscardInformationAboutVerifiedInvocationOnceUsed() { return true; }
 }

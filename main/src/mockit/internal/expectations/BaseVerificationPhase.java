@@ -9,15 +9,12 @@ import javax.annotation.*;
 
 import mockit.internal.expectations.argumentMatching.*;
 import mockit.internal.expectations.invocation.*;
-import mockit.internal.util.*;
 
 public abstract class BaseVerificationPhase extends TestOnlyPhase
 {
    @Nonnull final ReplayPhase replayPhase;
-   private boolean allMockedInvocationsDuringReplayMustBeVerified;
-   @Nullable private Object[] mockedTypesAndInstancesToFullyVerify;
    @Nonnull private final List<VerifiedExpectation> currentVerifiedExpectations;
-   @Nullable private Expectation currentVerification;
+   @Nullable Expectation currentVerification;
    int replayIndex;
    @Nullable Error pendingError;
    @Nullable ExpectedInvocation matchingInvocationWithDifferentArgs;
@@ -27,15 +24,6 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
       this.replayPhase = replayPhase;
       currentVerifiedExpectations = new ArrayList<>();
    }
-
-   public final void setAllInvocationsMustBeVerified() { allMockedInvocationsDuringReplayMustBeVerified = true; }
-
-   public final void setMockedTypesToFullyVerify(@Nonnull Object[] mockedTypesAndInstancesToFullyVerify) {
-      this.mockedTypesAndInstancesToFullyVerify = mockedTypesAndInstancesToFullyVerify;
-   }
-
-   @Nullable
-   final Expectation expectationBeingVerified() { return currentVerification; }
 
    @Nullable @Override
    final Object handleInvocation(
@@ -135,133 +123,14 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
    }
 
    @Nullable
-   Error endVerification() {
-      if (pendingError != null) {
-         return pendingError;
-      }
-
-      if (allMockedInvocationsDuringReplayMustBeVerified) {
-         return validateThatAllInvocationsWereVerified();
-      }
-
-      return null;
-   }
-
-   @Nullable
-   private Error validateThatAllInvocationsWereVerified() {
-      List<Expectation> expectationsInReplayOrder = replayPhase.invocations;
-      List<Expectation> notVerified = new ArrayList<>();
-
-      for (int i = 0, n = expectationsInReplayOrder.size(); i < n; i++) {
-         Expectation replayExpectation = expectationsInReplayOrder.get(i);
-
-         if (replayExpectation != null && isEligibleForFullVerification(replayExpectation)) {
-            Object[] replayArgs = replayPhase.invocationArguments.get(i);
-
-            if (!wasVerified(replayExpectation, replayArgs, i)) {
-               notVerified.add(replayExpectation);
-            }
-         }
-      }
-
-      if (!notVerified.isEmpty()) {
-         if (mockedTypesAndInstancesToFullyVerify == null) {
-            Expectation firstUnexpected = notVerified.get(0);
-            return firstUnexpected.invocation.errorForUnexpectedInvocation();
-         }
-
-         return validateThatUnverifiedInvocationsAreAllowed(notVerified);
-      }
-
-      return null;
-   }
-
-   private static boolean isEligibleForFullVerification(@Nonnull Expectation replayExpectation) {
-      return !replayExpectation.executedRealImplementation && replayExpectation.constraints.minInvocations <= 0;
-   }
-
-   private boolean wasVerified(@Nonnull Expectation replayExpectation, @Nonnull Object[] replayArgs, @Nonnegative int expectationIndex) {
-      InvocationArguments invokedArgs = replayExpectation.invocation.arguments;
-      List<VerifiedExpectation> verifiedExpectations = executionState.verifiedExpectations;
-
-      for (int j = 0, n = verifiedExpectations.size(); j < n; j++) {
-         VerifiedExpectation verified = verifiedExpectations.get(j);
-
-         if (verified.expectation == replayExpectation) {
-            Object[] storedArgs = invokedArgs.prepareForVerification(verified.arguments, verified.argMatchers);
-            boolean argumentsMatch = invokedArgs.isMatch(replayArgs, getInstanceMap());
-            invokedArgs.setValuesWithNoMatchers(storedArgs);
-
-            if (argumentsMatch && verified.matchesReplayIndex(expectationIndex)) {
-               if (shouldDiscardInformationAboutVerifiedInvocationOnceUsed()) {
-                  verifiedExpectations.remove(j);
-               }
-
-               return true;
-            }
-         }
-      }
-
-      invokedArgs.setValuesWithNoMatchers(replayArgs);
-      return false;
-   }
-
-   boolean shouldDiscardInformationAboutVerifiedInvocationOnceUsed() { return false; }
-
-   @Nullable
-   private Error validateThatUnverifiedInvocationsAreAllowed(@Nonnull List<Expectation> unverified) {
-      for (Expectation expectation : unverified) {
-         ExpectedInvocation invocation = expectation.invocation;
-
-         if (isInvocationToBeVerified(invocation)) {
-            return invocation.errorForUnexpectedInvocation();
-         }
-      }
-
-      return null;
-   }
-
-   private boolean isInvocationToBeVerified(@Nonnull ExpectedInvocation unverifiedInvocation) {
-      String invokedClassName = unverifiedInvocation.getClassName();
-      Object invokedInstance = unverifiedInvocation.instance;
-      assert mockedTypesAndInstancesToFullyVerify != null;
-
-      for (Object mockedTypeOrInstance : mockedTypesAndInstancesToFullyVerify) {
-         if (mockedTypeOrInstance instanceof Class) {
-            Class<?> mockedType = (Class<?>) mockedTypeOrInstance;
-
-            if (invokedClassName.equals(mockedType.getName())) {
-               return true;
-            }
-         }
-         else if (invokedInstance == null) {
-            ClassLoader loader = mockedTypeOrInstance.getClass().getClassLoader();
-            Class<?> invokedClass = ClassLoad.loadFromLoader(loader, invokedClassName);
-
-            if (invokedClass.isInstance(mockedTypeOrInstance)) {
-               return true;
-            }
-         }
-         else if (unverifiedInvocation.matchInstance) {
-            if (mockedTypeOrInstance == invokedInstance) {
-               return true;
-            }
-         }
-         else if (invokedInstance.getClass().isInstance(mockedTypeOrInstance)) {
-            return true;
-         }
-      }
-
-      return false;
-   }
+   Error endVerification() { return pendingError; }
 
    @Nullable
    final Object getArgumentValueForCurrentVerification(@Nonnegative int parameterIndex) {
       List<VerifiedExpectation> verifiedExpectations = executionState.verifiedExpectations;
 
       if (verifiedExpectations.isEmpty()) {
-         Expectation expectation = expectationBeingVerified();
-         return expectation == null ? null : expectation.invocation.getArgumentValues()[parameterIndex];
+         return currentVerification == null ? null : currentVerification.invocation.getArgumentValues()[parameterIndex];
       }
 
       VerifiedExpectation lastMatched = verifiedExpectations.get(verifiedExpectations.size() - 1);

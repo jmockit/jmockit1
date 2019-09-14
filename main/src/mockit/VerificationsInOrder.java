@@ -26,5 +26,5 @@ public class VerificationsInOrder extends Verifications
    /**
     * Begins <em>in-order</em> verification on the mocked types/instances that were invoked while executing code under test.
     */
-   protected VerificationsInOrder() { super(true); }
+   protected VerificationsInOrder() { super(true, (Object[]) null); }
 }

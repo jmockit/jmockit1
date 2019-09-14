@@ -9,7 +9,7 @@ import javax.annotation.*;
 
 import mockit.internal.expectations.invocation.*;
 
-final class UnorderedVerificationPhase extends BaseVerificationPhase
+class UnorderedVerificationPhase extends BaseVerificationPhase
 {
    @Nonnull private final List<VerifiedExpectation> verifiedExpectations;
 
@@ -19,7 +19,7 @@ final class UnorderedVerificationPhase extends BaseVerificationPhase
    }
 
    @Nonnull @Override
-   List<ExpectedInvocation> findExpectation(
+   final List<ExpectedInvocation> findExpectation(
       @Nullable Object mock, @Nonnull String mockClassDesc, @Nonnull String mockNameAndDesc, @Nonnull Object[] args
    ) {
       if (!matchInstance && executionState.isToBeMatchedOnInstance(mock, mockNameAndDesc)) {
@@ -28,7 +28,7 @@ final class UnorderedVerificationPhase extends BaseVerificationPhase
 
       replayIndex = -1;
       List<Expectation> expectationsInReplayOrder = replayPhase.invocations;
-      Expectation verification = expectationBeingVerified();
+      Expectation verification = currentVerification;
       List<ExpectedInvocation> matchingInvocationsWithDifferentArgs = new ArrayList<>();
 
       for (int i = 0, n = expectationsInReplayOrder.size(); i < n; i++) {
@@ -65,17 +65,17 @@ final class UnorderedVerificationPhase extends BaseVerificationPhase
    }
 
    @Override
-   void addVerifiedExpectation(@Nonnull Expectation expectation, @Nonnull Object[] args) {
+   final void addVerifiedExpectation(@Nonnull Expectation expectation, @Nonnull Object[] args) {
       VerifiedExpectation verifiedExpectation = new VerifiedExpectation(expectation, args, argMatchers, -1);
       addVerifiedExpectation(verifiedExpectation);
       verifiedExpectations.add(verifiedExpectation);
    }
 
    @Override
-   void handleInvocationCountConstraint(int minInvocations, int maxInvocations) {
+   final void handleInvocationCountConstraint(int minInvocations, int maxInvocations) {
       pendingError = null;
 
-      Expectation verifying = expectationBeingVerified();
+      Expectation verifying = currentVerification;
 
       if (verifying == null) {
          return;

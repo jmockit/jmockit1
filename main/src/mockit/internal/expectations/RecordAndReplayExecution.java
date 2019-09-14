@@ -286,9 +286,19 @@ public final class RecordAndReplayExecution
    }
 
    @Nonnull
-   public BaseVerificationPhase startVerifications(boolean inOrder) {
+   public BaseVerificationPhase startVerifications(boolean inOrder, @Nullable Object[] mockedTypesAndInstancesToVerify) {
       assert replayPhase != null;
-      verificationPhase = inOrder ? new OrderedVerificationPhase(replayPhase) : new UnorderedVerificationPhase(replayPhase);
+
+      if (inOrder) {
+         verificationPhase = new OrderedVerificationPhase(replayPhase);
+      }
+      else if (mockedTypesAndInstancesToVerify == null) {
+         verificationPhase = new UnorderedVerificationPhase(replayPhase);
+      }
+      else {
+         verificationPhase = new FullVerificationPhase(replayPhase, mockedTypesAndInstancesToVerify);
+      }
+
       return verificationPhase;
    }
 

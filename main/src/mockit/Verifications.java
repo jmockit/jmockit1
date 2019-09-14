@@ -51,11 +51,11 @@ public class Verifications extends Invocations
     * Begins a set of unordered expectation verifications, on the available mocked types and/or mocked instances.
     * Such verifications are meant to be executed <em>after</em> the call to code under test has been made.
     */
-   protected Verifications() { this(false); }
+   protected Verifications() { this(false, (Object[]) null); }
 
-   Verifications(boolean inOrder) {
+   Verifications(boolean inOrder, @Nullable Object... mockedTypesAndInstancesToVerify) {
       RecordAndReplayExecution instance = TestRun.getRecordAndReplayForVerifications();
-      currentPhase = instance.startVerifications(inOrder);
+      currentPhase = instance.startVerifications(inOrder, mockedTypesAndInstancesToVerify);
    }
 
    /**
