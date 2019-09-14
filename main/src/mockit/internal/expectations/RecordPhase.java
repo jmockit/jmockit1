@@ -12,7 +12,7 @@ import static mockit.internal.expectations.state.ExecutingTest.*;
 
 public final class RecordPhase extends TestOnlyPhase
 {
-   RecordPhase(@Nonnull RecordAndReplayExecution recordAndReplay) { super(recordAndReplay); }
+   RecordPhase(@Nonnull PhasedExecutionState executionState) { super(executionState); }
 
    void addResult(@Nullable Object result) {
       if (currentExpectation != null) {
@@ -53,7 +53,7 @@ public final class RecordPhase extends TestOnlyPhase
          argMatchers = null;
       }
 
-      recordAndReplay.executionState.addExpectation(currentExpectation);
+      executionState.addExpectation(currentExpectation);
 
       return invocation.getDefaultValueForReturnType();
    }

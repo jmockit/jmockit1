@@ -13,6 +13,7 @@ import mockit.internal.util.*;
 
 public abstract class BaseVerificationPhase extends TestOnlyPhase
 {
+   @Nonnull private final FailureState failureState;
    @Nonnull final List<Expectation> expectationsInReplayOrder;
    @Nonnull final List<Object> invocationInstancesInReplayOrder;
    @Nonnull final List<Object[]> invocationArgumentsInReplayOrder;
@@ -28,7 +29,8 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
       @Nonnull RecordAndReplayExecution recordAndReplay, @Nonnull List<Expectation> expectationsInReplayOrder,
       @Nonnull List<Object> invocationInstancesInReplayOrder, @Nonnull List<Object[]> invocationArgumentsInReplayOrder
    ) {
-      super(recordAndReplay);
+      super(recordAndReplay.executionState);
+      failureState = recordAndReplay.failureState;
       this.expectationsInReplayOrder = expectationsInReplayOrder;
       this.invocationInstancesInReplayOrder = invocationInstancesInReplayOrder;
       this.invocationArgumentsInReplayOrder = invocationArgumentsInReplayOrder;
@@ -50,14 +52,13 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
       @Nullable String genericSignature, boolean withRealImpl, @Nonnull Object[] args
    ) {
       if (pendingError != null) {
-         recordAndReplay.setErrorThrown(pendingError);
+         failureState.setErrorThrown(pendingError);
          pendingError = null;
          return null;
       }
 
       matchInstance =
-         mock != null &&
-         (recordAndReplay.executionState.equivalentInstances.isReplacementInstance(mock, mockNameAndDesc) || isEnumElement(mock));
+         mock != null && (executionState.equivalentInstances.isReplacementInstance(mock, mockNameAndDesc) || isEnumElement(mock));
 
       ExpectedInvocation currentInvocation =
          new ExpectedInvocation(mock, mockAccess, mockClassDesc, mockNameAndDesc, matchInstance, genericSignature, args);
@@ -69,7 +70,7 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
       List<ExpectedInvocation> matchingInvocationsWithDifferentArgs = findExpectation(mock, mockClassDesc, mockNameAndDesc, args);
       argMatchers = null;
 
-      if (recordAndReplay.getErrorThrown() != null) {
+      if (failureState.getErrorThrown() != null) {
          return null;
       }
 
@@ -101,7 +102,7 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
             matching = true;
          }
          else {
-            matching = recordAndReplay.executionState.equivalentInstances.areMatchingInstances(matchInstance, invocation.instance, mock);
+            matching = executionState.equivalentInstances.areMatchingInstances(matchInstance, invocation.instance, mock);
          }
 
          if (matching) {
@@ -131,7 +132,7 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
    abstract void addVerifiedExpectation(@Nonnull Expectation expectation, @Nonnull Object[] args);
 
    final void addVerifiedExpectation(@Nonnull VerifiedExpectation verifiedExpectation) {
-      recordAndReplay.executionState.verifiedExpectations.add(verifiedExpectation);
+      executionState.verifiedExpectations.add(verifiedExpectation);
       currentVerifiedExpectations.add(verifiedExpectation);
    }
 
@@ -189,7 +190,7 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
 
    private boolean wasVerified(@Nonnull Expectation replayExpectation, @Nonnull Object[] replayArgs, @Nonnegative int expectationIndex) {
       InvocationArguments invokedArgs = replayExpectation.invocation.arguments;
-      List<VerifiedExpectation> verifiedExpectations = recordAndReplay.executionState.verifiedExpectations;
+      List<VerifiedExpectation> verifiedExpectations = executionState.verifiedExpectations;
 
       for (int j = 0, n = verifiedExpectations.size(); j < n; j++) {
          VerifiedExpectation verified = verifiedExpectations.get(j);
@@ -264,7 +265,7 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
 
    @Nullable
    final Object getArgumentValueForCurrentVerification(@Nonnegative int parameterIndex) {
-      List<VerifiedExpectation> verifiedExpectations = recordAndReplay.executionState.verifiedExpectations;
+      List<VerifiedExpectation> verifiedExpectations = executionState.verifiedExpectations;
 
       if (verifiedExpectations.isEmpty()) {
          Expectation expectation = expectationBeingVerified();

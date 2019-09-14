@@ -9,15 +9,15 @@ import javax.annotation.*;
 
 abstract class Phase
 {
-   @Nonnull final RecordAndReplayExecution recordAndReplay;
+   @Nonnull final PhasedExecutionState executionState;
 
-   Phase(@Nonnull RecordAndReplayExecution recordAndReplay) { this.recordAndReplay = recordAndReplay; }
-
-   @Nonnull
-   public final Map<Object, Object> getInstanceMap() { return recordAndReplay.executionState.equivalentInstances.instanceMap; }
+   Phase(@Nonnull PhasedExecutionState executionState) { this.executionState = executionState; }
 
    @Nonnull
-   final Map<Object, Object> getReplacementMap() { return recordAndReplay.executionState.equivalentInstances.replacementMap; }
+   public final Map<Object, Object> getInstanceMap() { return executionState.equivalentInstances.instanceMap; }
+
+   @Nonnull
+   final Map<Object, Object> getReplacementMap() { return executionState.equivalentInstances.replacementMap; }
 
    @Nullable
    abstract Object handleInvocation(

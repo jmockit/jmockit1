@@ -25,7 +25,7 @@ final class UnorderedVerificationPhase extends BaseVerificationPhase
    List<ExpectedInvocation> findExpectation(
       @Nullable Object mock, @Nonnull String mockClassDesc, @Nonnull String mockNameAndDesc, @Nonnull Object[] args
    ) {
-      if (!matchInstance && recordAndReplay.executionState.isToBeMatchedOnInstance(mock, mockNameAndDesc)) {
+      if (!matchInstance && executionState.isToBeMatchedOnInstance(mock, mockNameAndDesc)) {
          matchInstance = true;
       }
 

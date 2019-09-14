@@ -28,7 +28,7 @@ final class OrderedVerificationPhase extends BaseVerificationPhase
    }
 
    private void discardExpectationsAndArgumentsAlreadyVerified() {
-      for (VerifiedExpectation verified : recordAndReplay.executionState.verifiedExpectations) {
+      for (VerifiedExpectation verified : executionState.verifiedExpectations) {
          int i = expectationsInReplayOrder.indexOf(verified.expectation);
 
          if (i >= 0) {
@@ -55,7 +55,7 @@ final class OrderedVerificationPhase extends BaseVerificationPhase
             continue;
          }
 
-         if (!matchInstance && recordAndReplay.executionState.isToBeMatchedOnInstance(mock, mockNameAndDesc)) {
+         if (!matchInstance && executionState.isToBeMatchedOnInstance(mock, mockNameAndDesc)) {
             matchInstance = true;
          }
 
@@ -141,7 +141,7 @@ final class OrderedVerificationPhase extends BaseVerificationPhase
       Object[] args = invocation.arguments.getValues();
       matchInstance = invocation.matchInstance;
 
-      if (recordAndReplay.executionState.isToBeMatchedOnInstance(mock, mockNameAndDesc)) {
+      if (executionState.isToBeMatchedOnInstance(mock, mockNameAndDesc)) {
          matchInstance = true;
       }
 

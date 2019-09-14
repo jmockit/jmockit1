@@ -11,12 +11,14 @@ import mockit.internal.expectations.invocation.*;
 
 final class ReplayPhase extends Phase
 {
+   @Nonnull private final FailureState failureState;
    @Nonnull final List<Expectation> invocations;
    @Nonnull final List<Object> invocationInstances;
    @Nonnull final List<Object[]> invocationArguments;
 
-   ReplayPhase(@Nonnull RecordAndReplayExecution recordAndReplay) {
-      super(recordAndReplay);
+   ReplayPhase(@Nonnull PhasedExecutionState executionState, @Nonnull FailureState failureState) {
+      super(executionState);
+      this.failureState = failureState;
       invocations = new ArrayList<>();
       invocationInstances = new ArrayList<>();
       invocationArguments = new ArrayList<>();
@@ -27,9 +29,9 @@ final class ReplayPhase extends Phase
       @Nullable Object mock, int mockAccess, @Nonnull String mockClassDesc, @Nonnull String mockNameAndDesc,
       @Nullable String genericSignature, boolean withRealImpl, @Nonnull Object[] args
    ) throws Throwable {
-      Expectation expectation = recordAndReplay.executionState.findExpectation(mock, mockClassDesc, mockNameAndDesc, args);
+      Expectation expectation = executionState.findExpectation(mock, mockClassDesc, mockNameAndDesc, args);
       Object replacementInstance = mock == null ?
-         null : recordAndReplay.executionState.equivalentInstances.getReplacementInstanceForMethodInvocation(mock, mockNameAndDesc);
+         null : executionState.equivalentInstances.getReplacementInstanceForMethodInvocation(mock, mockNameAndDesc);
 
       if (expectation == null) {
          expectation = createExpectation(
@@ -55,7 +57,7 @@ final class ReplayPhase extends Phase
       ExpectedInvocation invocation =
          new ExpectedInvocation(mock, mockAccess, mockClassDesc, mockNameAndDesc, false, genericSignature, args);
       Expectation expectation = new Expectation(invocation);
-      recordAndReplay.executionState.addExpectation(expectation);
+      executionState.addExpectation(expectation);
       return expectation;
    }
 
@@ -80,7 +82,8 @@ final class ReplayPhase extends Phase
       }
 
       if (expectation.constraints.isInvocationCountMoreThanMaximumExpected()) {
-         recordAndReplay.setErrorThrown(expectation.invocation.errorForUnexpectedInvocation(args));
+         UnexpectedInvocation unexpectedInvocation = expectation.invocation.errorForUnexpectedInvocation(args);
+         failureState.setErrorThrown(unexpectedInvocation);
          return null;
       }
 
@@ -95,7 +98,7 @@ final class ReplayPhase extends Phase
 
    @Nullable
    private Error getErrorForFirstExpectationThatIsMissing() {
-      List<Expectation> notStrictExpectations = recordAndReplay.executionState.expectations;
+      List<Expectation> notStrictExpectations = executionState.expectations;
 
       // New expectations might get added to the list, so a regular loop would cause a CME.
       for (int i = 0, n = notStrictExpectations.size(); i < n; i++) {

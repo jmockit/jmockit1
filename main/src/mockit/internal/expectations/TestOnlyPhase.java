@@ -15,7 +15,7 @@ public abstract class TestOnlyPhase extends Phase
    @Nullable List<ArgumentMatcher<?>> argMatchers;
    @Nullable Expectation currentExpectation;
 
-   TestOnlyPhase(@Nonnull RecordAndReplayExecution recordAndReplay) { super(recordAndReplay); }
+   TestOnlyPhase(@Nonnull PhasedExecutionState executionState) { super(executionState); }
 
    public final void addArgMatcher(@Nonnull ArgumentMatcher<?> matcher) { getArgumentMatchers().add(matcher); }
 
