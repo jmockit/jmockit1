@@ -12,14 +12,15 @@ import mockit.internal.expectations.*;
 /**
  * Used to <em>record</em> expectations on {@linkplain Mocked mocked} types and their instances.
  * <p/>
- * Each recorded expectation is intended to match one or more method or constructor invocations, that we expect will occur during the execution of
- * code under test.
- * When a match is detected, the recorded {@linkplain #result result} is returned to the caller.
+ * Each recorded expectation is intended to match one or more method or constructor invocations, that we expect will occur during the
+ * execution of code under test, and which need to exhibit some specific behavior for the purposes of the test.
+ * When a match is detected, the recorded {@linkplain #result result} (if any) is returned to the caller.
  * Alternatively, a recorded exception/error is thrown, or an arbitrary {@linkplain Delegate delegate} method is executed.
  * <p/>
- * Expectations are recorded simply by invoking the desired method or constructor on the mocked type/instance, during the initialization of an
- * <tt>Expectations</tt> object.
- * This is done by instantiating an anonymous subclass containing an instance initialization body, or as we call it, an <em>expectation block</em>:
+ * Expectations are recorded simply by invoking the desired method or constructor on the mocked type/instance, during the initialization of
+ * an <tt>Expectations</tt> object.
+ * This is done by instantiating an anonymous subclass containing an instance initialization body, or as we call it, an
+ * <em>expectation block</em>:
  * <pre>
  * // <em>Record</em> one or more expectations on available mocked types/instances.
  * new Expectations() {{
@@ -42,17 +43,19 @@ import mockit.internal.expectations.*;
  * a) {@link #returns(Object, Object, Object...)}, a convenience method for returning a <em>sequence</em> of values;
  * b) argument matchers such as {@link #anyInt}, {@link #anyString}, {@link #withNotNull()}, etc., which relax or constrain the matching of
  * argument values;
- * c) the {@link #times}, {@link #minTimes}, and {@link #maxTimes} fields, which relax or constrain the expected and/or allowed number of matching
- * invocations.
+ * c) the {@link #times}, {@link #minTimes}, and {@link #maxTimes} fields, which relax or constrain the expected and/or allowed number of
+ * matching invocations.
  * <p/>
- * By default, the exact instance on which instance method invocations will occur during replay is <em>not</em> verified to be the same as the
- * instance used when recording the expectation.
- * That said, instance-specific matching can be obtained by declaring the mocked type as {@linkplain Injectable @Injectable}, or by declaring
- * multiple mock fields and/or mock parameters of the same mocked type (so that separate expectations can be recorded for each mock instance).
+ * By default, the exact instance on which instance method invocations will occur during replay is <em>not</em> verified to be the same as
+ * the instance used when recording the expectation.
+ * That said, instance-specific matching can be obtained by declaring the mocked type as {@linkplain Injectable @Injectable}, or by
+ * declaring multiple mock fields and/or mock parameters of the same mocked type (so that separate expectations can be recorded for each
+ * mock instance).
  * <p/>
- * Invocations occurring during replay, whether they matched recorded expectations or not, can be explicitly verified <em>after</em> exercising the
- * code under test.
- * To that end, we use a set of complementary base classes: {@link Verifications}, {@link VerificationsInOrder}, and {@link FullVerifications}.
+ * Invocations occurring during replay, whether they matched recorded expectations or not, can be explicitly verified <em>after</em>
+ * exercising the code under test.
+ * To that end, we use a set of complementary base classes: {@link Verifications}, {@link VerificationsInOrder}, and
+ * {@link FullVerifications}.
  * Similar to expectation blocks, these classes allow us to create <em>verification</em> blocks.
  *
  * @see #Expectations()
@@ -87,7 +90,6 @@ public class Expectations extends Invocations
     * <li>Other reference types: returns a mocked instance through cascading.</li>
     * <li>Array types: returns an array with zero elements (empty) in each dimension.</li>
     * </ul>
-    * <p/>
     * When an expectation is recorded for a method which actually <em>returns</em> an exception or error (as opposed to <em>throwing</em>
     * one), then the {@link #returns(Object, Object, Object...)} method should be used instead, as it only applies to return values.
     * <p/>
@@ -103,13 +105,7 @@ public class Expectations extends Invocations
     * <p/>
     * Results that depend on some programming logic can be provided through a {@linkplain Delegate} object assigned to the field.
     * This applies to <tt>void</tt> and non-<code>void</code> methods, as well as to constructors.
-    * <p/>
-    * Finally, when recording an expectation on a <em>constructor</em> of a mocked class, an arbitrary instance of said class can be
-    * assigned to the field.
-    * In this case, additional expectations recorded or verified on the assigned instance will also match invocations to instance methods
-    * made on <em>future</em> instances, provided they get created through a matching constructor invocation.
     *
-    * @see #returns(Object, Object, Object...)
     * @see <a href="http://jmockit.github.io/tutorial/Mocking.html#results" target="tutorial">Tutorial</a>
     */
    @Nullable
