@@ -16,18 +16,14 @@ final class OrderedVerificationPhase extends BaseVerificationPhase
    @Nonnegative private final int expectationCount;
    @Nonnegative private int indexIncrement;
 
-   OrderedVerificationPhase(
-      @Nonnull RecordAndReplayExecution recordAndReplay, @Nonnull List<Expectation> expectationsInReplayOrder,
-      @Nonnull List<Object> invocationInstancesInReplayOrder, @Nonnull List<Object[]> invocationArgumentsInReplayOrder
-   ) {
-      super(
-         recordAndReplay, new ArrayList<>(expectationsInReplayOrder), invocationInstancesInReplayOrder, invocationArgumentsInReplayOrder);
-      discardExpectationsAndArgumentsAlreadyVerified();
-      expectationCount = expectationsInReplayOrder.size();
+   OrderedVerificationPhase(@Nonnull ReplayPhase replayPhase) {
+      super(replayPhase);
+      discardExpectationsAndArgumentsAlreadyVerified(replayPhase.invocations);
+      expectationCount = replayPhase.invocations.size();
       indexIncrement = 1;
    }
 
-   private void discardExpectationsAndArgumentsAlreadyVerified() {
+   private void discardExpectationsAndArgumentsAlreadyVerified(List<Expectation> expectationsInReplayOrder) {
       for (VerifiedExpectation verified : executionState.verifiedExpectations) {
          int i = expectationsInReplayOrder.indexOf(verified.expectation);
 
@@ -45,9 +41,9 @@ final class OrderedVerificationPhase extends BaseVerificationPhase
       int i = replayIndex;
 
       while (i >= 0 && i < expectationCount) {
-         Expectation replayExpectation = expectationsInReplayOrder.get(i);
-         Object replayInstance = invocationInstancesInReplayOrder.get(i);
-         Object[] replayArgs = invocationArgumentsInReplayOrder.get(i);
+         Expectation replayExpectation = replayPhase.invocations.get(i);
+         Object replayInstance = replayPhase.invocationInstances.get(i);
+         Object[] replayArgs = replayPhase.invocationArguments.get(i);
 
          i += indexIncrement;
 
@@ -102,7 +98,7 @@ final class OrderedVerificationPhase extends BaseVerificationPhase
       int invocationCount = 1;
 
       while (replayIndex < expectationCount) {
-         Expectation replayExpectation = expectationsInReplayOrder.get(replayIndex);
+         Expectation replayExpectation = replayPhase.invocations.get(replayIndex);
 
          if (replayExpectation != null && matchesCurrentVerification(invocation, replayExpectation)) {
             invocationCount++;
@@ -145,8 +141,8 @@ final class OrderedVerificationPhase extends BaseVerificationPhase
          matchInstance = true;
       }
 
-      Object replayInstance = invocationInstancesInReplayOrder.get(replayIndex);
-      Object[] replayArgs = invocationArgumentsInReplayOrder.get(replayIndex);
+      Object replayInstance = replayPhase.invocationInstances.get(replayIndex);
+      Object[] replayArgs = replayPhase.invocationArguments.get(replayIndex);
 
       return matches(mock, mockClassDesc, mockNameAndDesc, args, replayExpectation, replayInstance, replayArgs);
    }
@@ -156,7 +152,7 @@ final class OrderedVerificationPhase extends BaseVerificationPhase
          int n = verifying.constraints.invocationCount - maxInvocations;
 
          if (n > 0) {
-            Object[] replayArgs = invocationArgumentsInReplayOrder.get(replayIndex - 1);
+            Object[] replayArgs = replayPhase.invocationArguments.get(replayIndex - 1);
             throw verifying.invocation.errorForUnexpectedInvocations(replayArgs, n);
          }
       }

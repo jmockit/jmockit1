@@ -13,10 +13,7 @@ import mockit.internal.util.*;
 
 public abstract class BaseVerificationPhase extends TestOnlyPhase
 {
-   @Nonnull private final FailureState failureState;
-   @Nonnull final List<Expectation> expectationsInReplayOrder;
-   @Nonnull final List<Object> invocationInstancesInReplayOrder;
-   @Nonnull final List<Object[]> invocationArgumentsInReplayOrder;
+   @Nonnull final ReplayPhase replayPhase;
    private boolean allMockedInvocationsDuringReplayMustBeVerified;
    @Nullable private Object[] mockedTypesAndInstancesToFullyVerify;
    @Nonnull private final List<VerifiedExpectation> currentVerifiedExpectations;
@@ -25,15 +22,9 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
    @Nullable Error pendingError;
    @Nullable ExpectedInvocation matchingInvocationWithDifferentArgs;
 
-   BaseVerificationPhase(
-      @Nonnull RecordAndReplayExecution recordAndReplay, @Nonnull List<Expectation> expectationsInReplayOrder,
-      @Nonnull List<Object> invocationInstancesInReplayOrder, @Nonnull List<Object[]> invocationArgumentsInReplayOrder
-   ) {
-      super(recordAndReplay.executionState);
-      failureState = recordAndReplay.failureState;
-      this.expectationsInReplayOrder = expectationsInReplayOrder;
-      this.invocationInstancesInReplayOrder = invocationInstancesInReplayOrder;
-      this.invocationArgumentsInReplayOrder = invocationArgumentsInReplayOrder;
+   BaseVerificationPhase(@Nonnull ReplayPhase replayPhase) {
+      super(replayPhase.executionState);
+      this.replayPhase = replayPhase;
       currentVerifiedExpectations = new ArrayList<>();
    }
 
@@ -52,7 +43,7 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
       @Nullable String genericSignature, boolean withRealImpl, @Nonnull Object[] args
    ) {
       if (pendingError != null) {
-         failureState.setErrorThrown(pendingError);
+         replayPhase.failureState.setErrorThrown(pendingError);
          pendingError = null;
          return null;
       }
@@ -70,7 +61,7 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
       List<ExpectedInvocation> matchingInvocationsWithDifferentArgs = findExpectation(mock, mockClassDesc, mockNameAndDesc, args);
       argMatchers = null;
 
-      if (failureState.getErrorThrown() != null) {
+      if (replayPhase.failureState.getErrorThrown() != null) {
          return null;
       }
 
@@ -158,13 +149,14 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
 
    @Nullable
    private Error validateThatAllInvocationsWereVerified() {
+      List<Expectation> expectationsInReplayOrder = replayPhase.invocations;
       List<Expectation> notVerified = new ArrayList<>();
 
       for (int i = 0, n = expectationsInReplayOrder.size(); i < n; i++) {
          Expectation replayExpectation = expectationsInReplayOrder.get(i);
 
          if (replayExpectation != null && isEligibleForFullVerification(replayExpectation)) {
-            Object[] replayArgs = invocationArgumentsInReplayOrder.get(i);
+            Object[] replayArgs = replayPhase.invocationArguments.get(i);
 
             if (!wasVerified(replayExpectation, replayArgs, i)) {
                notVerified.add(replayExpectation);

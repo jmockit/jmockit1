@@ -23,8 +23,8 @@ public final class RecordAndReplayExecution
    public static final ReentrantLock TEST_ONLY_PHASE_LOCK = new ReentrantLock();
 
    @Nullable private final PartialMocking partialMocking;
-   @Nonnull final PhasedExecutionState executionState;
-   @Nonnull final FailureState failureState;
+   @Nonnull  private final PhasedExecutionState executionState;
+   @Nonnull  private final FailureState failureState;
    @Nullable private RecordPhase recordPhase;
    @Nullable private ReplayPhase replayPhase;
    @Nullable private BaseVerificationPhase verificationPhase;
@@ -277,14 +277,7 @@ public final class RecordAndReplayExecution
    @Nonnull
    public BaseVerificationPhase startVerifications(boolean inOrder) {
       assert replayPhase != null;
-      List<Expectation> expectations     = replayPhase.invocations;
-      List<Object> invocationInstances   = replayPhase.invocationInstances;
-      List<Object[]> invocationArguments = replayPhase.invocationArguments;
-
-      verificationPhase = inOrder ?
-         new OrderedVerificationPhase  (this, expectations, invocationInstances, invocationArguments) :
-         new UnorderedVerificationPhase(this, expectations, invocationInstances, invocationArguments);
-
+      verificationPhase = inOrder ? new OrderedVerificationPhase(replayPhase) : new UnorderedVerificationPhase(replayPhase);
       return verificationPhase;
    }
 

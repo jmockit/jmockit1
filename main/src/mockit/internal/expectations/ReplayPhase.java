@@ -11,7 +11,7 @@ import mockit.internal.expectations.invocation.*;
 
 final class ReplayPhase extends Phase
 {
-   @Nonnull private final FailureState failureState;
+   @Nonnull final FailureState failureState;
    @Nonnull final List<Expectation> invocations;
    @Nonnull final List<Object> invocationInstances;
    @Nonnull final List<Object[]> invocationArguments;

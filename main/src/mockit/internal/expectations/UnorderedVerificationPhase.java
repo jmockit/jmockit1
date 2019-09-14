@@ -13,11 +13,8 @@ final class UnorderedVerificationPhase extends BaseVerificationPhase
 {
    @Nonnull private final List<VerifiedExpectation> verifiedExpectations;
 
-   UnorderedVerificationPhase(
-      @Nonnull RecordAndReplayExecution recordAndReplay, @Nonnull List<Expectation> expectationsInReplayOrder,
-      @Nonnull List<Object> invocationInstancesInReplayOrder, @Nonnull List<Object[]> invocationArgumentsInReplayOrder
-   ) {
-      super(recordAndReplay, expectationsInReplayOrder, invocationInstancesInReplayOrder, invocationArgumentsInReplayOrder);
+   UnorderedVerificationPhase(@Nonnull ReplayPhase replayPhase) {
+      super(replayPhase);
       verifiedExpectations = new ArrayList<>();
    }
 
@@ -30,13 +27,14 @@ final class UnorderedVerificationPhase extends BaseVerificationPhase
       }
 
       replayIndex = -1;
+      List<Expectation> expectationsInReplayOrder = replayPhase.invocations;
       Expectation verification = expectationBeingVerified();
       List<ExpectedInvocation> matchingInvocationsWithDifferentArgs = new ArrayList<>();
 
       for (int i = 0, n = expectationsInReplayOrder.size(); i < n; i++) {
          Expectation replayExpectation = expectationsInReplayOrder.get(i);
-         Object replayInstance = invocationInstancesInReplayOrder.get(i);
-         Object[] replayArgs = invocationArgumentsInReplayOrder.get(i);
+         Object replayInstance = replayPhase.invocationInstances.get(i);
+         Object[] replayArgs = replayPhase.invocationArguments.get(i);
 
          if (matches(mock, mockClassDesc, mockNameAndDesc, args, replayExpectation, replayInstance, replayArgs)) {
             replayIndex = i;
@@ -61,8 +59,8 @@ final class UnorderedVerificationPhase extends BaseVerificationPhase
 
    @Nullable
    private Error verifyConstraints(@Nonnull Expectation verification) {
-      ExpectedInvocation lastInvocation = expectationsInReplayOrder.get(replayIndex).invocation;
-      Object[] lastArgs = invocationArgumentsInReplayOrder.get(replayIndex);
+      ExpectedInvocation lastInvocation = replayPhase.invocations.get(replayIndex).invocation;
+      Object[] lastArgs = replayPhase.invocationArguments.get(replayIndex);
       return verification.verifyConstraints(lastInvocation, lastArgs, 1, -1);
    }
 
@@ -86,8 +84,8 @@ final class UnorderedVerificationPhase extends BaseVerificationPhase
       Error errorThrown;
 
       if (replayIndex >= 0) {
-         ExpectedInvocation replayInvocation = expectationsInReplayOrder.get(replayIndex).invocation;
-         Object[] replayArgs = invocationArgumentsInReplayOrder.get(replayIndex);
+         ExpectedInvocation replayInvocation = replayPhase.invocations.get(replayIndex).invocation;
+         Object[] replayArgs = replayPhase.invocationArguments.get(replayIndex);
          errorThrown = verifying.verifyConstraints(replayInvocation, replayArgs, minInvocations, maxInvocations);
       }
       else {
