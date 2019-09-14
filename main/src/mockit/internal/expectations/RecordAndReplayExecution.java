@@ -17,7 +17,6 @@ import mockit.internal.state.*;
 import mockit.internal.util.*;
 import static mockit.internal.util.Utilities.*;
 
-@SuppressWarnings("OverlyCoupledClass")
 public final class RecordAndReplayExecution
 {
    public static final ReentrantLock RECORD_OR_REPLAY_LOCK = new ReentrantLock();
@@ -147,7 +146,7 @@ public final class RecordAndReplayExecution
          boolean isConstructor = mock != null && mockDesc.startsWith("<init>");
          RecordAndReplayExecution instance = executingTest.getOrCreateRecordAndReplay();
 
-         if (isConstructor && handleCallToConstructor(instance, mock, classDesc)) {
+         if (isConstructor && instance.handleCallToConstructor(mock, classDesc)) {
             return
                executionMode == ExecutionMode.Regular ||
                executionMode == ExecutionMode.Partial && instance.replayPhase == null ||
@@ -219,10 +218,8 @@ public final class RecordAndReplayExecution
       return defaultReturnValue(mock, classDesc, nameAndDesc, genericSignature, executionMode, args);
    }
 
-   private static boolean handleCallToConstructor(
-      @Nonnull RecordAndReplayExecution instance, @Nonnull Object mock, @Nonnull String classDesc
-   ) {
-      if (instance.replayPhase != null) {
+   private boolean handleCallToConstructor(@Nonnull Object mock, @Nonnull String classDesc) {
+      if (replayPhase != null) {
          TypeRedefinitions paramTypeRedefinitions = TestRun.getExecutingTest().getParameterRedefinitions();
 
          if (paramTypeRedefinitions != null) {
@@ -283,12 +280,12 @@ public final class RecordAndReplayExecution
    @Nonnull
    public BaseVerificationPhase startVerifications(boolean inOrder) {
       assert replayPhase != null;
-      List<Expectation> expectations = replayPhase.invocations;
-      List<Object> invocationInstances = replayPhase.invocationInstances;
+      List<Expectation> expectations     = replayPhase.invocations;
+      List<Object> invocationInstances   = replayPhase.invocationInstances;
       List<Object[]> invocationArguments = replayPhase.invocationArguments;
 
       verificationPhase = inOrder ?
-         new OrderedVerificationPhase(this, expectations, invocationInstances, invocationArguments) :
+         new OrderedVerificationPhase  (this, expectations, invocationInstances, invocationArguments) :
          new UnorderedVerificationPhase(this, expectations, invocationInstances, invocationArguments);
 
       return verificationPhase;
@@ -332,12 +329,8 @@ public final class RecordAndReplayExecution
    }
 
    @Nullable
-   public TestOnlyPhase getCurrentTestOnlyPhase() {
-      if (recordPhase != null) {
-         return recordPhase;
-      }
-
-      return verificationPhase;
+   TestOnlyPhase getCurrentTestOnlyPhase() {
+      return recordPhase != null ? recordPhase : verificationPhase;
    }
 
    void endInvocations() {
