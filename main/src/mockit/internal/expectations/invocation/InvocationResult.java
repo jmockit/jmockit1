@@ -7,7 +7,7 @@ package mockit.internal.expectations.invocation;
 import java.util.*;
 import javax.annotation.*;
 
-abstract class InvocationResult
+class InvocationResult
 {
    InvocationResult next;
 
