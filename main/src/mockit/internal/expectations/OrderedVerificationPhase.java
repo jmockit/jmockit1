@@ -11,10 +11,10 @@ import static java.util.Collections.emptyList;
 
 import mockit.internal.expectations.invocation.*;
 
-public final class OrderedVerificationPhase extends BaseVerificationPhase
+final class OrderedVerificationPhase extends BaseVerificationPhase
 {
-   private final int expectationCount;
-   private int indexIncrement;
+   @Nonnegative private final int expectationCount;
+   @Nonnegative private int indexIncrement;
 
    OrderedVerificationPhase(
       @Nonnull RecordAndReplayExecution recordAndReplay, @Nonnull List<Expectation> expectationsInReplayOrder,
@@ -38,7 +38,7 @@ public final class OrderedVerificationPhase extends BaseVerificationPhase
    }
 
    @Nonnull @Override
-   protected List<ExpectedInvocation> findExpectation(
+   List<ExpectedInvocation> findExpectation(
       @Nullable Object mock, @Nonnull String mockClassDesc, @Nonnull String mockNameAndDesc, @Nonnull Object[] args
    ) {
       Expectation expectation = expectationBeingVerified();
@@ -83,7 +83,7 @@ public final class OrderedVerificationPhase extends BaseVerificationPhase
    }
 
    @Override @SuppressWarnings("OverlyComplexMethod")
-   public void handleInvocationCountConstraint(int minInvocations, int maxInvocations) {
+   void handleInvocationCountConstraint(int minInvocations, int maxInvocations) {
       Error errorThrown = pendingError;
       pendingError = null;
 
@@ -163,7 +163,7 @@ public final class OrderedVerificationPhase extends BaseVerificationPhase
    }
 
    @Nullable @Override
-   protected Error endVerification() {
+   Error endVerification() {
       if (pendingError != null) {
          return pendingError;
       }

@@ -21,8 +21,8 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
    @Nonnull private final List<VerifiedExpectation> currentVerifiedExpectations;
    @Nullable private Expectation currentVerification;
    int replayIndex;
-   @Nullable protected Error pendingError;
-   @Nullable protected ExpectedInvocation matchingInvocationWithDifferentArgs;
+   @Nullable Error pendingError;
+   @Nullable ExpectedInvocation matchingInvocationWithDifferentArgs;
 
    BaseVerificationPhase(
       @Nonnull RecordAndReplayExecution recordAndReplay, @Nonnull List<Expectation> expectationsInReplayOrder,
@@ -42,7 +42,7 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
    }
 
    @Nullable
-   protected final Expectation expectationBeingVerified() { return currentVerification; }
+   final Expectation expectationBeingVerified() { return currentVerification; }
 
    @Nullable @Override
    final Object handleInvocation(
@@ -136,14 +136,14 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
    }
 
    @Override
-   public final void setMaxInvocationCount(int maxInvocations) {
+   final void setMaxInvocationCount(int maxInvocations) {
       if (maxInvocations == 0 || pendingError == null) {
          super.setMaxInvocationCount(maxInvocations);
       }
    }
 
    @Nullable
-   protected Error endVerification() {
+   Error endVerification() {
       if (pendingError != null) {
          return pendingError;
       }
@@ -263,7 +263,7 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
    }
 
    @Nullable
-   public final Object getArgumentValueForCurrentVerification(@Nonnegative int parameterIndex) {
+   final Object getArgumentValueForCurrentVerification(@Nonnegative int parameterIndex) {
       List<VerifiedExpectation> verifiedExpectations = recordAndReplay.executionState.verifiedExpectations;
 
       if (verifiedExpectations.isEmpty()) {

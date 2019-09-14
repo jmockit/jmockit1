@@ -12,7 +12,7 @@ import mockit.internal.expectations.argumentMatching.*;
 public abstract class TestOnlyPhase extends Phase
 {
    boolean matchInstance;
-   @Nullable protected List<ArgumentMatcher<?>> argMatchers;
+   @Nullable List<ArgumentMatcher<?>> argMatchers;
    @Nullable Expectation currentExpectation;
 
    TestOnlyPhase(@Nonnull RecordAndReplayExecution recordAndReplay) { super(recordAndReplay); }
@@ -60,7 +60,7 @@ public abstract class TestOnlyPhase extends Phase
       matcher.setExpectedType(argumentType);
    }
 
-   public void setMaxInvocationCount(int maxInvocations) {
+   void setMaxInvocationCount(int maxInvocations) {
       if (currentExpectation != null) {
          int currentMinimum = currentExpectation.constraints.minInvocations;
          int minInvocations = maxInvocations < 0 ? currentMinimum : Math.min(currentMinimum, maxInvocations);
@@ -68,7 +68,7 @@ public abstract class TestOnlyPhase extends Phase
       }
    }
 
-   public abstract void handleInvocationCountConstraint(int minInvocations, int maxInvocations);
+   abstract void handleInvocationCountConstraint(int minInvocations, int maxInvocations);
 
    static boolean isEnumElement(@Nonnull Object mock) {
       Object[] enumElements = mock.getClass().getEnumConstants();

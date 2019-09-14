@@ -73,7 +73,7 @@ public final class RecordPhase extends TestOnlyPhase
    }
 
    @Override
-   public void handleInvocationCountConstraint(int minInvocations, int maxInvocations) {
+   void handleInvocationCountConstraint(int minInvocations, int maxInvocations) {
       if (currentExpectation != null) {
          currentExpectation.constraints.setLimits(minInvocations, maxInvocations);
       }

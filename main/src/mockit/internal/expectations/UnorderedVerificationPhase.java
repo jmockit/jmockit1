@@ -11,7 +11,7 @@ import mockit.internal.expectations.invocation.*;
 
 final class UnorderedVerificationPhase extends BaseVerificationPhase
 {
-   @Nonnull final List<VerifiedExpectation> verifiedExpectations;
+   @Nonnull private final List<VerifiedExpectation> verifiedExpectations;
 
    UnorderedVerificationPhase(
       @Nonnull RecordAndReplayExecution recordAndReplay, @Nonnull List<Expectation> expectationsInReplayOrder,
@@ -22,7 +22,7 @@ final class UnorderedVerificationPhase extends BaseVerificationPhase
    }
 
    @Nonnull @Override
-   protected List<ExpectedInvocation> findExpectation(
+   List<ExpectedInvocation> findExpectation(
       @Nullable Object mock, @Nonnull String mockClassDesc, @Nonnull String mockNameAndDesc, @Nonnull Object[] args
    ) {
       if (!matchInstance && recordAndReplay.executionState.isToBeMatchedOnInstance(mock, mockNameAndDesc)) {
@@ -74,7 +74,7 @@ final class UnorderedVerificationPhase extends BaseVerificationPhase
    }
 
    @Override
-   public void handleInvocationCountConstraint(int minInvocations, int maxInvocations) {
+   void handleInvocationCountConstraint(int minInvocations, int maxInvocations) {
       pendingError = null;
 
       Expectation verifying = expectationBeingVerified();
