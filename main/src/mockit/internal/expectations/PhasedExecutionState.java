@@ -77,9 +77,7 @@ final class PhasedExecutionState
       String mockNameAndDesc = newInvocation.getMethodNameAndDescription();
       boolean isConstructor = newInvocation.isConstructor();
 
-      for (int i = 0; i < n; i++) {
-         Expectation previous = expectations.get(i);
-
+      for (Expectation previous : expectations) {
          if (
             isMatchingInvocation(mock, matchInstance, mockClassDesc, mockNameAndDesc, isConstructor, previous) &&
             isWithMatchingArguments(newInvocation, previous.invocation)
@@ -136,6 +134,7 @@ final class PhasedExecutionState
       Expectation replayExpectationFound = null;
 
       // Note: new expectations might get added to the list, so a regular loop would cause a CME:
+      //noinspection ForLoopReplaceableByForEach
       for (int i = 0, n = expectations.size(); i < n; i++) {
          Expectation expectation = expectations.get(i);
 
