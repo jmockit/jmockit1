@@ -44,9 +44,9 @@ public final class ArgumentMismatch
          appendCharacters((CharSequence) value);
       }
       else if (value instanceof Character) {
-         out.append('"');
-         appendEscapedOrPlainCharacter((Character) value);
-         out.append('"');
+         out.append('\'');
+         appendEscapedOrPlainCharacter('\'', (Character) value);
+         out.append('\'');
       }
       else if (value instanceof Byte) {
          out.append(value).append('b');
@@ -93,28 +93,23 @@ public final class ArgumentMismatch
 
       for (int i = 0, n = characters.length(); i < n; i++) {
          char c = characters.charAt(i);
-         appendEscapedOrPlainCharacter(c);
+         appendEscapedOrPlainCharacter('"', c);
       }
 
       out.append('"');
    }
 
-   private void appendEscapedOrPlainCharacter(char c) {
-      switch (c) {
-         case '"':
-            out.append("\\\"");
-            break;
-         case '\t':
-            out.append("\\t");
-            break;
-         case '\n':
-            out.append("\\n");
-            break;
-         case '\r':
-            out.append("\\r");
-            break;
-         default:
-            out.append(c);
+   private void appendEscapedOrPlainCharacter(char quoteCharacter, char c) {
+      if (c == quoteCharacter) {
+         out.append('\\').append(c);
+      }
+      else {
+         switch (c) {
+            case '\t': out.append("\\t"); break;
+            case '\n': out.append("\\n"); break;
+            case '\r': out.append("\\r"); break;
+            default:   out.append(c);
+         }
       }
    }
 
