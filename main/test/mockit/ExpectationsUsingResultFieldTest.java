@@ -156,12 +156,17 @@ public final class ExpectationsUsingResultFieldTest
 
    @Test
    public void returnsDefaultValuesForCollectionValuedReturnTypes(@Mocked Collaborator mock) {
-      assertSame(Collections.emptyList(), mock.getItems());
-      assertSame(Collections.emptyList(), mock.getListItems());
-      assertSame(Collections.emptySet(), mock.getSetItems());
-      assertEquals(Collections.emptySet(), mock.getSortedSetItems());
-      assertSame(Collections.emptyMap(), mock.getMapItems());
-      assertEquals(Collections.emptyMap(), mock.getSortedMapItems());
+      List<?> emptyList = Collections.emptyList();
+      assertSame(emptyList, mock.getItems());
+      assertSame(emptyList, mock.getListItems());
+
+      Set<?> emptySet = Collections.emptySet();
+      assertSame(emptySet, mock.getSetItems());
+      assertEquals(emptySet, mock.getSortedSetItems());
+
+      Map<?, ?> emptyMap = Collections.emptyMap();
+      assertSame(emptyMap, mock.getMapItems());
+      assertEquals(emptyMap, mock.getSortedMapItems());
    }
 
    @Test
@@ -522,8 +527,8 @@ public final class ExpectationsUsingResultFieldTest
    @Test
    public void recordReturnValueForConstructor(@Mocked Collaborator mock) {
       thrown.expect(IllegalArgumentException.class);
-      thrown.expectMessage("String");
-      thrown.expectMessage("incompatible with return type void");
+      thrown.expectMessage("Invalid assignment");
+      thrown.expectMessage("for constructor");
 
       new Expectations() {{
          new Collaborator();

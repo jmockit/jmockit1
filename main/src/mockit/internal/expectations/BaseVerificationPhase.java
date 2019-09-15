@@ -90,15 +90,10 @@ public abstract class BaseVerificationPhase extends TestOnlyPhase
             InvocationArguments invocationArguments = invocation.arguments;
             List<ArgumentMatcher<?>> originalMatchers = invocationArguments.getMatchers();
             Object[] originalArgs = invocationArguments.prepareForVerification(args, argMatchers);
-            Map<Object, Object> instanceMap = getInstanceMap();
-            boolean argumentsMatch = invocationArguments.isMatch(replayArgs, instanceMap);
+            boolean argumentsMatch = invocationArguments.isMatch(replayArgs, getInstanceMap());
             invocationArguments.setValuesAndMatchers(originalArgs, originalMatchers);
 
             if (argumentsMatch) {
-               if (constructor) {
-                  instanceMap.put(replayInstance, mock);
-               }
-
                addVerifiedExpectation(replayExpectation, replayArgs);
                return true;
             }

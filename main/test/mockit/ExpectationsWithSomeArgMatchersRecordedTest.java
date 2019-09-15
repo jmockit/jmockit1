@@ -226,7 +226,7 @@ public final class ExpectationsWithSomeArgMatchersRecordedTest
       assertEquals(2, scheduler.getAlerts("123", 1, true).size());
    }
 
-   // Tests for the matching of expectations to instances created during replay ///////////////////////////////////////
+   // Tests for the matching of expectations to instances created during replay ///////////////////////////////////////////////////////////
 
    @Test
    public void recordExpectationsForMockedObjectsInstantiatedInsideSUT(@Mocked Dependency dep) {
@@ -249,7 +249,7 @@ public final class ExpectationsWithSomeArgMatchersRecordedTest
    }
 
    @Test
-   public void verifyUnorderedExpectationsForMockedObjectsInstantiatedInsideSUT(@Mocked Dependency dep) {
+   public void verifyUnorderedExpectationsForMockedObjectsInstantiatedInsideSUT() {
       Dependency src1 = new Dependency(1);
       Dependency src2 = new Dependency(2);
       Dependency src3 = new Dependency(1);
@@ -260,17 +260,22 @@ public final class ExpectationsWithSomeArgMatchersRecordedTest
       mock.doSomething(src3);
       mock.doSomething(src4);
 
-      new Verifications() {{
-         Dependency dep2 = new Dependency(2);
-         mock.doSomething(dep2); times = 2;
+      final List<Dependency> dependencies = new ArrayList<>();
+      new Verifications() {{ mock.doSomething(withCapture(dependencies)); times = 4; }};
 
-         Dependency dep1 = new Dependency(1);
-         mock.doSomething(dep1); times = 2;
-      }};
+      int i1 = dependencies.indexOf(new Dependency(1));
+      int l1 = dependencies.lastIndexOf(new Dependency(1));
+      assertTrue(i1 >= 0);
+      assertTrue(l1 >= 0 && l1 != i1);
+
+      int i2 = dependencies.indexOf(new Dependency(2));
+      int l2 = dependencies.lastIndexOf(new Dependency(2));
+      assertTrue(i2 >= 0);
+      assertTrue(l2 >= 0 && l2 != i2);
    }
 
    @Test
-   public void verifyOrderedExpectationsForMockedObjectsInstantiatedInsideSUT(@Mocked Dependency dep) {
+   public void verifyOrderedExpectationsForMockedObjectsInstantiatedInsideSUT() {
       Dependency src1 = new Dependency(1);
       Dependency src2 = new Dependency(2);
       Dependency src3 = new Dependency(2);
@@ -283,11 +288,10 @@ public final class ExpectationsWithSomeArgMatchersRecordedTest
 
       new VerificationsInOrder() {{
          Dependency dep1 = new Dependency(1);
-         Dependency dep2 = new Dependency(2); times = 2;
-         Dependency dep3 = new Dependency(1);
+         Dependency dep2 = new Dependency(2);
          mock.doSomething(dep1);
          mock.doSomething(dep2); times = 2;
-         mock.doSomething(dep3);
+         mock.doSomething(dep1);
       }};
    }
 
@@ -357,7 +361,7 @@ public final class ExpectationsWithSomeArgMatchersRecordedTest
       assertEquals(2, mock.doSomething(src4));
    }
 
-   // The following tests failed only when compiled with the Eclipse compiler /////////////////////////////////////////
+   // The following tests failed only when compiled with the Eclipse compiler /////////////////////////////////////////////////////////////
 
    @Test
    public void expectationWithMatchersSpanningMultipleLines() {

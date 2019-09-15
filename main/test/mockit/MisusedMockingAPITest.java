@@ -62,7 +62,7 @@ public final class MisusedMockingAPITest
    }
 
    @Test
-   public void recordSingleMockInstanceForConstructorExpectation() {
+   public void recordMockInstanceForConstructorExpectation() {
       thrown.expect(IllegalArgumentException.class);
       thrown.expectMessage("Invalid assignment");
       thrown.expectMessage("result ");

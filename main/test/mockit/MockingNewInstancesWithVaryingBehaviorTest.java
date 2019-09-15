@@ -56,20 +56,7 @@ public final class MockingNewInstancesWithVaryingBehaviorTest
 
    /// Tests using the Mocking API ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-   @Test // nice
-   public void usingReplacementInstances(@Mocked final SimpleDateFormat dateFmt, @Mocked final SimpleDateFormat hourFmt) {
-      new Expectations() {{
-         new SimpleDateFormat(DATE_FORMAT); result = dateFmt;
-         dateFmt.format((Date) any); result = FORMATTED_DATE;
-
-         new SimpleDateFormat(TIME_FORMAT); result = hourFmt;
-         hourFmt.format((Date) any); result = FORMATTED_TIME;
-      }};
-
-      exerciseAndVerifyTestedCode();
-   }
-
-   @Test // nicer
+   @Test
    public void usingInstantiationRecording(@Mocked SimpleDateFormat anyDateFormat) {
       new Expectations() {{
          SimpleDateFormat dateFmt = new SimpleDateFormat(DATE_FORMAT);
@@ -90,17 +77,18 @@ public final class MockingNewInstancesWithVaryingBehaviorTest
       boolean isPositive() { return value > 0; }
    }
 
+   Collaborator col;
+   Collaborator col5;
+   Collaborator col6;
+
    @Test
-   public void matchMethodCallsOnInstancesCreatedWithConstructorMatchingRecordedOne(
-      @Mocked final Collaborator mock, @Mocked final Collaborator mock5, @Mocked final Collaborator mock6
-   ) {
+   public void matchMethodCallsOnInstancesCreatedWithSpecificConstructorCalls(@Mocked final Collaborator anyCol) {
       new Expectations() {{
-         new Collaborator(5); result = mock5;
-         mock5.getValue(); result = 123; times = 2;
+         col5 = new Collaborator(5);
+         col5.getValue(); result = 123; times = 2;
 
-         new Collaborator(); result = mock; times = 1;
-
-         new Collaborator(6); result = mock6;
+         col = new Collaborator(); times = 1;
+         col6 = new Collaborator(6);
       }};
 
       assertEquals(0, new Collaborator().getValue());
@@ -118,10 +106,10 @@ public final class MockingNewInstancesWithVaryingBehaviorTest
 
       new Verifications() {{
          new Collaborator(anyInt); times = 3;
-         mock.getValue(); times = 1;
-         mock6.getValue(); times = 1;
-         mock5.isPositive(); times = 1;
-         mock6.isPositive(); times = 1;
+         col.getValue(); times = 1;
+         col6.getValue(); times = 1;
+         col5.isPositive(); times = 1;
+         col6.isPositive(); times = 1;
       }};
    }
 
