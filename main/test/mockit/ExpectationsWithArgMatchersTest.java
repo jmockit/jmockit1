@@ -22,7 +22,8 @@ public final class ExpectationsWithArgMatchersTest
    static class Collaborator {
       void setValue(int value) {}
       void setValue(double value) {}
-      void setValue(float value) {}
+      boolean setValue(float value) { return false; }
+      void setValue(char value) {}
       void setValue(String value) {}
       void setValues(char c, boolean b) {}
       void setValues(String[] values) {}
@@ -39,6 +40,51 @@ public final class ExpectationsWithArgMatchersTest
    }
 
    @Mocked Collaborator mock;
+
+   @Test
+   public void verifyExpectationNumericEqualityMatcherButFailToMatchOnReplay() {
+      thrown.expect(MissingInvocation.class);
+      thrown.expectMessage("setValue");
+      thrown.expectMessage("a numeric value within 0.01 of 2.3");
+      thrown.expectMessage("instead got");
+      thrown.expectMessage("setValue(2.32)");
+
+      mock.setValue(2.32);
+
+      new Verifications() {{ mock.setValue(withEqual(2.3, 0.01)); }};
+   }
+
+   @Test
+   public void verifyExpectationUsingNumericEqualityMatcherButReplayWithNonNumericParameterType() {
+      thrown.expect(MissingInvocation.class);
+
+      mock.useObject('2');
+
+      new Verifications() {{ mock.useObject(withEqual(2.3, 0.01)); }};
+   }
+
+   @Test
+   public void verifyExpectationUsingInequalityMatcherButFailToMatchOnReplay() {
+      thrown.expect(MissingInvocation.class);
+      thrown.expectMessage("(not 2)");
+      thrown.expectMessage("got");
+      thrown.expectMessage("(2)");
+
+      mock.setValue(2);
+
+      new Verifications() {{ mock.setValue(withNotEqual(2)); }};
+   }
+
+   @Test
+   public void verifyExpectationsUsingNumericEqualityMatchers() {
+      new Expectations() {{
+         mock.setValue(withEqual(2.0F, 0.01F)); result = true;
+         mock.setValue(withEqual(2.0F, 0.05F)); result = false; // still overwrites the previous expectation, due to overlap in delta
+      }};
+
+      assertFalse(mock.setValue(2.0F));
+      assertFalse(mock.setValue(2.05F));
+   }
 
    @Test
    public void recordExpectationWithDelegateWithoutTheParameterType() {
@@ -107,18 +153,18 @@ public final class ExpectationsWithArgMatchersTest
    }
 
    void assertInvocationsWithArgumentsOfDifferentTypesToMethodAcceptingAnyObject() {
-      assertEquals("String", mock.useObject("test"));
-      assertEquals("String", mock.useObject(null)); // uses the first recorded expectation, since they all match null
-      assertEquals("int", mock.useObject(2));
-      assertEquals("Object", mock.useObject(new Object()));
-      assertEquals("byte", mock.useObject((byte) -3));
-      assertEquals("short", mock.useObject((short) 4));
-      assertEquals("long", mock.useObject(-5L));
+      assertEquals("String",  mock.useObject("test"));
+      assertEquals("String",  mock.useObject(null)); // uses the first recorded expectation, since they all match null
+      assertEquals("int",     mock.useObject(2));
+      assertEquals("Object",  mock.useObject(new Object()));
+      assertEquals("byte",    mock.useObject((byte) -3));
+      assertEquals("short",   mock.useObject((short) 4));
+      assertEquals("long",    mock.useObject(-5L));
       assertEquals("boolean", mock.useObject(true));
       assertEquals("boolean", mock.useObject(false));
-      assertEquals("char", mock.useObject('A'));
-      assertEquals("float", mock.useObject(-1.5F));
-      assertEquals("double", mock.useObject(23.456));
+      assertEquals("char",    mock.useObject('A'));
+      assertEquals("float",   mock.useObject(-1.5F));
+      assertEquals("double",  mock.useObject(23.456));
    }
 
    @Test
@@ -181,7 +227,7 @@ public final class ExpectationsWithArgMatchersTest
       }};
    }
 
-   // "Missing invocations" ///////////////////////////////////////////////////////////////////////////////////////////
+   // "Missing invocations" ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
    @Test
    public void expectInvocationWithSameMockInstanceButReplayWithNull(
@@ -216,7 +262,7 @@ public final class ExpectationsWithArgMatchersTest
       thrown.expect(MissingInvocation.class);
    }
 
-   // Verifications ///////////////////////////////////////////////////////////////////////////////////////////////////
+   // Verifications ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
    class ReusableMatcher implements Delegate<Integer> {
       @Mock final boolean isPositive(int i) { return i > 0; }
