@@ -309,19 +309,4 @@ public final class VerificationsInOrderTest
          mock.setSomething(4); times = 1;
       }};
    }
-
-   @Test
-   public void verifyMethodInvokedOnOneOfTwoNewInstancesOfSameTypeWhenInvokedOnWrongInstance() {
-      thrown.expect(MissingInvocation.class);
-      thrown.expectMessage("save()");
-
-      new Dependency();
-      new Dependency().save();
-
-      new VerificationsInOrder() {{
-         Dependency d1 = new Dependency();
-         new Dependency();
-         d1.save();
-      }};
-   }
 }
