@@ -54,8 +54,8 @@ public final class CoverageReport
 
       generateFileCoverageReportsWhileBuildingPackageLists();
 
-      new IndexPage(outputFile, sourceDirs, sourceFilesNotFound, packageToFiles, fileToFileData).generate();
       new StaticFiles(outputDir).copyToOutputDir(withSourceFilePages);
+      new IndexPage(outputFile, sourceDirs, sourceFilesNotFound, packageToFiles, fileToFileData).generate();
 
       System.out.println("JMockit: Coverage report written to " + outputFile.getParentFile().getCanonicalPath());
    }
