@@ -9,7 +9,7 @@ import static org.junit.Assert.*;
 
 import mockit.internal.expectations.invocation.*;
 
-@SuppressWarnings({"unused", "deprecation", "ParameterHidesMemberVariable"})
+@SuppressWarnings({"unused", "ParameterHidesMemberVariable"})
 public final class ExpectationsTest
 {
    @Rule public final ExpectedException thrown = ExpectedException.none();
