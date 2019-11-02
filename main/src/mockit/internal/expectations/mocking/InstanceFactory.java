@@ -25,7 +25,7 @@ public abstract class InstanceFactory
       catch (NoSuchMethodException e) { throw new RuntimeException(e); }
    }
 
-   @Nonnull final Class<?> concreteClass;
+   @Nonnull private final Class<?> concreteClass;
    @Nullable Object lastInstance;
 
    InstanceFactory(@Nonnull Class<?> concreteClass) { this.concreteClass = concreteClass; }
