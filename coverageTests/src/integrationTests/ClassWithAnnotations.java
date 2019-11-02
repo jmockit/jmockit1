@@ -1,16 +1,13 @@
 package integrationTests;
 
 import java.beans.*;
-import javax.annotation.*;
-import javax.annotation.Resource.*;
 import javax.sql.*;
 
-@Deprecated @Resources(@Resource(name = "test"))
+@Deprecated
 final class ClassWithAnnotations
 {
    @SuppressWarnings("DefaultAnnotationParam")
    @AnAnnotation(integers = {})
-   @Resource(authenticationType = AuthenticationType.APPLICATION)
    DataSource dataSource;
 
    @Deprecated
