@@ -134,7 +134,11 @@ public final class DelegateInvocationProceedTest
 
          mocked.methodToBeMocked(anyInt, (Object[]) any);
          result = new Delegate() {
-            @Mock Integer delegate2(Invocation inv, int i, Object... args) { return inv.proceed(1, 2, "3"); }
+            @Mock
+            Integer delegate2(Invocation inv, int i, Object... args) {
+               Object[] newArgs = {2, "3"};
+               return inv.proceed(1, newArgs);
+            }
          };
       }};
 

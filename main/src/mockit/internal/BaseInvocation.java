@@ -17,8 +17,8 @@ import mockit.internal.reflection.*;
  */
 public abstract class BaseInvocation extends Invocation
 {
-   @Nullable protected Member realMember;
-   @Nullable protected BaseInvocation previousInvocation;
+   @Nullable private Member realMember;
+   @Nullable private BaseInvocation previousInvocation;
 
    protected BaseInvocation(@Nullable Object invokedInstance, @Nonnull Object[] invokedArguments, @Nonnegative int invocationCount) {
       super(invokedInstance, invokedArguments, invocationCount);
@@ -50,8 +50,7 @@ public abstract class BaseInvocation extends Invocation
       Object[] actualArgs = getInvokedArguments();
 
       if (replacementArguments != null && replacementArguments.length > 0) {
-         actualArgs = realMethod.isVarArgs() ?
-            createArgumentsArrayWithVarargs(actualArgs.length, replacementArguments) : replacementArguments;
+         actualArgs = replacementArguments;
       }
 
       try {
@@ -60,19 +59,6 @@ public abstract class BaseInvocation extends Invocation
       finally {
          cleanUpAfterProceed();
       }
-   }
-
-   @Nonnull
-   private static Object[] createArgumentsArrayWithVarargs(@Nonnegative int numInvokedArgs, @Nonnull Object[] replacementArguments) {
-      int m = numInvokedArgs - 1;
-      Object[] actualArgs = new Object[numInvokedArgs];
-      System.arraycopy(replacementArguments, 0, actualArgs, 0, m);
-
-      Object[] replacementVarargs = new Object[replacementArguments.length - m];
-      System.arraycopy(replacementArguments, m, replacementVarargs, 0, replacementVarargs.length);
-      actualArgs[m] = replacementVarargs;
-
-      return actualArgs;
    }
 
    public abstract void prepareToProceed();

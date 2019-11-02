@@ -1,12 +1,11 @@
 package mockit;
 
-import java.applet.*;
 import java.awt.*;
 import java.lang.reflect.*;
-import java.net.*;
 import java.rmi.*;
 import java.util.concurrent.atomic.*;
 
+import javax.accessibility.AccessibleContext;
 import javax.sound.midi.*;
 import javax.swing.*;
 import javax.swing.plaf.basic.*;
@@ -27,16 +26,16 @@ public final class FakingTest
       new MockUp() {};
    }
 
-   // Fakes for classes ///////////////////////////////////////////////////////////////////////////////////////////////
+   // Fakes for classes ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
    @Test
    public void fakeAClass() {
-      new MockUp<Applet>() {
+      new MockUp<Panel>() {
          @Mock
          int getComponentCount() { return 123; }
       };
 
-      assertEquals(123, new Applet().getComponentCount());
+      assertEquals(123, new Panel().getComponentCount());
    }
 
    static final class Main {
@@ -89,46 +88,46 @@ public final class FakingTest
    public void attemptToFakeGivenClassButPassNull() {
       thrown.expect(NullPointerException.class);
 
-      new MockUp<Applet>(null) {};
+      new MockUp<Panel>(null) {};
    }
 
    @SuppressWarnings("rawtypes")
    static class FakeForGivenClass extends MockUp {
       @SuppressWarnings("unchecked")
-      FakeForGivenClass() { super(Applet.class); }
+      FakeForGivenClass() { super(Panel.class); }
 
       @Mock
-      String getParameter(String s) { return "mock"; }
+      String getName() { return "mock"; }
    }
 
    @Test
    public void fakeGivenClassUsingNamedFake() {
       new FakeForGivenClass();
 
-      String s = new Applet().getParameter("test");
+      String s = new Panel().getName();
 
       assertEquals("mock", s);
    }
 
-   // Fakes for other situations //////////////////////////////////////////////////////////////////////////////////////
+   // Fakes for other situations //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
    @Test
-   public <M extends Applet & Runnable> void attemptToFakeClassAndInterfaceAtOnce() {
+   public <M extends Panel & Runnable> void attemptToFakeClassAndInterfaceAtOnce() {
       thrown.expect(UnsupportedOperationException.class);
       thrown.expectMessage("Unable to capture");
 
       new MockUp<M>() {
-         @Mock String getParameter(String s) { return s.toLowerCase(); }
+         @Mock String getName() { return ""; }
          @Mock void run() {}
       };
    }
 
    @Test
    public void fakeUsingInvocationParameters() {
-      new MockUp<Applet>() {
+      new MockUp<Panel>() {
          @Mock
          void $init(Invocation inv) {
-            Applet it = inv.getInvokedInstance();
+            Panel it = inv.getInvokedInstance();
             assertNotNull(it);
          }
 
@@ -138,26 +137,26 @@ public final class FakingTest
          }
       };
 
-      int i = new Applet().getBaseline(20, 15);
+      int i = new Panel().getBaseline(20, 15);
 
       assertEquals(-1, i);
    }
 
-   public static class PublicNamedFakeWithNoInvocationParameters extends MockUp<Applet> {
+   public static class PublicNamedFakeWithNoInvocationParameters extends MockUp<Panel> {
       boolean executed;
       @Mock public void $init() { executed = true; }
-      @Mock public String getParameter(String s) { return "45"; }
+      @Mock public String getName() { return "test"; }
    }
 
    @Test
    public void publicNamedFakeWithNoInvocationParameter() {
       PublicNamedFakeWithNoInvocationParameters fake = new PublicNamedFakeWithNoInvocationParameters();
 
-      Applet applet = new Applet();
+      Panel applet = new Panel();
       assertTrue(fake.executed);
 
-      String parameter = applet.getParameter("test");
-      assertEquals("45", parameter);
+      String name = applet.getName();
+      assertEquals("test", name);
    }
 
    @Test @SuppressWarnings("deprecation")
@@ -177,15 +176,15 @@ public final class FakingTest
 
    @Test
    public void fakeSameClassTwiceUsingSeparateFakes() {
-      Applet a = new Applet();
+      Panel a = new Panel();
 
-      class Fake1 extends MockUp<Applet> { @Mock void play(URL url) {} }
+      class Fake1 extends MockUp<Panel> { @Mock void addNotify() {} }
       new Fake1();
-      a.play(null);
+      a.addNotify();
 
-      new MockUp<Applet>() { @Mock void showStatus(String s) {} };
-      a.play(null); // still faked
-      a.showStatus("");
+      new MockUp<Panel>() { @Mock AccessibleContext getAccessibleContext() { return null; } };
+      a.addNotify(); // still faked
+      a.getAccessibleContext();
    }
 
    @Test
@@ -234,7 +233,7 @@ public final class FakingTest
 
    static Boolean fakeTornDown;
 
-   static final class FakeWithActionOnTearDown extends MockUp<Applet> {
+   static final class FakeWithActionOnTearDown extends MockUp<Panel> {
       @Override
       protected void onTearDown() { fakeTornDown = true; }
    }
@@ -249,5 +248,18 @@ public final class FakingTest
    @AfterClass
    public static void verifyFakeAppliedInTestWasTornDown() {
       assertTrue(fakeTornDown == null || fakeTornDown);
+   }
+
+   @Test
+   public void fakeVarargsMethodWithProceedingFakeMethodWhichPassesReplacementArguments() {
+      new MockUp<ProcessBuilder>() {
+         @Mock
+         ProcessBuilder command(Invocation inv, String... command) {
+            String[] newArgs = {"replaced"};
+            return inv.proceed((Object) newArgs);
+         }
+      };
+
+      new ProcessBuilder().command("test", "something");
    }
 }

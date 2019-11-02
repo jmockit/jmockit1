@@ -127,7 +127,8 @@ public final class FakeInvocationProceedTest
       new FakeWhichModifiesArguments() {
          @Mock
          synchronized int methodToBeFaked(Invocation inv, int i, Object... args) {
-            return inv.<Integer>proceed(1, 2, "3");
+            Object[] newArgs = {2, "3"};
+            return inv.<Integer>proceed(1, newArgs);
          }
       };
 
