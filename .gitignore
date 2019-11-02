@@ -1,2 +1,7 @@
 /.shelf/
 /.idea/
+/coverageTests/target/
+/main/target/
+/samples/java8testing/target/
+/samples/petclinic/target/
+/samples/tutorial/target/
