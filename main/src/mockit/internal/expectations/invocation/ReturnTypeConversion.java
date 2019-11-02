@@ -22,7 +22,7 @@ public final class ReturnTypeConversion
 {
    private static final Class<?>[] STRING = {String.class};
 
-   @Nonnull ExpectedInvocation invocation;
+   @Nonnull private ExpectedInvocation invocation;
    @Nullable private final InvocationResults invocationResults;
    @Nonnull private final Class<?> returnType;
    @Nonnull private final Object valueToReturn;
@@ -96,20 +96,9 @@ public final class ReturnTypeConversion
       invocationResults.addReturnValueResult(returnValue);
    }
 
-   @Nonnull
-   private Object getResultFromSingleValue() {
-      if (returnType == Object.class) {
-         return valueToReturn;
-      }
-      else if (returnType == void.class) {
-         throw newIncompatibleTypesException();
-      }
-      else if (valueToReturn instanceof CharSequence) {
-         return getCharSequence((CharSequence) valueToReturn);
-      }
-      else {
-         return getPrimitiveValue();
-      }
+   private void addPrimitiveValueConvertingAsNeeded(@Nonnull Class<?> targetType) {
+      Object convertedValue = getPrimitiveValueConvertingAsNeeded(targetType);
+      addReturnValue(convertedValue);
    }
 
    private void addResultFromSingleValue() {
@@ -167,12 +156,6 @@ public final class ReturnTypeConversion
    }
 
    private void addCharSequence(@Nonnull CharSequence textualValue) {
-      Object convertedValue = getCharSequence(textualValue);
-      addReturnValue(convertedValue);
-   }
-
-   @Nonnull
-   private Object getCharSequence(@Nonnull CharSequence textualValue) {
       @Nonnull Object convertedValue = textualValue;
 
       if (returnType.isAssignableFrom(ByteArrayInputStream.class)) {
@@ -197,7 +180,7 @@ public final class ReturnTypeConversion
          }
       }
 
-      return convertedValue;
+      addReturnValue(convertedValue);
    }
 
    private boolean addByteArrayIfApplicable() {
@@ -248,8 +231,7 @@ public final class ReturnTypeConversion
       return false;
    }
 
-   @Nonnull
-   private Object getPrimitiveValue() {
+   private void addPrimitiveValue() {
       Class<?> primitiveType = AutoBoxing.getPrimitiveType(valueToReturn.getClass());
 
       if (primitiveType != null) {
@@ -261,16 +243,12 @@ public final class ReturnTypeConversion
          }
 
          if (convertedValue != null) {
-            return convertedValue;
+            addReturnValue(convertedValue);
+            return;
          }
       }
 
       throw newIncompatibleTypesException();
-   }
-
-   private void addPrimitiveValue() {
-      Object convertedValue = getPrimitiveValue();
-      addReturnValue(convertedValue);
    }
 
    @Nonnull
@@ -289,11 +267,6 @@ public final class ReturnTypeConversion
       }
 
       return convertedValue;
-   }
-
-   private void addPrimitiveValueConvertingAsNeeded(@Nonnull Class<?> targetType) {
-      Object convertedValue = getPrimitiveValueConvertingAsNeeded(targetType);
-      addReturnValue(convertedValue);
    }
 
    @Nullable
