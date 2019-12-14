@@ -74,7 +74,7 @@ public final class MultiThreadedExpectationsTest
    }
 
    @Test
-   public void verifyInvocationsReplayedInAnotherThreadWhoseClassIsNoLongerMocked_part1(
+   public void verifyInvocationsReplayedInAnotherThreadWhoseClassIsNoLongerMocked(
       @Mocked final Dependency dep, @Mocked final Graphics2D g2D, @Mocked final Runnable runnable
    ) {
       new Thread() {
@@ -86,12 +86,6 @@ public final class MultiThreadedExpectationsTest
             Dependency.doSomethingElse();
          }
       }.start();
-   }
-
-   @Test
-   public void verifyInvocationsReplayedInAnotherThreadWhoseClassIsNoLongerMocked_part2() throws Exception {
-      Thread.sleep(10);
-      new FullVerifications() {};
    }
 
    public interface APublicInterface { boolean doSomething(); }

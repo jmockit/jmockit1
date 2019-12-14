@@ -2,9 +2,6 @@ package mockit;
 
 import java.lang.reflect.*;
 import java.util.*;
-import javax.xml.transform.*;
-import javax.xml.transform.dom.*;
-import javax.xml.transform.sax.*;
 import static java.util.Arrays.*;
 
 import org.junit.*;
@@ -135,86 +132,6 @@ public final class FakingEverythingTest
          "Exited TargetClass#validateSomething with [] on TargetClass2"
       );
       assertEquals(expectedTraces, traces);
-   }
-
-   static final class XMLSourceTimingAspect<S extends Source> extends MockUp<S> {
-      final Map<String, List<Long>> executionTimesMillis = new HashMap<>();
-
-      @Mock
-      Object $advice(Invocation invocation) {
-         long startTimeMillis = System.nanoTime() / 1000000;
-
-         try {
-            return invocation.proceed();
-         }
-         finally {
-            long endTimeMillis = System.nanoTime() / 1000000;
-            long dtMillis = endTimeMillis - startTimeMillis;
-            Method invokedMethod = invocation.getInvokedMember();
-            addMethodExecutionTime(invokedMethod, dtMillis);
-         }
-      }
-
-      private void addMethodExecutionTime(Method invokedMethod, long executionTimeMillis) {
-         String methodId = invokedMethod.getName();
-         List<Long> methodTimesMillis = executionTimesMillis.get(methodId);
-
-         if (methodTimesMillis == null) {
-            methodTimesMillis = new ArrayList<>();
-            executionTimesMillis.put(methodId, methodTimesMillis);
-         }
-
-         methodTimesMillis.add(executionTimeMillis);
-      }
-
-      void assertTimes(String methodId, int... expectedTimesMillisForConsecutiveExecutions) {
-         List<Long> actualExecutionTimesMillis = executionTimesMillis.get(methodId);
-         assertEquals(expectedTimesMillisForConsecutiveExecutions.length, actualExecutionTimesMillis.size());
-
-         for (int i = 0; i < expectedTimesMillisForConsecutiveExecutions.length; i++) {
-            long expectedTime = expectedTimesMillisForConsecutiveExecutions[i];
-            long executionTime = actualExecutionTimesMillis.get(i);
-            assertEquals("Expected time at index " + i, expectedTime, executionTime, 15);
-         }
-      }
-   }
-
-   static void takeSomeTime(int millis) {
-      try { Thread.sleep(millis); } catch (InterruptedException ignore) {}
-   }
-
-   static class TestSource implements Source {
-      @Override
-      public void setSystemId(String systemId) {
-         takeSomeTime(30);
-      }
-
-      @Override
-      public String getSystemId() {
-         takeSomeTime(20);
-         return null;
-      }
-   }
-
-   @Test
-   public void fakeEveryMethodInAllClassesImplementingAnInterface() {
-      XMLSourceTimingAspect<?> timingAspect = new XMLSourceTimingAspect<>();
-
-      Source src1 = new TestSource();
-      src1.setSystemId("Abc");
-      src1.getSystemId();
-
-      Source src2 = new TestSource();
-      src2.getSystemId();
-      src2.setSystemId("Gh34");
-      src2.getSystemId();
-
-      // From the JRE, not mocked:
-      new SAXSource().setSystemId("sax");
-      new DOMSource().getSystemId();
-
-      timingAspect.assertTimes("getSystemId", 20, 20, 20);
-      timingAspect.assertTimes("setSystemId", 30, 30);
    }
 
    public static final class PublicFake extends MockUp<TargetClass> {
