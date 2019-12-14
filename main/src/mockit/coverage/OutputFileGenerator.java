@@ -42,7 +42,11 @@ final class OutputFileGenerator
       return format.isEmpty() ? new String[] {"html"} : format.trim().split("\\s*,\\s*|\\s+");
    }
 
-   boolean isOutputToBeGenerated()          { return isHTMLWithNoCallPoints() || isWithCallPoints() || hasOutputFormat("xml"); }
+   boolean isOutputToBeGenerated() {
+      return isHTMLWithNoCallPoints() || isWithCallPoints() ||
+             hasOutputFormat("serial") || hasOutputFormat("serial-append") || hasOutputFormat("xml");
+   }
+
    private boolean isHTMLWithNoCallPoints() { return hasOutputFormat("html") || hasOutputFormat("html-nocp"); }
    boolean isWithCallPoints()               { return hasOutputFormat("html-cp"); }
 
