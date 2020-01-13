@@ -22,7 +22,7 @@ public final class LifecycleMethods
    @Nonnull private final Map<Class<?>, Method> initializationMethods;
    @Nonnull private final Map<Class<?>, Method> terminationMethods;
    @Nonnull private final Map<Class<?>, Object> objectsWithTerminationMethodsToExecute;
-   @Nullable Object servletConfig;
+   @Nullable private Object servletConfig;
 
    LifecycleMethods() {
       classesSearched = new ArrayList<>();
