@@ -209,18 +209,6 @@ public abstract class JavaType
    }
 
    /**
-    * Returns the descriptor corresponding to the given Java type.
-    *
-    * @param aClass an object class, a primitive class or an array class
-    */
-   @Nonnull
-   public static String getDescriptor(@Nonnull Class<?> aClass) {
-      StringBuilder buf = new StringBuilder();
-      getDescriptor(buf, aClass);
-      return buf.toString();
-   }
-
-   /**
     * Returns the descriptor corresponding to the given constructor.
     */
    @Nonnull
