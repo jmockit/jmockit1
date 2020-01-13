@@ -15,6 +15,7 @@ import javax.annotation.*;
 
 import static java.lang.reflect.Modifier.isPublic;
 
+import static mockit.internal.reflection.ParameterReflection.*;
 import static mockit.internal.util.AutoBoxing.*;
 
 /**
@@ -36,6 +37,7 @@ public final class Utilities
    private Utilities() {}
 
    public static void ensureThatMemberIsAccessible(@Nonnull AccessibleObject classMember) {
+      //noinspection deprecation
       if (!classMember.isAccessible()) {
          classMember.setAccessible(true);
       }
@@ -72,8 +74,8 @@ public final class Utilities
    }
 
    public static boolean containsReference(@Nonnull List<?> references, @Nullable Object toBeFound) {
-      for (int i = 0, n = references.size(); i < n; i++) {
-         if (references.get(i) == toBeFound) {
+      for (Object reference : references) {
+         if (reference == toBeFound) {
             return true;
          }
       }
@@ -129,13 +131,9 @@ public final class Utilities
    @Nonnull
    private static Object newWrapperInstance(@Nonnull Class<?> wrapperClass, @Nonnull String value) {
       for (Constructor<?> constructor : wrapperClass.getDeclaredConstructors()) {
-         if (isPublic(constructor.getModifiers())) {
-            Class<?>[] parameterTypes = constructor.getParameterTypes();
-
-            if (parameterTypes.length == 1 && parameterTypes[0] == String.class) {
-               //noinspection OverlyBroadCatchBlock
-               try { return constructor.newInstance(value.trim()); } catch (Exception ignore) {}
-            }
+         if (isPublic(constructor.getModifiers()) && getTypeOfFirstAndOnlyParameter(constructor) == String.class) {
+            //noinspection OverlyBroadCatchBlock
+            try { return constructor.newInstance(value.trim()); } catch (Exception ignore) {}
          }
       }
 

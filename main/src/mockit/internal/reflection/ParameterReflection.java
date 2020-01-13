@@ -8,7 +8,11 @@ import javax.annotation.*;
 
 import mockit.*;
 import mockit.internal.util.*;
+
+import java.lang.reflect.*;
+
 import static mockit.internal.reflection.MethodReflection.*;
+import static mockit.internal.util.Utilities.*;
 
 public final class ParameterReflection
 {
@@ -156,5 +160,22 @@ public final class ParameterReflection
       }
 
       return true;
+   }
+
+   @Nonnegative
+   public static int getParameterCount(@Nonnull Method method) {
+      //noinspection Since15
+      return JAVA8 ? method.getParameterCount() : method.getParameterTypes().length;
+   }
+
+   @Nullable
+   public static Class<?> getTypeOfFirstAndOnlyParameter(@Nonnull Constructor<?> constructor) {
+      if (JAVA8) {
+         //noinspection Since15
+         return constructor.getParameterCount() == 1 ? constructor.getParameterTypes()[0] : null;
+      }
+
+      Class<?>[] parameterTypes = constructor.getParameterTypes();
+      return parameterTypes.length == 1 ? parameterTypes[0] : null;
    }
 }

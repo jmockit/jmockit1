@@ -14,6 +14,7 @@ import javax.servlet.*;
 import mockit.internal.reflection.*;
 import mockit.internal.state.*;
 import static mockit.internal.injection.InjectionPoint.*;
+import static mockit.internal.reflection.ParameterReflection.*;
 import static mockit.internal.util.Utilities.*;
 
 public final class LifecycleMethods
@@ -102,9 +103,7 @@ public final class LifecycleMethods
    }
 
    private static boolean isTerminationMethod(@Nonnull Method method, boolean isServlet) {
-      return
-         hasLifecycleAnnotation(method, false) ||
-         isServlet && "destroy".equals(method.getName()) && method.getParameterTypes().length == 0;
+      return hasLifecycleAnnotation(method, false) || isServlet && "destroy".equals(method.getName()) && getParameterCount(method) == 0;
    }
 
    public void executeInitializationMethodsIfAny(@Nonnull Class<?> testedClass, @Nonnull Object testedObject) {
@@ -130,7 +129,7 @@ public final class LifecycleMethods
    private void executeInitializationMethod(@Nonnull Object testedObject, @Nonnull Method initializationMethod) {
       Object[] args = NO_ARGS;
 
-      if ("init".equals(initializationMethod.getName()) && initializationMethod.getParameterTypes().length == 1) {
+      if ("init".equals(initializationMethod.getName()) && getParameterCount(initializationMethod) == 1) {
          args = new Object[] {servletConfig};
       }
 

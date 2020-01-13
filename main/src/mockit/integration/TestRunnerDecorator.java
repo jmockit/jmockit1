@@ -15,6 +15,8 @@ import mockit.internal.expectations.mocking.*;
 import mockit.internal.state.*;
 import mockit.internal.util.*;
 
+import static mockit.internal.reflection.ParameterReflection.*;
+
 /**
  * Base class for "test runner decorators", which provide integration between JMockit and specific test runners from JUnit and TestNG.
  */
@@ -213,7 +215,7 @@ public class TestRunnerDecorator
    protected static Object[] createInstancesForAnnotatedParameters(
       @Nonnull Object testClassInstance, @Nonnull Method testMethod, @Nullable Object[] parameterValues
    ) {
-      int numParameters = testMethod.getParameterTypes().length;
+      int numParameters = getParameterCount(testMethod);
 
       if (numParameters == 0) {
          return null;
