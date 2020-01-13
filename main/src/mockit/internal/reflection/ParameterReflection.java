@@ -34,7 +34,7 @@ public final class ParameterReflection
    }
 
    @Nonnull
-   public static Class<?>[] getArgumentTypesFromArgumentValues(@Nonnull Object... args) {
+   static Class<?>[] getArgumentTypesFromArgumentValues(@Nonnull Object... args) {
       if (args.length == 0) {
          return NO_PARAMETERS;
       }
@@ -117,7 +117,7 @@ public final class ParameterReflection
       return true;
    }
 
-   static boolean isSameTypeIgnoringAutoBoxing(@Nonnull Class<?> firstType, @Nonnull Class<?> secondType) {
+   private static boolean isSameTypeIgnoringAutoBoxing(@Nonnull Class<?> firstType, @Nonnull Class<?> secondType) {
       return
          firstType == secondType ||
          firstType.isPrimitive() && isWrapperOfPrimitiveType(firstType, secondType) ||
@@ -156,10 +156,5 @@ public final class ParameterReflection
       }
 
       return true;
-   }
-
-   @Nonnull
-   static IllegalArgumentException invalidArguments() {
-      return new IllegalArgumentException("Invalid null value passed as argument");
    }
 }
