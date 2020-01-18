@@ -10,9 +10,9 @@ import mockit.asm.methods.*;
 import mockit.asm.types.*;
 import static mockit.asm.jvmConstants.Opcodes.*;
 
-public final class TypeConversion
+public final class TypeConversionBytecode
 {
-   private TypeConversion() {}
+   private TypeConversionBytecode() {}
 
    public static void generateCastToObject(@Nonnull MethodVisitor mv, @Nonnull JavaType type) {
       if (type instanceof PrimitiveType) {
@@ -61,7 +61,7 @@ public final class TypeConversion
       mv.visitMethodInsn(INVOKEVIRTUAL, owner, methodName, methodDesc, false);
    }
 
-   public static void generateCastOrUnboxing(@Nonnull MethodVisitor mv, @Nonnull JavaType parameterType, int opcode) {
+   public static void generateCastOrUnboxing(@Nonnull MethodVisitor mv, @Nonnull JavaType parameterType, @Nonnegative int opcode) {
       if (opcode == ASTORE) {
          generateTypeCheck(mv, parameterType);
          return;
@@ -84,7 +84,7 @@ public final class TypeConversion
       return desc.charAt(2) == ')' && "valueOf".equals(name) && isPrimitiveWrapper(owner);
    }
 
-   public static boolean isUnboxing(int opcode, @Nonnull String owner, @Nonnull String desc) {
+   public static boolean isUnboxing(@Nonnegative int opcode, @Nonnull String owner, @Nonnull String desc) {
       return opcode == INVOKEVIRTUAL && desc.charAt(1) == ')' && isPrimitiveWrapper(owner);
    }
 }

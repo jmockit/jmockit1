@@ -9,7 +9,7 @@ import javax.annotation.*;
 import mockit.asm.methods.*;
 import mockit.asm.types.*;
 import static mockit.asm.jvmConstants.Opcodes.*;
-import static mockit.internal.util.TypeConversion.*;
+import static mockit.internal.util.TypeConversionBytecode.*;
 
 final class Capture
 {

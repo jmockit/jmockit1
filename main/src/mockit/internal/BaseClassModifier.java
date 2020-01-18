@@ -132,7 +132,7 @@ public class BaseClassModifier extends WrappingClassVisitor
 
    protected final void generateReturnWithObjectAtTopOfTheStack(@Nonnull String mockedMethodDesc) {
       JavaType returnType = JavaType.getReturnType(mockedMethodDesc);
-      TypeConversion.generateCastFromObject(mw, returnType);
+      TypeConversionBytecode.generateCastFromObject(mw, returnType);
       mw.visitInsn(returnType.getOpcode(IRETURN));
    }
 
@@ -168,7 +168,7 @@ public class BaseClassModifier extends WrappingClassVisitor
          mw.visitInsn(DUP);
          mw.visitIntInsn(SIPUSH, i++);
          mw.visitVarInsn(parameterType.getOpcode(ILOAD), j);
-         TypeConversion.generateCastToObject(mw, parameterType);
+         TypeConversionBytecode.generateCastToObject(mw, parameterType);
          mw.visitInsn(AASTORE);
          j += parameterType.getSize();
       }

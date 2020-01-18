@@ -11,7 +11,7 @@ import mockit.asm.jvmConstants.*;
 import mockit.asm.methods.*;
 import mockit.asm.types.*;
 import static mockit.asm.jvmConstants.Opcodes.*;
-import static mockit.internal.util.TypeConversion.*;
+import static mockit.internal.util.TypeConversionBytecode.*;
 
 public final class InvocationBlockModifier extends WrappingMethodVisitor
 {
