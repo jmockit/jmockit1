@@ -38,42 +38,6 @@ public final class ParameterReflection
    }
 
    @Nonnull
-   static Class<?>[] getArgumentTypesFromArgumentValues(@Nonnull Object... args) {
-      if (args.length == 0) {
-         return NO_PARAMETERS;
-      }
-
-      Class<?>[] argTypes = new Class<?>[args.length];
-
-      for (int i = 0; i < args.length; i++) {
-         argTypes[i] = getArgumentTypeFromArgumentValue(i, args);
-      }
-
-      return argTypes;
-   }
-
-   @Nonnull
-   private static Class<?> getArgumentTypeFromArgumentValue(int i, @Nonnull Object[] args) {
-      Object arg = args[i];
-
-      if (arg == null) {
-         throw new IllegalArgumentException("Invalid null value passed as argument " + i);
-      }
-
-      Class<?> argType;
-
-      if (arg instanceof Class<?>) {
-         argType = (Class<?>) arg;
-         args[i] = null;
-      }
-      else {
-         argType = GeneratedClasses.getMockedClass(arg);
-      }
-
-      return argType;
-   }
-
-   @Nonnull
    public static Object[] argumentsWithExtraFirstValue(@Nonnull Object[] args, @Nonnull Object firstValue) {
       Object[] args2 = new Object[1 + args.length];
       args2[0] = firstValue;

@@ -55,76 +55,34 @@ public final class ConstructorReflection
       }
    }
 
-   @Nonnull
-   public static <T> T newInstanceUsingCompatibleConstructor(@Nonnull Class<? extends T> aClass, @Nonnull Object... nonNullArgs) {
-      Class<?>[] argTypes = getArgumentTypesFromArgumentValues(nonNullArgs);
-      Constructor<T> constructor = findCompatibleConstructor(aClass, argTypes);
+   public static void newInstanceUsingCompatibleConstructor(@Nonnull Class<?> aClass, @Nonnull String argument) throws ReflectiveOperationException {
+      Constructor<?> constructor = aClass.getDeclaredConstructor(String.class);
       ensureThatMemberIsAccessible(constructor);
-      return invokeAccessible(constructor, nonNullArgs);
-   }
-
-   @Nonnull
-   private static <T> Constructor<T> findCompatibleConstructor(@Nonnull Class<?> theClass, @Nonnull Class<?>[] argTypes) {
-      Constructor<T> found = null;
-      Class<?>[] foundParameters = null;
-      Constructor<?>[] declaredConstructors = theClass.getDeclaredConstructors();
-
-      for (Constructor<?> declaredConstructor : declaredConstructors) {
-         Class<?>[] declaredParamTypes = declaredConstructor.getParameterTypes();
-         int firstRealParameter = indexOfFirstRealParameter(declaredParamTypes, argTypes);
-
-         if (
-            firstRealParameter >= 0 && (
-               matchesParameterTypes(declaredParamTypes, argTypes, firstRealParameter) ||
-               acceptsArgumentTypes(declaredParamTypes, argTypes, firstRealParameter)
-            ) && (
-               found == null || hasMoreSpecificTypes(declaredParamTypes, foundParameters)
-            )
-         ) {
-            //noinspection unchecked
-            found = (Constructor<T>) declaredConstructor;
-            foundParameters = declaredParamTypes;
-         }
-      }
-
-      if (found != null) {
-         return found;
-      }
-
-      Class<?> declaringClass = theClass.getDeclaringClass();
-      Class<?>[] paramTypes = declaredConstructors[0].getParameterTypes();
-
-      if (paramTypes.length > argTypes.length && paramTypes[0] == declaringClass) {
-         throw new IllegalArgumentException("Invalid instantiation of inner class");
-      }
-
-      String argTypesDesc = getParameterTypesDescription(argTypes);
-      throw new IllegalArgumentException("No compatible constructor found: " + theClass.getSimpleName() + argTypesDesc);
+      constructor.newInstance(argument);
    }
 
    @Nonnull
    public static <T> T newInstanceUsingDefaultConstructor(@Nonnull Class<T> aClass) {
       try {
-         //noinspection ClassNewInstance
-         return aClass.newInstance();
+         Constructor<T> constructor = aClass.getDeclaredConstructor();
+         ensureThatMemberIsAccessible(constructor);
+         return constructor.newInstance();
       }
-      catch (InstantiationException ie) {
-         throw new RuntimeException(ie);
+      catch (NoSuchMethodException | InstantiationException | IllegalAccessException e) {
+         throw new RuntimeException(e);
       }
-      catch (IllegalAccessException ignore) {
-         Constructor<T> constructor = findCompatibleConstructor(aClass, NO_PARAMETERS);
-         constructor.setAccessible(true);
-         return invokeAccessible(constructor);
+      catch (InvocationTargetException e) {
+         throw new RuntimeException(e.getTargetException());
       }
    }
 
    @Nullable
    public static <T> T newInstanceUsingDefaultConstructorIfAvailable(@Nonnull Class<T> aClass) {
       try {
-         //noinspection ClassNewInstance
-         return aClass.newInstance();
+         Constructor<T> constructor = aClass.getDeclaredConstructor();
+         return constructor.newInstance();
       }
-      catch (InstantiationException | IllegalAccessException ignore) { return null; }
+      catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException ignore) { return null; }
    }
 
    @Nullable

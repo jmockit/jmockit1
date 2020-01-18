@@ -13,8 +13,9 @@ final class ThrowOfCheckedException
 
    ThrowOfCheckedException() throws Exception { throw exceptionToThrow; }
 
+   @SuppressWarnings("deprecation")
    static synchronized void doThrow(@Nonnull Exception checkedException) {
       exceptionToThrow = checkedException;
-      ConstructorReflection.newInstanceUsingDefaultConstructor(ThrowOfCheckedException.class);
+      try { ThrowOfCheckedException.class.newInstance(); } catch (InstantiationException | IllegalAccessException ignore) {}
    }
 }
