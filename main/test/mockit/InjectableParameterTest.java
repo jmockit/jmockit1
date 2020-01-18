@@ -9,6 +9,23 @@ import static org.junit.Assert.*;
 public final class InjectableParameterTest
 {
    @Test
+   public void injectableParametersOfPrimitiveTypes(
+      @Injectable("123") int i, @Injectable("5") long l, @Injectable("-45 ") short s, @Injectable(" 127") byte b,
+      @Injectable("true") boolean f1, @Injectable(" TRUE ") boolean f2, @Injectable("A") char c,
+      @Injectable(" 1.23") float f, @Injectable("-1.23") double d
+   ) {
+      assertEquals(123, i);
+      assertEquals(5L, l);
+      assertEquals(-45, s);
+      assertEquals(127, b);
+      assertTrue(f1);
+      assertTrue(f2);
+      assertEquals('A', c);
+      assertEquals(1.23F, f, 0.0F);
+      assertEquals(-1.23, d, 0.0);
+   }
+
+   @Test
    public void injectableParametersOfWrapperTypes(
       @Injectable("123") Integer i, @Injectable("5") Long l, @Injectable("-45 ") Short s, @Injectable(" 127") Byte b,
       @Injectable("true") Boolean f1, @Injectable(" TRUE ") Boolean f2, @Injectable("A") Character c,

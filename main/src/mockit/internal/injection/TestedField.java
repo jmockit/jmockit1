@@ -41,7 +41,7 @@ final class TestedField extends TestedObject
             String providedValue = metadata.value();
 
             if (!providedValue.isEmpty()) {
-               testedObject = Utilities.convertFromString(targetClass, providedValue);
+               testedObject = TypeConversion.convertFromString(targetClass, providedValue);
             }
 
             createAutomatically = testedObject == null && !isFinal(testedField.getModifiers());

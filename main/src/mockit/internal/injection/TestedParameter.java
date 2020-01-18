@@ -34,7 +34,7 @@ final class TestedParameter extends TestedObject
 
          if (!providedValue.isEmpty()) {
             Class<?> parameterClass = testMethod.getParameterClass(parameterIndex);
-            testedObject = Utilities.convertFromString(parameterClass, providedValue);
+            testedObject = TypeConversion.convertFromString(parameterClass, providedValue);
 
             if (testedObject != null) {
                testMethod.setParameterValue(parameterIndex, testedObject);

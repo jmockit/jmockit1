@@ -71,7 +71,7 @@ public final class MockedType extends InjectionProvider
                // Not supported, do nothing.
             }
             else {
-               return Utilities.convertFromString(injectableClass, value);
+               return TypeConversion.convertFromString(injectableClass, value);
             }
          }
       }
@@ -173,8 +173,7 @@ public final class MockedType extends InjectionProvider
          return false;
       }
 
-      Type mockedType = declaredType;
-      Class<?> classType = Utilities.getClassType(mockedType);
+      Class<?> classType = Utilities.getClassType(declaredType);
 
       if (isUnmockableJREType(classType)) {
          return false;
