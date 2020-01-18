@@ -167,15 +167,4 @@ public final class ParameterReflection
       //noinspection Since15
       return JAVA8 ? method.getParameterCount() : method.getParameterTypes().length;
    }
-
-   @Nullable
-   public static Class<?> getTypeOfFirstAndOnlyParameter(@Nonnull Constructor<?> constructor) {
-      if (JAVA8) {
-         //noinspection Since15
-         return constructor.getParameterCount() == 1 ? constructor.getParameterTypes()[0] : null;
-      }
-
-      Class<?>[] parameterTypes = constructor.getParameterTypes();
-      return parameterTypes.length == 1 ? parameterTypes[0] : null;
-   }
 }
