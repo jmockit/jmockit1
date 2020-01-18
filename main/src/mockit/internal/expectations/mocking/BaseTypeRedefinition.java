@@ -153,7 +153,7 @@ class BaseTypeRedefinition
    void configureClassModifier(@Nonnull MockedClassModifier modifier) {}
 
    private void generateNewMockImplementationClassForInterface(@Nonnull final Type interfaceToMock) {
-      ImplementationClass<?> implementationGenerator = new ImplementationClass(interfaceToMock) {
+      ImplementationClass<?> implementationGenerator = new ImplementationClass<Object>(interfaceToMock) {
          @Nonnull @Override
          protected ClassVisitor createMethodBodyGenerator(@Nonnull ClassReader cr) {
             return new InterfaceImplementationGenerator(cr, interfaceToMock, generatedClassName);
@@ -251,7 +251,7 @@ class BaseTypeRedefinition
    }
 
    @Nonnull
-   protected final InstanceFactory createInstanceFactory(@Nonnull Type typeToMock) {
+   final InstanceFactory createInstanceFactory(@Nonnull Type typeToMock) {
       Class<?> classToInstantiate = targetClass;
 
       if (isAbstract(classToInstantiate.getModifiers())) {
