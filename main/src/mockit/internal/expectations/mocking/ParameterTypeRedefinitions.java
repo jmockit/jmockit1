@@ -36,8 +36,7 @@ public final class ParameterTypeRedefinitions extends TypeRedefinitions
       Type parameterType = testMethod.getParameterType(parameterIndex);
       Annotation[] annotationsOnParameter = testMethod.getParameterAnnotations(parameterIndex);
       Class<?> parameterImplementationClass = mock == null ? null : mock.getClass();
-      MockedType mockedType = new MockedType(
-         testMethod, parameterIndex, parameterType, annotationsOnParameter, parameterImplementationClass);
+      MockedType mockedType = new MockedType(testMethod, parameterIndex, parameterType, annotationsOnParameter, parameterImplementationClass);
 
       if (mockedType.isMockableType()) {
          mockParameters[parameterIndex] = mockedType;
@@ -100,9 +99,7 @@ public final class ParameterTypeRedefinitions extends TypeRedefinitions
    }
 
    @Nonnull
-   private Object instantiateMockedType(
-      @Nonnull MockedType mockedType, @Nonnull InstanceFactory instanceFactory, @Nonnegative int paramIndex
-   ) {
+   private Object instantiateMockedType(@Nonnull MockedType mockedType, @Nonnull InstanceFactory instanceFactory, @Nonnegative int paramIndex) {
       Object mock = testMethod.getParameterValue(paramIndex);
 
       if (mock == null) {
