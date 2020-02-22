@@ -33,9 +33,7 @@ public class Injector
    }
 
    @Nonnull
-   public static List<Field> findAllTargetInstanceFieldsInTestedClassHierarchy(
-      @Nonnull Class<?> actualTestedClass, @Nonnull TestedClass testedClass
-   ) {
+   static List<Field> findAllTargetInstanceFieldsInTestedClassHierarchy(@Nonnull Class<?> actualTestedClass, @Nonnull TestedClass testedClass) {
       List<Field> targetFields = new ArrayList<>();
       Class<?> classWithFields = actualTestedClass;
 
@@ -88,9 +86,7 @@ public class Injector
       }
    }
 
-   public final void injectIntoEligibleFields(
-      @Nonnull List<Field> targetFields, @Nonnull Object testedObject, @Nonnull TestedClass testedClass
-   ) {
+   public final void injectIntoEligibleFields(@Nonnull List<Field> targetFields, @Nonnull Object testedObject, @Nonnull TestedClass testedClass) {
       for (Field field : targetFields) {
          if (targetFieldWasNotAssignedByConstructor(testedObject, field)) {
             Object injectableValue = getValueForFieldIfAvailable(targetFields, testedClass, field);
@@ -126,9 +122,7 @@ public class Injector
    }
 
    @Nullable
-   private Object getValueForFieldIfAvailable(
-      @Nonnull List<Field> targetFields, @Nonnull TestedClass testedClass, @Nonnull Field targetField
-   ) {
+   private Object getValueForFieldIfAvailable(@Nonnull List<Field> targetFields, @Nonnull TestedClass testedClass, @Nonnull Field targetField) {
       @Nullable String qualifiedFieldName = getQualifiedName(targetField.getDeclaredAnnotations());
       InjectionProvider injectable = findAvailableInjectableIfAny(targetFields, qualifiedFieldName, testedClass, targetField);
 
@@ -156,14 +150,13 @@ public class Injector
       }
 
       KindOfInjectionPoint kindOfInjectionPoint = kindOfInjectionPoint(targetField);
-      throwExceptionIfUnableToInjectRequiredTargetField(kindOfInjectionPoint, targetField);
+      throwExceptionIfUnableToInjectRequiredTargetField(kindOfInjectionPoint, targetField, qualifiedFieldName);
       return null;
    }
 
    @Nullable
    private InjectionProvider findAvailableInjectableIfAny(
-      @Nonnull List<Field> targetFields, @Nullable String qualifiedTargetFieldName, @Nonnull TestedClass testedClass,
-      @Nonnull Field targetField
+      @Nonnull List<Field> targetFields, @Nullable String qualifiedTargetFieldName, @Nonnull TestedClass testedClass, @Nonnull Field targetField
    ) {
       KindOfInjectionPoint kindOfInjectionPoint = kindOfInjectionPoint(targetField);
       InjectionProviders injectionProviders = injectionState.injectionProviders;
@@ -188,14 +181,10 @@ public class Injector
    }
 
    private static boolean withMultipleTargetFieldsOfSameType(
-      @Nonnull List<Field> targetFields, @Nonnull TestedClass testedClass, @Nonnull Field targetField,
-      @Nonnull InjectionProviders injectionProviders
+      @Nonnull List<Field> targetFields, @Nonnull TestedClass testedClass, @Nonnull Field targetField, @Nonnull InjectionProviders injectionProviders
    ) {
       for (Field anotherTargetField : targetFields) {
-         if (
-            anotherTargetField != targetField &&
-            injectionProviders.isAssignableToInjectionPoint(anotherTargetField.getGenericType(), testedClass)
-         ) {
+         if (anotherTargetField != targetField && injectionProviders.isAssignableToInjectionPoint(anotherTargetField.getGenericType(), testedClass)) {
             return true;
          }
       }
@@ -204,13 +193,13 @@ public class Injector
    }
 
    private void throwExceptionIfUnableToInjectRequiredTargetField(
-      @Nonnull KindOfInjectionPoint kindOfInjectionPoint, @Nonnull Field targetField
+      @Nonnull KindOfInjectionPoint kindOfInjectionPoint, @Nonnull Field targetField, @Nullable String qualifiedFieldName
    ) {
       if (kindOfInjectionPoint == KindOfInjectionPoint.Required) {
          Type fieldType = targetField.getGenericType();
          String fieldTypeName = fieldType.toString();
          fieldTypeName = TYPE_NAME.matcher(fieldTypeName).replaceAll("");
-         String kindOfInjectable = "@Injectable";
+         String kindOfInjectable = "@Tested or @Injectable";
 
          if (fullInjection != null) {
             if (targetField.getType().isInterface()) {
@@ -222,8 +211,9 @@ public class Injector
          }
 
          throw new IllegalStateException(
-            "Missing " + kindOfInjectable + " for field \"" + fieldTypeName + ' ' + targetField.getName() + "\" in " +
-            targetField.getDeclaringClass().getSimpleName());
+            "Missing " + kindOfInjectable + " for field " + fieldTypeName + ' ' + targetField.getName() +
+            (qualifiedFieldName == null ? "" : " (\"" + qualifiedFieldName + "\")") +
+            " in " + targetField.getDeclaringClass().getSimpleName());
       }
    }
 }
