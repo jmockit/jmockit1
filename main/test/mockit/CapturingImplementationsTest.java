@@ -258,7 +258,7 @@ public final class CapturingImplementationsTest
    @Test
    public void captureLibraryClassImplementingInterfaceFromAnotherLibrary(@Capturing final ServletContextListener mock) {
       //noinspection UnnecessaryFullyQualifiedName
-      ServletContextListener contextListener = new org.apache.commons.logging.impl.ServletContextCleaner();
+      ServletContextListener contextListener = new org.springframework.web.util.WebAppRootListener();
       contextListener.contextInitialized(null);
 
       new Verifications() {{ mock.contextInitialized(null); }};
