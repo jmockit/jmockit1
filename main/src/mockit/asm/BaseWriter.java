@@ -52,9 +52,17 @@ public class BaseWriter
       return addAnnotation(desc);
    }
 
+   @Nonnull
+   private AnnotationVisitor addAnnotation(@Nonnull String desc) {
+      AnnotationVisitor aw = new AnnotationVisitor(cp, desc);
+      aw.setNext(annotations);
+      annotations = aw;
+      return aw;
+   }
+
    /**
-    * Visits the end of the class/field/method being visited. This method, which is the last one to be called, is used to inform the visitor
-    * that all the annotations and attributes of the class/field/method have been visited.
+    * Visits the end of the class/field/method being visited. This method, which is the last one to be called, is used to inform the visitor that all
+    * the annotations and attributes of the class/field/method have been visited.
     */
    public void visitEnd() {}
 
@@ -66,14 +74,6 @@ public class BaseWriter
       if (Access.isSynthetic(classOrMemberAccess, classVersion)) {
          syntheticAttributeIndex = cp.newUTF8("Synthetic");
       }
-   }
-
-   @Nonnull
-   final AnnotationVisitor addAnnotation(@Nonnull String desc) {
-      AnnotationVisitor aw = new AnnotationVisitor(cp, desc);
-      aw.setNext(annotations);
-      annotations = aw;
-      return aw;
    }
 
    @Nonnegative
