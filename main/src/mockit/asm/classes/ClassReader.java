@@ -31,7 +31,7 @@ public final class ClassReader extends AnnotatedReader
    /**
     * The start index of each bootstrap method.
     */
-   @Nullable int[] bootstrapMethods;
+   @Nullable private int[] bootstrapMethods;
 
    /**
     * Initializes a new class reader with the given bytecode array for a classfile.
