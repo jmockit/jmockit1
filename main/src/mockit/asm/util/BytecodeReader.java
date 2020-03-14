@@ -19,9 +19,9 @@ public class BytecodeReader
    @Nonnull public final int[] items;
 
    /**
-    * The String objects corresponding to the CONSTANT_Utf8 items. This cache avoids multiple parsing of a given CONSTANT_Utf8 constant pool
-    * item, which GREATLY improves performances (by a factor 2 to 3). This caching strategy could be extended to all constant pool items,
-    * but its benefit would not be so great for these items (because they are much less expensive to parse than CONSTANT_Utf8 items).
+    * The String objects corresponding to the CONSTANT_Utf8 items. This cache avoids multiple parsing of a given CONSTANT_Utf8 constant pool item,
+    * which GREATLY improves performances (by a factor 2 to 3). This caching strategy could be extended to all constant pool items, but its benefit
+    * would not be so great for these items (because they are much less expensive to parse than CONSTANT_Utf8 items).
     */
    @Nonnull private final String[] strings;
 
@@ -91,6 +91,7 @@ public class BytecodeReader
    /**
     * Reads an unsigned <tt>byte</tt> value in {@link #code}, incrementing {@link #codeIndex} by 1.
     */
+   @Nonnegative
    public final int readUnsignedByte() {
       return code[codeIndex++] & 0xFF;
    }
@@ -98,9 +99,9 @@ public class BytecodeReader
    /**
     * Reads an unsigned byte value in {@link #code}.
     *
-    * @param u1CodeIndex the start index of the value to be read in {@link #code}.
-    * @return the read value.
+    * @param u1CodeIndex the start index of the value to be read in {@link #code}
     */
+   @Nonnegative
    protected final int readUnsignedByte(@Nonnegative int u1CodeIndex) {
       return code[u1CodeIndex] & 0xFF;
    }
@@ -136,13 +137,14 @@ public class BytecodeReader
    /**
     * Reads an unsigned short value in {@link #code}.
     *
-    * @param u2CodeIndex the start index of the value to be read in {@link #code}.
-    * @return the read value.
+    * @param u2CodeIndex the start index of the value to be read in {@link #code}
     */
    @Nonnegative
    protected final int readUnsignedShort(@Nonnegative int u2CodeIndex) {
       byte[] b = code;
-      return ((b[u2CodeIndex] & 0xFF) << 8) | (b[u2CodeIndex + 1] & 0xFF);
+      int byte0 = (b[u2CodeIndex] & 0xFF) << 8;
+      int byte1 =  b[u2CodeIndex + 1] & 0xFF;
+      return byte0 | byte1;
    }
 
    /**
@@ -156,8 +158,7 @@ public class BytecodeReader
    /**
     * Reads a signed short value in {@link #code}.
     *
-    * @param u2CodeIndex the start index of the value to be read in {@link #code}.
-    * @return the read value.
+    * @param u2CodeIndex the start index of the value to be read in {@link #code}
     */
    protected final short readShort(@Nonnegative int u2CodeIndex) {
       //noinspection NumericCastThatLosesPrecision
@@ -181,8 +182,7 @@ public class BytecodeReader
    /**
     * Reads a signed int value in {@link #code}.
     *
-    * @param s4CodeIndex the start index of the value to be read in {@link #code}.
-    * @return the read value.
+    * @param s4CodeIndex the start index of the value to be read in {@link #code}
     */
    protected final int readInt(@Nonnegative int s4CodeIndex) {
       byte[] b = code;
@@ -203,8 +203,7 @@ public class BytecodeReader
    /**
     * Reads a signed long value in {@link #code}.
     *
-    * @param s8CodeIndex the start index of the value to be read in {@link #code}.
-    * @return the read value.
+    * @param s8CodeIndex the start index of the value to be read in {@link #code}
     */
    protected final long readLong(@Nonnegative int s8CodeIndex) {
       long l1 = readInt(s8CodeIndex);
@@ -235,8 +234,7 @@ public class BytecodeReader
    /**
     * Reads an UTF8 string in {@link #code}.
     *
-    * @param itemIndex index in {@link #items} for the UTF8 string to be read.
-    * @return the String corresponding to the specified UTF8 string.
+    * @param itemIndex index in {@link #items} for the UTF8 string to be read
     */
    @Nonnull @SuppressWarnings("CharUsedInArithmeticContext")
    private String readUTF(@Nonnegative int itemIndex) {
@@ -282,7 +280,7 @@ public class BytecodeReader
    /**
     * Reads an UTF8 string constant pool item in {@link #code}, incrementing {@link #codeIndex} by 2.
     *
-    * @return the String corresponding to the UTF8 item, or <tt>null</tt> if {@link #codeIndex} points to an item whose value is zero.
+    * @return the String corresponding to the UTF8 item, or <tt>null</tt> if {@link #codeIndex} points to an item whose value is zero
     */
    @Nullable
    protected final String readUTF8() {
@@ -298,8 +296,8 @@ public class BytecodeReader
    /**
     * Reads an UTF8 string constant pool item in {@link #code}.
     *
-    * @param u2CodeIndex the index of an unsigned short value in {@link #code}, whose value is the index of an UTF8 constant pool item.
-    * @return the String corresponding to the UTF8 item, or <tt>null</tt> if index is zero or points to an item whose value is zero.
+    * @param u2CodeIndex the index of an unsigned short value in {@link #code}, whose value is the index of an UTF8 constant pool item
+    * @return the String corresponding to the UTF8 item, or <tt>null</tt> if index is zero or points to an item whose value is zero
     */
    @Nullable
    protected final String readUTF8(@Nonnegative int u2CodeIndex) {
@@ -375,9 +373,9 @@ public class BytecodeReader
    /**
     * Reads a numeric or string constant pool item in {@link #code}.
     *
-    * @param itemIndex the index of a constant pool item.
+    * @param itemIndex the index of a constant pool item
     * @return the {@link Integer}, {@link Float}, {@link Long}, {@link Double}, {@link String}, {@link JavaType} or {@link MethodHandle}
-    * corresponding to the given constant pool item.
+    * corresponding to the given constant pool item
     */
    @Nonnull
    protected final Object readConst(@Nonnegative int itemIndex) {
