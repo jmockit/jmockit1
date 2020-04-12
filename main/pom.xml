@@ -1,13 +1,21 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <project
    xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
    <modelVersion>4.0.0</modelVersion>
 
-   <groupId>org.jmockit</groupId><artifactId>jmockit</artifactId><version>1.49</version>
-   <packaging>jar</packaging>
+    <parent>
+        <groupId>com.github.hazendaz</groupId>
+        <artifactId>base-parent</artifactId>
+        <version>25</version>
+        <relativePath />
+    </parent>
 
-   <name>JMockit</name>
+   <groupId>com.github.hazendaz.jmockit</groupId>
+   <artifactId>jmockit</artifactId>
+   <version>1.49.1-SNAPSHOT</version>
+
+   <name>jmockit</name>
    <description>
       JMockit is a Java toolkit for automated developer testing.
       It contains APIs for the creation of the objects to be tested, for mocking dependencies, and for faking external
@@ -26,13 +34,21 @@
    </developers>
    <inceptionYear>2006</inceptionYear>
    <scm>
-      <url>https://github.com/jmockit/jmockit1</url>
-      <connection>scm:git:https://github.com/jmockit/jmockit1</connection>
+      <url>https://github.com/hazendaz/jmockit1</url>
+      <connection>scm:git:https://github.com/hazendaz/jmockit1</connection>
+      <developerConnection>scm:git:ssh://git@github.com/hazendaz/jmockit1.git</developerConnection>
    </scm>
    <issueManagement>
       <system>GitHub Issues</system>
       <url>https://github.com/jmockit/jmockit1/issues</url>
    </issueManagement>
+    <distributionManagement>
+        <site>
+            <id>gh-pages</id>
+            <name>gh-pages</name>
+            <url>git:ssh://git@github.com/hazendaz/jmockit1.git?gh-pages#</url>
+        </site>
+    </distributionManagement>
 
    <properties>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -66,7 +82,7 @@
       </resources>
       <plugins>
          <plugin>
-            <artifactId>maven-compiler-plugin</artifactId><version>3.8.0</version>
+            <artifactId>maven-compiler-plugin</artifactId>
             <configuration>
                <encoding>UTF-8</encoding>
                <source>1.7</source><target>1.7</target>
@@ -75,7 +91,7 @@
             </configuration>
          </plugin>
          <plugin>
-            <artifactId>maven-jar-plugin</artifactId><version>3.1.0</version>
+            <artifactId>maven-jar-plugin</artifactId>
             <configuration>
                <archive>
                   <addMavenDescriptor>false</addMavenDescriptor>
@@ -91,7 +107,7 @@
             </configuration>
          </plugin>
          <plugin>
-            <artifactId>maven-source-plugin</artifactId><version>3.0.1</version>
+            <artifactId>maven-source-plugin</artifactId>
             <configuration>
                <archive>
                   <addMavenDescriptor>false</addMavenDescriptor>
@@ -112,7 +128,7 @@
             </executions>
          </plugin>
          <plugin>
-            <artifactId>maven-javadoc-plugin</artifactId><version>3.0.1</version>
+            <artifactId>maven-javadoc-plugin</artifactId>
             <configuration>
                <encoding>UTF-8</encoding>
                <nodeprecated>true</nodeprecated>
@@ -164,7 +180,7 @@
             </dependencies>
          </plugin>
          <plugin>
-            <groupId>org.jacoco</groupId><artifactId>jacoco-maven-plugin</artifactId><version>0.8.4</version>
+            <groupId>org.jacoco</groupId><artifactId>jacoco-maven-plugin</artifactId>
             <executions>
                <execution><id>default-prepare-agent</id><goals><goal>prepare-agent</goal></goals></execution>
                <execution><id>default-report</id><goals><goal>report</goal></goals><phase>test</phase></execution>
