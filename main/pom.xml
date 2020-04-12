@@ -1,7 +1,5 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
-<project
-   xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
    <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -13,7 +11,7 @@
 
    <groupId>com.github.hazendaz.jmockit</groupId>
    <artifactId>jmockit</artifactId>
-   <version>1.49.1-SNAPSHOT</version>
+   <version>1.49.1</version>
 
    <name>jmockit</name>
    <description>
@@ -37,7 +35,8 @@
       <url>https://github.com/hazendaz/jmockit1</url>
       <connection>scm:git:https://github.com/hazendaz/jmockit1</connection>
       <developerConnection>scm:git:ssh://git@github.com/hazendaz/jmockit1.git</developerConnection>
-   </scm>
+     <tag>jmockit-1.49.1</tag>
+  </scm>
    <issueManagement>
       <system>GitHub Issues</system>
       <url>https://github.com/jmockit/jmockit1/issues</url>
@@ -101,7 +100,7 @@
                      <Can-Redefine-Classes>true</Can-Redefine-Classes>
                      <Can-Retransform-Classes>true</Can-Retransform-Classes>
                      <Implementation-Version>${project.version}</Implementation-Version>
-                     <Built-By/>
+                     <Built-By />
                   </manifestEntries>
                </archive>
             </configuration>
