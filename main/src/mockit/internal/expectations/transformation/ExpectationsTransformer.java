@@ -22,7 +22,7 @@ public final class ExpectationsTransformer implements ClassFileTransformer
       @Nullable ClassLoader loader, @Nonnull String className, @Nullable Class<?> classBeingRedefined,
       @Nullable ProtectionDomain protectionDomain, @Nonnull byte[] classfileBuffer
    ) {
-      if (classBeingRedefined == null && protectionDomain != null) {
+      if (classBeingRedefined == null && protectionDomain != null && className != null) {
          boolean anonymousClass = ClassNaming.isAnonymousClass(className);
 
          if (anonymousClass && !isJMockitClass(className) && !className.startsWith("org/junit/")) {
