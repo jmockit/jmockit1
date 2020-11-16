@@ -252,7 +252,7 @@ public final class FullInjection
          return newInstanceUsingDefaultConstructorIfAvailable(classToInstantiate);
       }
 
-      return new TestedObjectCreation(injectionState, this, classToInstantiate).create(required);
+      return new TestedObjectCreation(injectionState, this, classToInstantiate).create(required, false);
    }
 
    @Nonnull
