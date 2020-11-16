@@ -145,4 +145,13 @@ public final class TestedClassWithFullDITest
       assertNotNull(cut);
       assertNull(cut.dependency);
    }
+
+   static interface InterfaceDependency { }
+   static class ClassWithInterfaceInConstructor { ClassWithInterfaceInConstructor(@SuppressWarnings("unused") InterfaceDependency someValue) {} }
+
+   @Test
+   public void instantiateClassWithInterfaceInConstructor(@Tested(fullyInitialized = true) ClassWithInterfaceInConstructor cut) {
+      assertNotNull(cut);
+   }
+
 }

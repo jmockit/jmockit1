@@ -125,7 +125,7 @@ abstract class TestedObject
       Object testedInstance = null;
 
       if (testedObjectCreation != null) {
-         testedInstance = testedObjectCreation.create(false);
+         testedInstance = testedObjectCreation.create(false, true);
 
          if (testedInstance != null) {
             setInstance(testClassInstance, testedInstance);
