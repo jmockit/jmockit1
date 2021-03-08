@@ -169,6 +169,7 @@ class TargetClass {
    int doSomething(String s, boolean b) { return b ? s.length() : -1; }
    protected void performAction(Runnable action) { if (action != null) action.run(); }
    protected void validateSomething() { throw new IllegalArgumentException("Invalid something"); }
+   private void doSomethingInternal() { }
 
    @Override
    public String toString() { return getClass().getSimpleName() + value; }
