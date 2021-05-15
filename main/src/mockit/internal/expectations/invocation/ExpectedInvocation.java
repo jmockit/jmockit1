@@ -113,7 +113,7 @@ public final class ExpectedInvocation
             if (mockedClass != instance.getClass()) {
                GenericTypeReflection typeReflection = new GenericTypeReflection(mockedClass, null);
                GenericSignature parsedSignature = typeReflection.parseSignature(genericSignature);
-               return parsedSignature.satisfiesSignature(invokedMethod);
+               return parsedSignature.satisfiesSignature(invokedMethod) && isMatchingMethodName(invokedMethod);
             }
          }
       }
@@ -135,6 +135,12 @@ public final class ExpectedInvocation
       // At this point the methods are known to differ only in return type, so check if the return type of
       // the recorded one is assignable to the return type of the one invoked:
       return isReturnTypeOfRecordedMethodAssignableToReturnTypeOfInvokedMethod(invokedMethod, returnTypeStartPos);
+   }
+
+   private boolean isMatchingMethodName(@Nonnull String invokedMethod) {
+      int methodNameEndPos = invokedMethod.indexOf('(');
+      String methodName = invokedMethod.substring(0, methodNameEndPos + 1);
+      return getMethodNameAndDescription().startsWith(methodName);
    }
 
    // Returns -1 if the method names or parameters are different.
