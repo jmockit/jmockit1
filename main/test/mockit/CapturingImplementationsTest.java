@@ -196,22 +196,26 @@ public final class CapturingImplementationsTest
    static class Base<T> {
       T doSomething() { return null; }
       void doSomething(T t) { System.out.println("test");}
+      T doSomethingReturn(T t) { return t;}
    }
 
    static final class Impl extends Base<Integer> {
       @Override Integer doSomething() { return 1; }
       @Override void doSomething(Integer i) {}
+      @Override Integer doSomethingReturn(Integer t) { return null;}
    }
 
    @Test
    public void captureImplementationsOfGenericType(@Capturing final Base<Integer> anyInstance) {
       new Expectations() {{
          anyInstance.doSomething(); result = 2;
+         anyInstance.doSomethingReturn(0);
          anyInstance.doSomething(0);
       }};
 
       Base<Integer> impl = new Impl();
       int i = impl.doSomething();
+      impl.doSomethingReturn(0);
       impl.doSomething(0);
 
       assertEquals(2, i);
@@ -263,4 +267,48 @@ public final class CapturingImplementationsTest
 
       new Verifications() {{ mock.contextInitialized(null); }};
    }
+
+   static class BaseGenericReturnTypes {
+      Class<?> methodOne() {return null;}
+      Class<?> methodTwo() {return null;}
+   }
+   static class SubGenericReturnTypes extends BaseGenericReturnTypes {}
+
+   @Test
+   public void captureMethodWithGenericReturnTypes(@Capturing final BaseGenericReturnTypes mock) {
+      new Expectations () {{
+         mock.methodOne();
+         result = BaseGenericReturnTypes.class;
+         times = 1;
+
+         mock.methodTwo();
+         result = SubGenericReturnTypes.class;
+         times = 1;
+      }};
+      SubGenericReturnTypes subBaseGenericReturnTypes = new SubGenericReturnTypes();
+      assertEquals(BaseGenericReturnTypes.class, subBaseGenericReturnTypes.methodOne());
+      assertEquals(SubGenericReturnTypes.class, subBaseGenericReturnTypes.methodTwo());
+   }
+
+   static class BaseR {
+     void foo() {};
+     void bar() {};
+   }
+
+   static class SubR extends BaseR {}
+
+   @Test
+   public void captureR(@Capturing final BaseR mock) {
+      new Expectations () {{
+         mock.foo();
+         times = 1;
+
+         mock.bar();
+         times = 1;
+      }};
+     SubR subR = new SubR();
+     subR.foo();
+     subR.bar();
+   }
+
 }
