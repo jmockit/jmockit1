@@ -1,5 +1,5 @@
 /**
- * A recreation of the Spring PetClinic Sample Application, using Java EE 7 for UI controllers and business classes.
+ * A re-creation of the Spring PetClinic Sample Application, using Java EE 7 for UI controllers and business classes.
  * JMockit is used for integration testing, instead of the Spring Test Context.
  * <p/>
  * Given the small size and simplicity of the application, it has minimal package structure.
