@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project
    xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
    <modelVersion>4.0.0</modelVersion>
 
-   <groupId>org.jmockit</groupId><artifactId>samples</artifactId><version>1</version>
+   <groupId>com.github.hazendaz.jmockit</groupId><artifactId>samples</artifactId><version>1</version>
    <packaging>pom</packaging>
 
    <modules>
@@ -18,7 +18,7 @@
 
    <properties>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-      <jmockit.version>1.49</jmockit.version>
+      <jmockit.version>1.49.1</jmockit.version>
    </properties>
 
    <build>
@@ -35,7 +35,7 @@
       </testResources>
       <plugins>
          <plugin>
-            <artifactId>maven-compiler-plugin</artifactId><version>3.8.0</version>
+            <artifactId>maven-compiler-plugin</artifactId><version>3.8.1</version>
             <configuration>
                <encoding>UTF-8</encoding>
                <source>1.7</source><target>1.7</target>
@@ -43,10 +43,10 @@
             </configuration>
          </plugin>
          <plugin>
-            <artifactId>maven-surefire-plugin</artifactId><version>2.22.2</version>
+            <artifactId>maven-surefire-plugin</artifactId><version>3.0.0-M5</version>
             <configuration>
                <argLine>
-                  -javaagent:${settings.localRepository}/org/jmockit/jmockit/${jmockit.version}/jmockit-${jmockit.version}.jar
+                  -javaagent:${settings.localRepository}/com/github/hazendaz/jmockit/jmockit/${jmockit.version}/jmockit-${jmockit.version}.jar
                </argLine>
                <disableXmlReport>true</disableXmlReport>
             </configuration>
@@ -58,11 +58,11 @@
       <dependencies>
          <!-- Basic testing tools -->
          <dependency>
-            <groupId>junit</groupId><artifactId>junit</artifactId><version>4.13</version>
+            <groupId>junit</groupId><artifactId>junit</artifactId><version>4.13.2</version>
             <scope>test</scope>
          </dependency>
          <dependency>
-            <groupId>org.testng</groupId><artifactId>testng</artifactId><version>7.1.0</version>
+            <groupId>org.testng</groupId><artifactId>testng</artifactId><version>7.4.0</version>
             <scope>test</scope>
          </dependency>
          <dependency>
@@ -72,7 +72,7 @@
 
          <!-- Mocking tools -->
          <dependency>
-            <groupId>org.jmockit</groupId><artifactId>jmockit</artifactId><version>${jmockit.version}</version>
+            <groupId>com.github.hazendaz.jmockit</groupId><artifactId>jmockit</artifactId><version>${jmockit.version}</version>
             <scope>test</scope>
          </dependency>
       </dependencies>

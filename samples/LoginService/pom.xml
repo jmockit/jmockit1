@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project
    xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
    <modelVersion>4.0.0</modelVersion>
 
-   <parent><groupId>org.jmockit</groupId><artifactId>samples</artifactId><version>1</version></parent>
+   <parent><groupId>com.github.hazendaz.jmockit</groupId><artifactId>samples</artifactId><version>1</version></parent>
    <artifactId>LoginService</artifactId>
    <name>LoginService Sample</name>
 
@@ -29,17 +29,17 @@
 
    <dependencies>
       <dependency>
-         <groupId>com.github.spotbugs</groupId><artifactId>spotbugs-annotations</artifactId><version>4.0.0</version>
+         <groupId>com.github.spotbugs</groupId><artifactId>spotbugs-annotations</artifactId><version>4.5.2</version>
          <optional>true</optional>
       </dependency>
       <dependency>
-         <groupId>javax</groupId><artifactId>javaee-api</artifactId><version>7.0</version>
+         <groupId>jakarta.platform</groupId><artifactId>jakarta.jakartaee-api</artifactId><version>8.0.0</version>
       </dependency>
       <dependency>
          <groupId>org.testng</groupId><artifactId>testng</artifactId>
       </dependency>
       <dependency>
-         <groupId>org.jmockit</groupId><artifactId>jmockit</artifactId>
+         <groupId>com.github.hazendaz.jmockit</groupId><artifactId>jmockit</artifactId>
       </dependency>
       <dependency>
          <groupId>junit</groupId><artifactId>junit</artifactId>
