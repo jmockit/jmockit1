@@ -9,6 +9,7 @@ import java.net.*;
 import java.util.*;
 import javax.annotation.*;
 import javax.servlet.*;
+import javax.servlet.ServletRegistration.*;
 import javax.servlet.descriptor.*;
 import javax.servlet.http.*;
 import static java.util.Collections.enumeration;
@@ -104,6 +105,15 @@ final class ServletDependencies
          @Override public JspConfigDescriptor getJspConfigDescriptor() { return null; }
          @Override public void declareRoles(String... roleNames) {}
          @Override public String getVirtualServerName() { return null; }
+
+         // Allow older servlet still (no overrides)
+         public Dynamic addJspFile(String servletName, String jspFile) { return null; }
+         public int getSessionTimeout() { return 0; }
+         public void setSessionTimeout(int sessionTimeout) {}
+         public String getRequestCharacterEncoding() { return null; }
+         public void setRequestCharacterEncoding(String encoding) {}
+         public String getResponseCharacterEncoding() { return null; }
+         public void setResponseCharacterEncoding(String encoding) {}
       };
 
       InjectionPoint injectionPoint = new InjectionPoint(ServletContext.class);
