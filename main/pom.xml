@@ -43,9 +43,9 @@
    </issueManagement>
     <distributionManagement>
         <site>
-            <id>gh-pages</id>
-            <name>gh-pages</name>
-            <url>git:ssh://git@github.com/hazendaz/jmockit1.git?gh-pages#</url>
+            <id>gh-pages-scm</id>
+            <name>gh-pages-scm</name>
+            <url>scm:git:ssh://git@github.com/hazendaz/jmockit1.git</url>
         </site>
     </distributionManagement>
 
