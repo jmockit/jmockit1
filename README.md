@@ -14,5 +14,5 @@ This fork contains pull requests from main repo as well as updated libraries wit
     - #715 https://github.com/Saljack/jmockit1.git Add method name check for generic methods Expectations
 
 Testing confirmed to work through jdk 17
-Build only works with jdk 8 due to sun.reflection usage
+Build only works with jdk 8 due to sun.reflection usage and only on windows due to issues with testng
 New launcher pom in root to build entire project (extra modules rely on released copy of fork currently)
