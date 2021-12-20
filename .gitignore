@@ -6,7 +6,7 @@
 
 # Maven
 target/
-.mvn/wrapper/maven-wrapper.jar
+maven-wrapper.jar
 *.releaseBackup
 release.properties
 
