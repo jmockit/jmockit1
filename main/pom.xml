@@ -159,7 +159,7 @@
             </executions>
          </plugin>
          <plugin>
-            <artifactId>maven-surefire-plugin</artifactId><version>2.22.2</version>
+            <artifactId>maven-surefire-plugin</artifactId><version>3.0.0-M5</version>
             <configuration>
                <disableXmlReport>true</disableXmlReport>
                <runOrder>alphabetical</runOrder>
@@ -171,10 +171,10 @@
             </configuration>
             <dependencies>
                <dependency>
-                  <groupId>org.apache.maven.surefire</groupId><artifactId>surefire-junit47</artifactId><version>2.22.2</version>
+                  <groupId>org.apache.maven.surefire</groupId><artifactId>surefire-junit47</artifactId><version>3.0.0-M5</version>
                </dependency>
                <dependency>
-                  <groupId>org.apache.maven.surefire</groupId><artifactId>surefire-testng</artifactId><version>2.22.2</version>
+                  <groupId>org.apache.maven.surefire</groupId><artifactId>surefire-testng</artifactId><version>3.0.0-M5</version>
                </dependency>
             </dependencies>
          </plugin>
@@ -186,7 +186,7 @@
             </executions>
          </plugin>
          <plugin>
-            <artifactId>maven-gpg-plugin</artifactId><version>1.6</version>
+            <artifactId>maven-gpg-plugin</artifactId><version>3.0.1</version>
             <executions>
                <execution>
                   <id>sign-artifacts</id>
@@ -209,14 +209,14 @@
 
    <dependencies>
       <dependency>
-         <groupId>com.github.spotbugs</groupId><artifactId>spotbugs-annotations</artifactId><version>4.0.0</version>
+         <groupId>com.github.spotbugs</groupId><artifactId>spotbugs-annotations</artifactId><version>4.5.2</version>
       </dependency>
       <dependency>
-         <groupId>junit</groupId><artifactId>junit</artifactId><version>4.13</version>
+         <groupId>junit</groupId><artifactId>junit</artifactId><version>4.13.2</version>
          <optional>true</optional>
       </dependency>
       <dependency>
-         <groupId>org.junit.jupiter</groupId><artifactId>junit-jupiter-engine</artifactId><version>5.6.0</version>
+         <groupId>org.junit.jupiter</groupId><artifactId>junit-jupiter-engine</artifactId><version>5.8.2</version>
          <optional>true</optional>
          <exclusions>
             <exclusion><groupId>org.apiguardian</groupId><artifactId>apiguardian-api</artifactId></exclusion>
@@ -226,22 +226,22 @@
          </exclusions>
       </dependency>
       <dependency>
-         <groupId>org.testng</groupId><artifactId>testng</artifactId><version>7.1.0</version>
+         <groupId>org.testng</groupId><artifactId>testng</artifactId><version>7.4.0</version>
          <optional>true</optional>
       </dependency>
       <dependency>
-         <groupId>javax</groupId><artifactId>javaee-api</artifactId><version>7.0</version>
+         <groupId>jakarta.platform</groupId><artifactId>jakarta.jakartaee-api</artifactId><version>8.0.0</version>
          <optional>true</optional>
          <exclusions>
-            <exclusion><groupId>com.sun.mail</groupId><artifactId>javax.mail</artifactId></exclusion>
+            <exclusion><groupId>com.sun.mail</groupId><artifactId>jakarta.mail</artifactId></exclusion>
          </exclusions>
       </dependency>
       <dependency>
-         <groupId>org.springframework</groupId><artifactId>spring-web</artifactId><version>5.2.4.RELEASE</version>
+         <groupId>org.springframework</groupId><artifactId>spring-web</artifactId><version>5.3.14</version>
          <optional>true</optional>
       </dependency>
       <dependency>
-         <groupId>org.springframework</groupId><artifactId>spring-context</artifactId><version>5.2.4.RELEASE</version>
+         <groupId>org.springframework</groupId><artifactId>spring-context</artifactId><version>5.3.14</version>
          <optional>true</optional>
          <exclusions>
             <exclusion><groupId>org.springframework</groupId><artifactId>spring-aop</artifactId></exclusion>
