@@ -217,7 +217,7 @@
          </exclusions>
       </dependency>
       <dependency>
-         <groupId>org.testng</groupId><artifactId>testng</artifactId><version>7.3.0</version>
+         <groupId>org.testng</groupId><artifactId>testng</artifactId><version>7.6.1</version>
          <optional>true</optional>
       </dependency>
       <dependency>
