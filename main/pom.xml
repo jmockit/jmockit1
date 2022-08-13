@@ -228,7 +228,7 @@
          </exclusions>
       </dependency>
       <dependency>
-         <groupId>org.springframework</groupId><artifactId>spring-web</artifactId><version>5.3.18</version>
+         <groupId>org.springframework</groupId><artifactId>spring-web</artifactId><version>5.3.22</version>
          <optional>true</optional>
       </dependency>
       <dependency>
