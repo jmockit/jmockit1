@@ -171,7 +171,7 @@
             </configuration>
             <dependencies>
                <dependency>
-                  <groupId>org.apache.maven.surefire</groupId><artifactId>surefire-junit47</artifactId><version>3.0.0-M5</version>
+                  <groupId>org.apache.maven.surefire</groupId><artifactId>surefire-junit47</artifactId><version>3.0.0-M7</version>
                </dependency>
                <dependency>
                   <groupId>org.apache.maven.surefire</groupId><artifactId>surefire-testng</artifactId><version>3.0.0-M5</version>
