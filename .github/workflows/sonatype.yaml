@@ -17,7 +17,7 @@ jobs:
           java-version: 8
           distribution: zulu
       - name: Deploy to Sonatype
-        run: ./mvnw deploy -DskipTests -B --settings ./.mvn/settings.xml -Djava.awt.headless=true
+        run: ./mvnw deploy -DskipTests -B --settings ./.mvn/settings.xml -D"java.awt.headless=true"
         env:
           CI_DEPLOY_USERNAME: ${{ secrets.CI_DEPLOY_USERNAME }}
           CI_DEPLOY_PASSWORD: ${{ secrets.CI_DEPLOY_PASSWORD }}
