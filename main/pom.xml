@@ -159,7 +159,7 @@
             </executions>
          </plugin>
          <plugin>
-            <artifactId>maven-surefire-plugin</artifactId><version>3.0.0-M5</version>
+            <artifactId>maven-surefire-plugin</artifactId><version>3.0.0-M7</version>
             <configuration>
                <disableXmlReport>true</disableXmlReport>
                <runOrder>alphabetical</runOrder>
@@ -171,10 +171,10 @@
             </configuration>
             <dependencies>
                <dependency>
-                  <groupId>org.apache.maven.surefire</groupId><artifactId>surefire-junit47</artifactId><version>3.0.0-M5</version>
+                  <groupId>org.apache.maven.surefire</groupId><artifactId>surefire-junit47</artifactId><version>3.0.0-M7</version>
                </dependency>
                <dependency>
-                  <groupId>org.apache.maven.surefire</groupId><artifactId>surefire-testng</artifactId><version>3.0.0-M5</version>
+                  <groupId>org.apache.maven.surefire</groupId><artifactId>surefire-testng</artifactId><version>3.0.0-M7</version>
                </dependency>
             </dependencies>
          </plugin>
