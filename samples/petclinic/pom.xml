@@ -69,7 +69,7 @@
             </configuration>
          </plugin>
          <plugin>
-            <artifactId>maven-surefire-plugin</artifactId><version>3.0.0-M5</version>
+            <artifactId>maven-surefire-plugin</artifactId><version>3.0.0-M7</version>
             <configuration>
                <argLine>
                   -javaagent:${settings.localRepository}/com/github/hazendaz/jmockit/jmockit/${jmockit.version}/jmockit-${jmockit.version}.jar
