@@ -200,7 +200,7 @@
 
    <dependencies>
       <dependency>
-         <groupId>com.github.spotbugs</groupId><artifactId>spotbugs-annotations</artifactId><version>4.5.2</version>
+         <groupId>com.github.spotbugs</groupId><artifactId>spotbugs-annotations</artifactId><version>4.7.1</version>
       </dependency>
       <dependency>
          <groupId>junit</groupId><artifactId>junit</artifactId><version>4.13.2</version>
