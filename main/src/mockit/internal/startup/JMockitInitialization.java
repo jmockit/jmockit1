@@ -31,7 +31,8 @@ final class JMockitInitialization
    }
 
    private static void applyInternalStartupFakesAsNeeded() {
-      if (searchTypeInClasspath("org.junit.runners.model.FrameworkMethod", true) != null) {
+      if (searchTypeInClasspath("org.junit.runners.model.FrameworkMethod", true) != null
+          || searchTypeInClasspath("org.junit.vintage.engine.VintageTestEngine", true) != null) {
          new FakeRunNotifier();
          new FakeFrameworkMethod();
       }
