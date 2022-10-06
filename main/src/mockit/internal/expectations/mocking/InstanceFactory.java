@@ -4,12 +4,10 @@
  */
 package mockit.internal.expectations.mocking;
 
-import java.lang.reflect.*;
 import javax.annotation.*;
 
 import mockit.internal.util.*;
-
-import sun.reflect.ReflectionFactory;
+import org.objenesis.ObjenesisHelper;
 
 /**
  * Factory for the creation of new mocked instances, and for obtaining/clearing the last instance created.
@@ -17,13 +15,6 @@ import sun.reflect.ReflectionFactory;
  */
 public abstract class InstanceFactory
 {
-   @SuppressWarnings("UseOfSunClasses")
-   private static final ReflectionFactory REFLECTION_FACTORY = ReflectionFactory.getReflectionFactory();
-   private static final Constructor<?> OBJECT_CONSTRUCTOR;
-   static {
-      try { OBJECT_CONSTRUCTOR = Object.class.getConstructor(); }
-      catch (NoSuchMethodException e) { throw new RuntimeException(e); }
-   }
 
    @Nonnull private final Class<?> concreteClass;
    @Nullable Object lastInstance;
@@ -31,25 +22,16 @@ public abstract class InstanceFactory
    InstanceFactory(@Nonnull Class<?> concreteClass) { this.concreteClass = concreteClass; }
 
    @Nonnull
+   @SuppressWarnings("unchecked")
    final <T> T newUninitializedConcreteClassInstance() {
       try {
-         Constructor<?> fakeConstructor = REFLECTION_FACTORY.newConstructorForSerialization(concreteClass, OBJECT_CONSTRUCTOR);
-
-         if (fakeConstructor == null) { // can happen on Java 9
-            //noinspection ConstantConditions
-            return null;
-         }
-
-         @SuppressWarnings("unchecked") T newInstance = (T) fakeConstructor.newInstance();
-         return newInstance;
+         return (T) ObjenesisHelper.newInstance(concreteClass);
       }
-      catch (NoClassDefFoundError | ExceptionInInitializerError e) {
+      catch (Exception e) {
          StackTrace.filterStackTrace(e);
          e.printStackTrace();
          throw e;
       }
-      catch (InstantiationException | IllegalAccessException e) { throw new RuntimeException(e); }
-      catch (InvocationTargetException e) { throw new RuntimeException(e.getCause()); }
    }
 
    @Nonnull public abstract Object create();

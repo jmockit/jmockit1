@@ -134,7 +134,7 @@ class BaseTypeRedefinition
    private void redefineClass(@Nonnull Class<?> realClass) {
       ClassReader classReader = ClassFile.createReaderOrGetFromCache(realClass);
 
-      if (realClass.isInterface() && classReader.getVersion() < ClassVersion.V1_8) {
+      if (realClass.isInterface() && classReader.getVersion() < ClassVersion.V8) {
          return;
       }
 

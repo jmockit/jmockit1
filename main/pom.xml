@@ -164,7 +164,7 @@
             </dependencies>
          </plugin>
          <plugin>
-            <groupId>org.jacoco</groupId><artifactId>jacoco-maven-plugin</artifactId><version>0.8.4</version>
+            <groupId>org.jacoco</groupId><artifactId>jacoco-maven-plugin</artifactId><version>0.8.8</version>
             <executions>
                <execution><id>default-prepare-agent</id><goals><goal>prepare-agent</goal></goals></execution>
                <execution><id>default-report</id><goals><goal>report</goal></goals><phase>test</phase></execution>
@@ -206,8 +206,6 @@
          <exclusions>
             <exclusion><groupId>org.apiguardian</groupId><artifactId>apiguardian-api</artifactId></exclusion>
             <exclusion><groupId>org.opentest4j</groupId><artifactId>opentest4j</artifactId></exclusion>
-            <exclusion><groupId>org.junit.platform</groupId><artifactId>junit-platform-engine</artifactId></exclusion>
-            <exclusion><groupId>org.junit.platform</groupId><artifactId>junit-platform-commons</artifactId></exclusion>
          </exclusions>
       </dependency>
       <dependency>
@@ -232,6 +230,9 @@
             <exclusion><groupId>org.springframework</groupId><artifactId>spring-aop</artifactId></exclusion>
             <exclusion><groupId>org.springframework</groupId><artifactId>spring-expression</artifactId></exclusion>
          </exclusions>
+      </dependency>
+      <dependency>
+         <groupId>org.objenesis</groupId><artifactId>objenesis</artifactId><version>3.3</version>
       </dependency>
    </dependencies>
 </project>

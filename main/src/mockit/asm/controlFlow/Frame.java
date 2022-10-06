@@ -709,7 +709,7 @@ public final class Frame
     */
    void executeLDC(@Nonnull Item item) {
       switch (item.getType()) {
-         case ConstantPoolTypes.INT:
+         case ConstantPoolTypes.INTEGER:
             push(INTEGER);
             break;
          case ConstantPoolTypes.LONG:
@@ -726,15 +726,79 @@ public final class Frame
          case ConstantPoolTypes.CLASS:
             push(OBJECT | cp.addNormalType("java/lang/Class"));
             break;
-         case ConstantPoolTypes.STR:
+         case ConstantPoolTypes.STRING:
             push(OBJECT | cp.addNormalType("java/lang/String"));
             break;
-         case ConstantPoolTypes.MTYPE:
+         case ConstantPoolTypes.METHOD_TYPE:
             push(OBJECT | cp.addNormalType("java/lang/invoke/MethodType"));
             break;
-      // case Item.Type.HANDLE_BASE + [1..9]:
-         default:
+         case ConstantPoolTypes.METHOD_HANDLE:
             push(OBJECT | cp.addNormalType("java/lang/invoke/MethodHandle"));
+            break;
+         case ConstantPoolTypes.DYNAMIC:
+            DynamicItem dynamicItem = (DynamicItem) item;
+            String desc = dynamicItem.getDesc();
+            if (desc.length() == 1) {
+               // primitive
+               char descChar = desc.charAt(0);
+               switch(descChar) {
+                  case 'Z':
+                  case 'B':
+                  case 'S':
+                  case 'I':
+                     push(INTEGER);
+                     break;
+                  case 'F':
+                     push(FLOAT);
+                     break;
+                  case 'D':
+                     push(DOUBLE);
+                     break;
+                  case 'J':
+                     push(LONG);
+                     break;
+                  default:
+                     throw new IllegalArgumentException("Unsupported dynamic local 'primitive' type: " + desc);
+               }
+            } else if (desc.charAt(0) == '['){
+               // array
+               ArrayType arrayType = ArrayType.create(desc);
+               JavaType elementType = arrayType.getElementType();
+               int mask;
+               if (elementType instanceof PrimitiveType) {
+                  PrimitiveType primitiveElementType = (PrimitiveType) elementType;
+                  char descChar = primitiveElementType.getTypeCode();
+                  switch(descChar) {
+                     case 'Z':
+                     case 'B':
+                     case 'C':
+                     case 'S':
+                     case 'I':
+                        mask = INTEGER;
+                        break;
+                     case 'F':
+                        mask = FLOAT;
+                        break;
+                     case 'D':
+                        mask = DOUBLE;
+                        break;
+                     case 'J':
+                        mask = LONG;
+                        break;
+                     default:
+                        throw new IllegalArgumentException("Unsupported array element 'primitive' type: " + desc);
+                  }
+               } else {
+                  mask = OBJECT;
+               }
+               push(ARRAY_OF | mask);
+            } else {
+               // object, substring 'L' and ';'
+               push(OBJECT | cp.addNormalType(desc.substring(1, desc.length() - 1)));
+            }
+            break;
+         default:
+            throw new IllegalArgumentException("Unknown item type, cannot execute frame: " + item.getType());
       }
    }
 

@@ -574,7 +574,7 @@ public final class MethodReader extends AnnotatedReader
          mv.visitFieldInsn(opcode, owner, memberName, memberDesc);
       }
       else {
-         boolean itf = code[ownerCodeIndex - 1] == ConstantPoolTypes.IMETH;
+         boolean itf = code[ownerCodeIndex - 1] == ConstantPoolTypes.IMETHOD_REF;
          mv.visitMethodInsn(opcode, owner, memberName, memberDesc, itf);
 
          if (opcode == INVOKEINTERFACE) {

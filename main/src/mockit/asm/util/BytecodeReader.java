@@ -2,6 +2,8 @@ package mockit.asm.util;
 
 import javax.annotation.*;
 
+import mockit.asm.constantPool.DynamicItem;
+import mockit.asm.jvmConstants.ConstantPoolTypes;
 import mockit.asm.types.*;
 import static mockit.asm.jvmConstants.ConstantPoolTypes.*;
 
@@ -71,12 +73,31 @@ public class BytecodeReader
 
    @Nonnegative
    private int getItemSize(int itemType) {
-      switch (itemType) {
-         case FIELD: case METH: case IMETH: case INT: case FLOAT: case NAME_TYPE: case CONDY: case INDY: return 5;
-         case LONG: case DOUBLE: return 9;
-         case UTF8: return 3 + readUnsignedShort(codeIndex);
-         case HANDLE: return 4;
-         default: return 3; // CLASS|STR|MTYPE
+      switch(itemType) {
+         case FIELD_REF:
+         case METHOD_REF:
+         case IMETHOD_REF:
+         case INTEGER:
+         case FLOAT:
+         case NAME_TYPE:
+         case DYNAMIC:
+         case INVOKE_DYNAMIC:
+            return 5;
+         case LONG:
+         case DOUBLE:
+            return 9;
+         case UTF8:
+            return 3 + readUnsignedShort(codeIndex);
+         case METHOD_HANDLE:
+            return 4;
+         case MODULE:
+         case PACKAGE:
+         case CLASS:
+         case STRING:
+         case METHOD_TYPE:
+            return 3;
+         default:
+            throw new IllegalArgumentException("Unknown item type, cannot determine size: " + itemType);
       }
    }
 
@@ -383,20 +404,30 @@ public class BytecodeReader
       byte itemType = code[constCodeIndex - 1];
 
       switch (itemType) {
-         case INT:    return readInt(constCodeIndex);
-         case FLOAT:  return readFloat(constCodeIndex);
-         case LONG:   return readLong(constCodeIndex);
-         case DOUBLE: return readDouble(constCodeIndex);
-         case STR:    return readNonnullUTF8(constCodeIndex);
+         case INTEGER: return readInt(constCodeIndex);
+         case FLOAT:   return readFloat(constCodeIndex);
+         case LONG:    return readLong(constCodeIndex);
+         case DOUBLE:  return readDouble(constCodeIndex);
+         case STRING:  return readNonnullUTF8(constCodeIndex);
          case CLASS:
             String typeDesc = readNonnullUTF8(constCodeIndex);
             return ReferenceType.createFromInternalName(typeDesc);
-         case MTYPE:
+         case METHOD_TYPE:
             String methodDesc = readNonnullUTF8(constCodeIndex);
             return MethodType.create(methodDesc);
-      // case HANDLE_BASE + [1..9]:
-         default:
+		 case DYNAMIC: {
+			int bsmStartIndex = readUnsignedShort(constCodeIndex);
+			int nameIndex = readItem(constCodeIndex + 2);
+			String name = readNonnullUTF8(nameIndex);
+			String desc = readNonnullUTF8(nameIndex + 2);
+			DynamicItem dynamicItem = new DynamicItem(itemIndex);
+			dynamicItem.set(ConstantPoolTypes.DYNAMIC, name, desc, bsmStartIndex);
+			return dynamicItem;
+		 }
+         case METHOD_HANDLE:
             return readMethodHandle(constCodeIndex);
+         default:
+            throw new IllegalArgumentException("Unknown const item type code: " + itemType);
       }
    }
 
@@ -415,6 +446,8 @@ public class BytecodeReader
    @Nonnull
    private MethodHandle readMethodHandle(@Nonnegative int bsmCodeIndex) {
       int tag = readUnsignedByte(bsmCodeIndex);
+      if (tag < MethodHandle.Tag.TAG_GETFIELD || tag > MethodHandle.Tag.TAG_INVOKEINTERFACE)
+         throw new IllegalArgumentException("Illegal method-handle tag: " + tag);
 
       int classIndex = readItem(bsmCodeIndex + 1);
       String owner = readNonnullClass(classIndex);

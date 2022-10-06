@@ -1,5 +1,5 @@
-/.shelf/
-/.idea/
+.shelf/
+.idea/
 /main/target/
 /coverageTests/target/
 /samples/java8testing/target/
