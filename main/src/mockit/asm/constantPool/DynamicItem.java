@@ -18,7 +18,7 @@ public final class DynamicItem extends TypeOrMemberItem
    /**
     * Sets the type, name, desc, and index of the constant or invoke dynamic item.
     *
-    * @param type  one of {@link ConstantPoolTypes#INDY} or {@link ConstantPoolTypes#CONDY}, for invoke or constant dynamic, respectively
+    * @param type  one of {@link ConstantPoolTypes#INVOKE_DYNAMIC} or {@link ConstantPoolTypes#DYNAMIC}, for invoke or constant dynamic, respectively
     * @param name  the item name
     * @param desc  the item type descriptor
     * @param index zero based index into the class attribute "BootstrapMethods".

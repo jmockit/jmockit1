@@ -46,19 +46,23 @@ final class ConstantPoolCopying
    private Item copyItem(int itemType) {
       switch (itemType) {
          case UTF8:      return copyUTF8Item();
-         case INT:       return copyIntItem();
+         case INTEGER:   return copyIntItem();
          case FLOAT:     return copyFloatItem();
          case LONG:      return copyLongItem();
          case DOUBLE:    return copyDoubleItem();
-         case FIELD:
-         case METH:
-         case IMETH:     return copyFieldOrMethodReferenceItem(itemType);
-         case NAME_TYPE: return copyNameAndTypeItem();
-         case HANDLE:    return copyHandleItem();
-         case CONDY:
-         case INDY:      return copyDynamicItem(itemType);
-      // case STR|CLASS|MTYPE:
-         default:        return copyNameReferenceItem(itemType);
+         case FIELD_REF:
+         case METHOD_REF:
+         case IMETHOD_REF:   return copyFieldOrMethodReferenceItem(itemType);
+         case NAME_TYPE:     return copyNameAndTypeItem();
+         case METHOD_HANDLE: return copyHandleItem();
+         case DYNAMIC:
+         case INVOKE_DYNAMIC:return copyDynamicItem(itemType);
+         case STRING:
+         case CLASS:
+         case METHOD_TYPE: return copyNameReferenceItem(itemType);
+         case MODULE:      return copyModule();
+         case PACKAGE:     return copyPackage();
+         default: throw new IllegalArgumentException("Unknown CP type, cannot copy: " + itemType);
       }
    }
 
@@ -157,5 +161,19 @@ final class ConstantPoolCopying
       DynamicItem item = new DynamicItem(itemIndex);
       item.set(type, name, desc, bsmIndex);
       return item;
+   }
+
+   @Nonnull
+   private Item copyModule() {
+      int nameIndex = source.readItem();
+      String name = source.readNonnullUTF8(nameIndex);
+      return new ModuleItem(itemIndex, MODULE, name);
+   }
+
+   @Nonnull
+   private Item copyPackage() {
+      int nameIndex = source.readItem();
+      String name = source.readNonnullUTF8(nameIndex);
+      return new PackageItem(itemIndex, PACKAGE, name);
    }
 }

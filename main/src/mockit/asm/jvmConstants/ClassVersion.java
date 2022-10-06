@@ -5,8 +5,20 @@ package mockit.asm.jvmConstants;
  */
 public interface ClassVersion
 {
-   int V1_5 = 49;
-   int V1_6 = 50;
-   int V1_7 = 51;
-   int V1_8 = 52;
+   int V5 = 49;
+   int V6 = 50;
+   int V7 = 51;
+   int V8 = 52;
+   int V9 = 53;
+   int V10 = 54;
+   int V11 = 55;
+   int V12 = 56;
+   int V13 = 57;
+   int V14 = 58;
+   int V15 = 59;
+   int V16 = 60;
+   int V17 = 61;
+   int V18 = 62;
+   int V19 = 63;
+   int V20 = 64;
 }

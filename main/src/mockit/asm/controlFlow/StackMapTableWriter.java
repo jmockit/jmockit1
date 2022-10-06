@@ -246,8 +246,11 @@ public final class StackMapTableWriter extends AttributeWriter
          case APPEND_FRAME:
             writeAppendedFrame(currentLocalsSize, previousLocalsSize, k, delta);
             break;
-         default: // FULL_FRAME
+         case FULL_FRAME:
             writeFullFrame(delta, currentLocalsSize, currentStackSize);
+            break;
+         default:
+            throw new IllegalArgumentException("Unknown frame type: " + type);
       }
    }
 
