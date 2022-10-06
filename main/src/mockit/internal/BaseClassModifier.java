@@ -49,10 +49,10 @@ public class BaseClassModifier extends WrappingClassVisitor
       int modifiedVersion = version;
       int originalVersion = version & 0xFFFF;
 
-      if (originalVersion < ClassVersion.V1_5) {
+      if (originalVersion < ClassVersion.V5) {
          // LDC instructions (see MethodVisitor#visitLdcInsn) are more capable in JVMs with support for class files of
          // version 49 (Java 5) or newer, so we "upgrade" it to avoid a VerifyError:
-         modifiedVersion = ClassVersion.V1_5;
+         modifiedVersion = ClassVersion.V5;
       }
 
       cw.visit(modifiedVersion, access, name, additionalInfo);

@@ -48,7 +48,7 @@ public final class Access
    public static boolean isSynthetic(int access)  { return (access & SYNTHETIC) != 0; }
 
    public static boolean isSynthetic(int access, int classVersion) {
-      return isSynthetic(access) && ((access & SYNTHETIC_ATTRIBUTE) != 0 || classVersion < V1_5);
+      return isSynthetic(access) && ((access & SYNTHETIC_ATTRIBUTE) != 0 || classVersion < V5);
    }
 
    public static boolean isConstructor(int access) { return (access & CONSTRUCTOR) != 0; }

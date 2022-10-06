@@ -90,8 +90,9 @@ public final class InvocationBlockModifier extends WrappingMethodVisitor
       switch (opcode) {
          case GETSTATIC: return twoByteType ? 2 : 1;
          case PUTSTATIC: return twoByteType ? -2 : -1;
-         case GETFIELD: return twoByteType ? 1 : 0;
-         default: return twoByteType ? -3 : -2;
+         case GETFIELD:  return twoByteType ? 1 : 0;
+         case PUTFIELD:  return twoByteType ? -3 : -2;
+         default: throw new IllegalArgumentException("Invalid field access opcode: " + opcode);
       }
    }
 

@@ -6,21 +6,23 @@ package mockit.asm.jvmConstants;
  */
 public interface ConstantPoolTypes
 {
-   int CLASS     =  7; // CONSTANT_Class
-   int FIELD     =  9; // CONSTANT_Fieldref
-   int METH      = 10; // CONSTANT_Methodref
-   int IMETH     = 11; // CONSTANT_InterfaceMethodref
-   int STR       =  8; // CONSTANT_String
-   int INT       =  3; // CONSTANT_Integer
-   int FLOAT     =  4; // CONSTANT_Float
-   int LONG      =  5; // CONSTANT_Long
-   int DOUBLE    =  6; // CONSTANT_Double
-   int NAME_TYPE = 12; // CONSTANT_NameAndType
-   int UTF8      =  1; // CONSTANT_Utf8
-   int HANDLE    = 15; // CONSTANT_MethodHandle
-   int MTYPE     = 16; // CONSTANT_MethodType
-   int CONDY     = 17; // CONSTANT_Dynamic
-   int INDY      = 18; // CONSTANT_InvokeDynamic
+   int CLASS          =  7; // CONSTANT_Class
+   int FIELD_REF      =  9; // CONSTANT_Fieldref
+   int METHOD_REF     = 10; // CONSTANT_Methodref
+   int IMETHOD_REF    = 11; // CONSTANT_InterfaceMethodref
+   int STRING         =  8; // CONSTANT_String
+   int INTEGER        =  3; // CONSTANT_Integer
+   int FLOAT          =  4; // CONSTANT_Float
+   int LONG           =  5; // CONSTANT_Long
+   int DOUBLE         =  6; // CONSTANT_Double
+   int NAME_TYPE      = 12; // CONSTANT_NameAndType
+   int UTF8           =  1; // CONSTANT_Utf8
+   int METHOD_HANDLE  = 15; // CONSTANT_MethodHandle
+   int METHOD_TYPE    = 16; // CONSTANT_MethodType
+   int DYNAMIC        = 17; // CONSTANT_Dynamic
+   int INVOKE_DYNAMIC = 18; // CONSTANT_InvokeDynamic
+   int MODULE         = 19; // CONSTANT_Module
+   int PACKAGE        = 20; // CONSTANT_Package
 
    /**
     * The base value for all CONSTANT_MethodHandle constant pool items.

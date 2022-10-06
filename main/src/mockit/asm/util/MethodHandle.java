@@ -8,11 +8,15 @@ import javax.annotation.*;
 public final class MethodHandle
 {
    public interface Tag {
-//    int INVOKEVIRTUAL    = 5;
-//    int INVOKESTATIC     = 6;
-//    int INVOKESPECIAL    = 7;
-//    int NEWINVOKESPECIAL = 8;
-      int INVOKEINTERFACE  = 9;
+      int TAG_GETFIELD         = 1;
+      int TAG_GETSTATIC        = 2;
+      int TAG_PUTFIELD         = 3;
+      int TAG_PUTSTATIC        = 4;
+      int TAG_INVOKEVIRTUAL    = 5;
+      int TAG_INVOKESTATIC     = 6;
+      int TAG_INVOKESPECIAL    = 7;
+      int TAG_NEWINVOKESPECIAL = 8;
+      int TAG_INVOKEINTERFACE  = 9;
    }
 
    /**

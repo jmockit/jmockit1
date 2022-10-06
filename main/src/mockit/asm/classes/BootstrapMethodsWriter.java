@@ -84,7 +84,7 @@ final class BootstrapMethodsWriter extends AttributeWriter
       methods.setLength(position); // revert to old position
 
       BootstrapMethodItem bsmItem = getBSMItem(hashCode);
-      DynamicItem result = cp.createDynamicItem(INDY, name, desc, bsmItem.index);
+      DynamicItem result = cp.createDynamicItem(INVOKE_DYNAMIC, name, desc, bsmItem.index);
       return result;
    }
 

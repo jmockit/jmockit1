@@ -188,7 +188,8 @@ public final class CFGAnalysis
          case GETSTATIC: return doubleSizeType ? 2 : 1;
          case PUTSTATIC: return doubleSizeType ? -2 : -1;
          case GETFIELD:  return doubleSizeType ? 1 : 0;
-         case PUTFIELD: default: return doubleSizeType ? -3 : -2;
+         case PUTFIELD:  return doubleSizeType ? -3 : -2;
+         default: throw new IllegalArgumentException("Unknown field access opcode: " + fieldAccessOpcode);
       }
    }
 

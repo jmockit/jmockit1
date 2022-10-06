@@ -8,7 +8,7 @@ public final class IntItem extends IntValueItem
 {
    public IntItem(@Nonnegative int index) {
       super(index);
-      type = INT;
+      type = INTEGER;
    }
 
    IntItem(@Nonnegative int index, @Nonnull IntItem item) { super(index, item); }

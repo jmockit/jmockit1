@@ -138,7 +138,7 @@ public final class ConstantPoolGeneration
     * Adds a string to the constant pool of the class being built.
     * Does nothing if the constant pool already contains a similar item.
     *
-    * @param type one of {@link ConstantPoolTypes#STR}, {@link ConstantPoolTypes#CLASS} or {@link ConstantPoolTypes#MTYPE}
+    * @param type one of {@link ConstantPoolTypes#STRING}, {@link ConstantPoolTypes#CLASS} or {@link ConstantPoolTypes#METHOD_TYPE}
     * @param value the String value.
     * @return a new or already existing string item.
     */
@@ -173,9 +173,9 @@ public final class ConstantPoolGeneration
 
       if (result == null) {
          int tag = methodHandle.tag;
-         int memberType = tag == MethodHandle.Tag.INVOKEINTERFACE ? IMETH : METH;
+         int memberType = tag == MethodHandle.Tag.TAG_INVOKEINTERFACE ? IMETHOD_REF : METHOD_REF;
          ClassMemberItem memberItem = newClassMemberItem(memberType, methodHandle.owner, methodHandle.name, methodHandle.desc);
-         pool.put11(HANDLE, tag).putShort(memberItem.index);
+         pool.put11(METHOD_HANDLE, tag).putShort(memberItem.index);
 
          result = new MethodHandleItem(index++, reusableMethodHandleItem);
          put(result);
@@ -213,7 +213,7 @@ public final class ConstantPoolGeneration
     */
    @Nonnull
    public ClassMemberItem newFieldItem(@Nonnull String owner, @Nonnull String name, @Nonnull String desc) {
-      return newClassMemberItem(FIELD, owner, name, desc);
+      return newClassMemberItem(FIELD_REF, owner, name, desc);
    }
 
    /**
@@ -228,7 +228,7 @@ public final class ConstantPoolGeneration
     */
    @Nonnull
    public ClassMemberItem newMethodItem(@Nonnull String owner, @Nonnull String name, @Nonnull String desc, boolean itf) {
-      return newClassMemberItem(itf ? IMETH : METH, owner, name, desc);
+      return newClassMemberItem(itf ? IMETHOD_REF : METHOD_REF, owner, name, desc);
    }
 
    /**
@@ -245,7 +245,7 @@ public final class ConstantPoolGeneration
       IntItem result = get(reusableIntItem);
 
       if (result == null) {
-         pool.putByte(INT).putInt(value);
+         pool.putByte(INTEGER).putInt(value);
 
          result = new IntItem(index++, reusableIntItem);
          put(result);
@@ -361,7 +361,7 @@ public final class ConstantPoolGeneration
    @Nonnull
    public Item newConstItem(@Nonnull Object cst) {
       if (cst instanceof String) {
-         return newStringItem(STR, (String) cst);
+         return newStringItem(STRING, (String) cst);
       }
 
       if (cst instanceof Number) {
@@ -379,7 +379,7 @@ public final class ConstantPoolGeneration
 
       if (cst instanceof ReferenceType) {
          String typeDesc = ((ReferenceType) cst).getInternalName();
-         return cst instanceof MethodType ? newStringItem(MTYPE, typeDesc) : newClassItem(typeDesc);
+         return cst instanceof MethodType ? newStringItem(METHOD_TYPE, typeDesc) : newClassItem(typeDesc);
       }
 
       if (cst instanceof PrimitiveType) {
@@ -391,6 +391,10 @@ public final class ConstantPoolGeneration
          return newMethodHandleItem((MethodHandle) cst);
       }
 
+      if(cst instanceof DynamicItem) {
+		 DynamicItem dynamicItem = (DynamicItem) cst;
+		 return createDynamicItem(dynamicItem.type, dynamicItem.name, dynamicItem.desc, dynamicItem.bsmIndex);
+	  }
       throw new IllegalArgumentException("value " + cst);
    }
 

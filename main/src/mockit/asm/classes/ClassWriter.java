@@ -162,7 +162,7 @@ public final class ClassWriter extends ClassVisitor
    public MethodWriter visitMethod(
       int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature, @Nullable String[] exceptions
    ) {
-      boolean computeFrames = classVersion >= ClassVersion.V1_7;
+      boolean computeFrames = classVersion >= ClassVersion.V7;
       MethodWriter method = new MethodWriter(this, access, name, desc, signature, exceptions, computeFrames);
       methods.add(method);
       return method;
@@ -268,5 +268,5 @@ public final class ClassWriter extends ClassVisitor
       return bootstrapMethodsWriter.addInvokeDynamicReference(name, desc, bsm, bsmArgs);
    }
 
-   public boolean isJava6OrNewer() { return classVersion >= ClassVersion.V1_6; }
+   public boolean isJava6OrNewer() { return classVersion >= ClassVersion.V6; }
 }
