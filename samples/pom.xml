@@ -11,6 +11,7 @@
       <module>tutorial</module>
       <module>LoginService</module>
       <module>java8testing</module>
+      <module>petclinic</module>
    </modules>
 
    <name>The JMockit Testing Toolkit Samples</name>
