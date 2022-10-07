@@ -1,13 +1,19 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
-<project
-   xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
    <modelVersion>4.0.0</modelVersion>
 
-   <groupId>org.jmockit</groupId><artifactId>jmockit</artifactId><version>1.49</version>
-   <packaging>jar</packaging>
+   <parent>
+      <groupId>com.github.hazendaz</groupId>
+      <artifactId>base-parent</artifactId>
+      <version>30</version>
+      <relativePath />
+   </parent>
 
-   <name>JMockit</name>
+   <groupId>com.github.hazendaz.jmockit</groupId>
+   <artifactId>jmockit</artifactId>
+   <version>1.49.3-SNAPSHOT</version>
+
+   <name>jmockit</name>
    <description>
       JMockit is a Java toolkit for automated developer testing.
       It contains APIs for the creation of the objects to be tested, for mocking dependencies, and for faking external
@@ -26,13 +32,22 @@
    </developers>
    <inceptionYear>2006</inceptionYear>
    <scm>
-      <url>https://github.com/jmockit/jmockit1</url>
-      <connection>scm:git:https://github.com/jmockit/jmockit1</connection>
+      <url>https://github.com/hazendaz/jmockit1</url>
+      <connection>scm:git:https://github.com/hazendaz/jmockit1</connection>
+      <developerConnection>scm:git:ssh://git@github.com/hazendaz/jmockit1.git</developerConnection>
+      <tag>HEAD</tag>
    </scm>
    <issueManagement>
       <system>GitHub Issues</system>
       <url>https://github.com/jmockit/jmockit1/issues</url>
    </issueManagement>
+   <distributionManagement>
+      <site>
+         <id>gh-pages-scm</id>
+         <name>gh-pages-scm</name>
+         <url>scm:git:ssh://git@github.com/hazendaz/jmockit1.git</url>
+      </site>
+   </distributionManagement>
 
    <properties>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -66,7 +81,7 @@
       </resources>
       <plugins>
          <plugin>
-            <artifactId>maven-compiler-plugin</artifactId><version>3.8.0</version>
+            <artifactId>maven-compiler-plugin</artifactId>
             <configuration>
                <encoding>UTF-8</encoding>
                <source>1.7</source><target>1.7</target>
@@ -75,7 +90,7 @@
             </configuration>
          </plugin>
          <plugin>
-            <artifactId>maven-jar-plugin</artifactId><version>3.1.0</version>
+            <artifactId>maven-jar-plugin</artifactId>
             <configuration>
                <archive>
                   <addMavenDescriptor>false</addMavenDescriptor>
@@ -85,13 +100,13 @@
                      <Can-Redefine-Classes>true</Can-Redefine-Classes>
                      <Can-Retransform-Classes>true</Can-Retransform-Classes>
                      <Implementation-Version>${project.version}</Implementation-Version>
-                     <Built-By/>
+                     <Built-By />
                   </manifestEntries>
                </archive>
             </configuration>
          </plugin>
          <plugin>
-            <artifactId>maven-source-plugin</artifactId><version>3.0.1</version>
+            <artifactId>maven-source-plugin</artifactId>
             <configuration>
                <archive>
                   <addMavenDescriptor>false</addMavenDescriptor>
@@ -112,7 +127,7 @@
             </executions>
          </plugin>
          <plugin>
-            <artifactId>maven-javadoc-plugin</artifactId><version>3.0.1</version>
+            <artifactId>maven-javadoc-plugin</artifactId>
             <configuration>
                <encoding>UTF-8</encoding>
                <nodeprecated>true</nodeprecated>
@@ -144,7 +159,7 @@
             </executions>
          </plugin>
          <plugin>
-            <artifactId>maven-surefire-plugin</artifactId><version>2.22.2</version>
+            <artifactId>maven-surefire-plugin</artifactId><version>3.0.0-M7</version>
             <configuration>
                <disableXmlReport>true</disableXmlReport>
                <runOrder>alphabetical</runOrder>
@@ -156,22 +171,22 @@
             </configuration>
             <dependencies>
                <dependency>
-                  <groupId>org.apache.maven.surefire</groupId><artifactId>surefire-junit47</artifactId><version>2.22.2</version>
+                  <groupId>org.apache.maven.surefire</groupId><artifactId>surefire-junit47</artifactId><version>3.0.0-M7</version>
                </dependency>
                <dependency>
-                  <groupId>org.apache.maven.surefire</groupId><artifactId>surefire-testng</artifactId><version>2.22.2</version>
+                  <groupId>org.apache.maven.surefire</groupId><artifactId>surefire-testng</artifactId><version>3.0.0-M7</version>
                </dependency>
             </dependencies>
          </plugin>
          <plugin>
-            <groupId>org.jacoco</groupId><artifactId>jacoco-maven-plugin</artifactId><version>0.8.8</version>
+            <groupId>org.jacoco</groupId><artifactId>jacoco-maven-plugin</artifactId>
             <executions>
                <execution><id>default-prepare-agent</id><goals><goal>prepare-agent</goal></goals></execution>
                <execution><id>default-report</id><goals><goal>report</goal></goals><phase>test</phase></execution>
             </executions>
          </plugin>
          <plugin>
-            <artifactId>maven-gpg-plugin</artifactId><version>1.6</version>
+            <artifactId>maven-gpg-plugin</artifactId><version>3.0.1</version>
             <executions>
                <execution>
                   <id>sign-artifacts</id>
@@ -180,59 +195,49 @@
                </execution>
             </executions>
          </plugin>
-         <plugin>
-            <groupId>org.sonatype.plugins</groupId><artifactId>nexus-staging-maven-plugin</artifactId><version>1.6.8</version>
-            <extensions>true</extensions>
-            <configuration>
-               <serverId>sonatype-nexus-staging</serverId>
-               <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-               <autoReleaseAfterClose>true</autoReleaseAfterClose>
-            </configuration>
-         </plugin>
       </plugins>
    </build>
 
    <dependencies>
       <dependency>
-         <groupId>com.github.spotbugs</groupId><artifactId>spotbugs-annotations</artifactId><version>4.0.0</version>
+         <groupId>com.github.spotbugs</groupId><artifactId>spotbugs-annotations</artifactId><version>4.7.2</version>
       </dependency>
       <dependency>
-         <groupId>junit</groupId><artifactId>junit</artifactId><version>4.13</version>
+         <groupId>junit</groupId><artifactId>junit</artifactId><version>4.13.2</version>
          <optional>true</optional>
       </dependency>
       <dependency>
-         <groupId>org.junit.jupiter</groupId><artifactId>junit-jupiter-engine</artifactId><version>5.6.0</version>
+         <groupId>org.junit.jupiter</groupId><artifactId>junit-jupiter-engine</artifactId><version>5.9.1</version>
          <optional>true</optional>
          <exclusions>
             <exclusion><groupId>org.apiguardian</groupId><artifactId>apiguardian-api</artifactId></exclusion>
             <exclusion><groupId>org.opentest4j</groupId><artifactId>opentest4j</artifactId></exclusion>
+            <exclusion><groupId>org.junit.platform</groupId><artifactId>junit-platform-engine</artifactId></exclusion>
+            <exclusion><groupId>org.junit.platform</groupId><artifactId>junit-platform-commons</artifactId></exclusion>
          </exclusions>
       </dependency>
       <dependency>
-         <groupId>org.testng</groupId><artifactId>testng</artifactId><version>7.1.0</version>
+         <groupId>org.testng</groupId><artifactId>testng</artifactId><version>7.3.0</version>
          <optional>true</optional>
       </dependency>
       <dependency>
-         <groupId>javax</groupId><artifactId>javaee-api</artifactId><version>7.0</version>
+         <groupId>jakarta.platform</groupId><artifactId>jakarta.jakartaee-api</artifactId><version>8.0.0</version>
          <optional>true</optional>
          <exclusions>
-            <exclusion><groupId>com.sun.mail</groupId><artifactId>javax.mail</artifactId></exclusion>
+            <exclusion><groupId>com.sun.mail</groupId><artifactId>jakarta.mail</artifactId></exclusion>
          </exclusions>
       </dependency>
       <dependency>
-         <groupId>org.springframework</groupId><artifactId>spring-web</artifactId><version>5.2.4.RELEASE</version>
+         <groupId>org.springframework</groupId><artifactId>spring-web</artifactId><version>5.3.23</version>
          <optional>true</optional>
       </dependency>
       <dependency>
-         <groupId>org.springframework</groupId><artifactId>spring-context</artifactId><version>5.2.4.RELEASE</version>
+         <groupId>org.springframework</groupId><artifactId>spring-context</artifactId><version>5.3.23</version>
          <optional>true</optional>
          <exclusions>
             <exclusion><groupId>org.springframework</groupId><artifactId>spring-aop</artifactId></exclusion>
             <exclusion><groupId>org.springframework</groupId><artifactId>spring-expression</artifactId></exclusion>
          </exclusions>
-      </dependency>
-      <dependency>
-         <groupId>org.objenesis</groupId><artifactId>objenesis</artifactId><version>3.3</version>
       </dependency>
    </dependencies>
 </project>

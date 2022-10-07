@@ -1,8 +1,17 @@
-.shelf/
-.idea/
-/main/target/
-/coverageTests/target/
-/samples/java8testing/target/
-/samples/LoginService/target/
-/samples/petclinic/target/
-/samples/tutorial/target/
+# Eclipse
+.settings
+.classpath
+.factorypath
+.project
+
+# Maven
+target/
+maven-wrapper.jar
+*.releaseBackup
+release.properties
+
+.shelf
+
+# Intellij
+.idea
+*.iml

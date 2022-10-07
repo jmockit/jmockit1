@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.github.hazendaz.jmockit</groupId>
+    <artifactId>jmockit-launcher</artifactId>
+    <version>1.49.3-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>jmockit-launcher</name>
+    <description>Launcher POM for JMOCKIT</description>
+
+    <modules>
+        <module>coverageTests</module>
+        <module>main</module>
+        <module>samples</module>
+    </modules>
+
+    <distributionManagement>
+        <site>
+            <id>gh-pages-scm</id>
+            <name>gh-pages-scm</name>
+            <url>scm:git:ssh://git@github.com/hazendaz/jmockit1.git</url>
+        </site>
+    </distributionManagement>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-site-plugin</artifactId>
+                    <version>3.12.1</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+</project>
