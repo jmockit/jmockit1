@@ -84,7 +84,7 @@
             <artifactId>maven-compiler-plugin</artifactId>
             <configuration>
                <encoding>UTF-8</encoding>
-               <source>1.7</source><target>1.7</target>
+               <source>1.8</source><target>1.8</target>
                <compilerArgs><arg>-Xlint:none</arg></compilerArgs>
                <useIncrementalCompilation>false</useIncrementalCompilation>
             </configuration>
@@ -200,6 +200,9 @@
 
    <dependencies>
       <dependency>
+         <groupId>org.objenesis</groupId><artifactId>objenesis</artifactId><version>3.3</version>
+      </dependency>
+      <dependency>
          <groupId>com.github.spotbugs</groupId><artifactId>spotbugs-annotations</artifactId><version>4.7.2</version>
       </dependency>
       <dependency>
@@ -212,8 +215,6 @@
          <exclusions>
             <exclusion><groupId>org.apiguardian</groupId><artifactId>apiguardian-api</artifactId></exclusion>
             <exclusion><groupId>org.opentest4j</groupId><artifactId>opentest4j</artifactId></exclusion>
-            <exclusion><groupId>org.junit.platform</groupId><artifactId>junit-platform-engine</artifactId></exclusion>
-            <exclusion><groupId>org.junit.platform</groupId><artifactId>junit-platform-commons</artifactId></exclusion>
          </exclusions>
       </dependency>
       <dependency>
