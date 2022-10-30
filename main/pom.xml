@@ -240,5 +240,8 @@
             <exclusion><groupId>org.springframework</groupId><artifactId>spring-expression</artifactId></exclusion>
          </exclusions>
       </dependency>
+      <dependency>
+         <groupId>org.objenesis</groupId><artifactId>objenesis</artifactId><version>3.3</version>
+      </dependency>
    </dependencies>
 </project>
