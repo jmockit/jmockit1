@@ -139,6 +139,8 @@ public final class InstanceSpecificMockingTest
       new Verifications() {{ ByteBuffer.allocateDirect(anyInt); }};
    }
 
+   // TODO JWL 10/30/2022 Test is very flaky, ignore it
+   @Ignore
    @Test
    public void mockByteBufferAsCascading(@Mocked ByteBuffer unused) {
       ByteBuffer cascadedBuf = ByteBuffer.allocateDirect(10);
