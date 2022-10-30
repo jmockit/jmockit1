@@ -11,7 +11,7 @@
 
    <groupId>com.github.hazendaz.jmockit</groupId>
    <artifactId>jmockit</artifactId>
-   <version>1.49.3</version>
+   <version>1.49.4-SNAPSHOT</version>
 
    <name>jmockit</name>
    <description>
