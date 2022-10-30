@@ -10,11 +10,11 @@ How to build the project:
 
 This fork contains pull requests from main repo as well as updated libraries within build.
 
-  [665](https://github.com/jmockit/jmockit1/pull/665) from https://github.com/vimil/jmockit1.git condy arrayindexoutofboundsexception fix
-  [712](https://github.com/jmockit/jmockit1/pull/712) from https://github.com/Saljack/jmockit1.git Add method name check for generic methods Expectations
-  [734](https://github.com/jmockit/jmockit1/pull/734) from https://github.com/tsmock/jmockit1.git Mocks created by JUnit4 tests are not cleaned up when run with JUnit5
-  [736](https://github.com/jmockit/jmockit1/pull/736) from https://github.com/Col-E/jmockit1 Add suport for Java 11+ based off this repo
-  [68](https://github.com/hazendaz/jmockit1/pull/68) from https://github.com/Col-E/jmockit1 after sync up from 736.
+  - [665](https://github.com/jmockit/jmockit1/pull/665) from fork [vimil](https://github.com/vimil/jmockit1) condy arrayindexoutofboundsexception fix
+  - [712](https://github.com/jmockit/jmockit1/pull/712) from fork [Saljack](https://github.com/Saljack/jmockit1) Add method name check for generic methods Expectations
+  - [734](https://github.com/jmockit/jmockit1/pull/734) from fork [tsmock](https://github.com/tsmock/jmockit1) Mocks created by JUnit4 tests are not cleaned up when run with JUnit5
+  - [736](https://github.com/jmockit/jmockit1/pull/736) from fork [Col-E](https://github.com/Col-E/jmockit1) Add suport for Java 11+ based off this repo
+  - [68](https://github.com/hazendaz/jmockit1/pull/68) from fork [Col-E](https://github.com/Col-E/jmockit1) after sync up from PR 736.
 
 Testing confirmed to work through jdk 20
 Github Actions fail with testng and applet testing
