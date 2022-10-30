@@ -390,9 +390,10 @@ public final class ConstantPoolGeneration
       if (cst instanceof MethodHandle) {
          return newMethodHandleItem((MethodHandle) cst);
       }
-      if(cst instanceof DynamicItem) {
-         DynamicItem dynamicItem = (DynamicItem) cst;
-         return createDynamicItem(dynamicItem.type, dynamicItem.name, dynamicItem.desc, dynamicItem.bsmIndex);
+
+      if (cst instanceof DynamicItem) {
+          DynamicItem dynamicItem = (DynamicItem) cst;
+          return createDynamicItem(dynamicItem.type, dynamicItem.name, dynamicItem.desc, dynamicItem.bsmIndex);
       }
       throw new IllegalArgumentException("value " + cst);
    }
