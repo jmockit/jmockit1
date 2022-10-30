@@ -43,9 +43,9 @@
    </issueManagement>
    <distributionManagement>
        <site>
-           <id>gh-pages-scm</id>
-           <name>gh-pages-scm</name>
-           <url>scm:git:ssh://git@github.com/hazendaz/jmockit1.git</url>
+          <id>gh-pages-scm</id>
+          <name>gh-pages-scm</name>
+          <url>scm:git:ssh://git@github.com/hazendaz/jmockit1.git</url>
        </site>
    </distributionManagement>
 
@@ -84,7 +84,6 @@
             <artifactId>maven-compiler-plugin</artifactId>
             <configuration>
                <encoding>UTF-8</encoding>
-               <source>1.7</source><target>1.7</target>
                <compilerArgs><arg>-Xlint:none</arg></compilerArgs>
                <useIncrementalCompilation>false</useIncrementalCompilation>
             </configuration>
