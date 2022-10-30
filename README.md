@@ -11,6 +11,8 @@ How to build the project:
 This fork contains pull requests from main repo as well as updated libraries within build.
 
   - [665](https://github.com/jmockit/jmockit1/pull/665) from fork [vimil](https://github.com/vimil/jmockit1) condy arrayindexoutofboundsexception fix
+  - [695](https://github.com/jmockit/jmockit1/pull/695) from fork [don-vip](https://github.com/don-vip/jmockit1) Fix NPE when className is null
+  - [697](https://github.com/jmockit/jmockit1/pull/697) from fork [Saljack](https://github.com/Saljack/jmockit1) Fix Tested fullyInitialized instance with interfaces in constructor
   - [712](https://github.com/jmockit/jmockit1/pull/712) from fork [Saljack](https://github.com/Saljack/jmockit1) Add method name check for generic methods Expectations
   - [734](https://github.com/jmockit/jmockit1/pull/734) from fork [tsmock](https://github.com/tsmock/jmockit1) Mocks created by JUnit4 tests are not cleaned up when run with JUnit5
   - [736](https://github.com/jmockit/jmockit1/pull/736) from fork [Col-E](https://github.com/Col-E/jmockit1) Add suport for Java 11+ based off this repo
