@@ -39,6 +39,8 @@ public class TestDatabase
    /**
     * Refreshes the persistent state of a given entity from the database, so that a test can verify
     * that persistent state was modified as expected.
+    *
+    * @param entity the entity
     */
    public final void refresh(BaseEntity entity) {
       em.refresh(entity);

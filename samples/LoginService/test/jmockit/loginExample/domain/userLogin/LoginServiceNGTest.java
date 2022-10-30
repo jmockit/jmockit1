@@ -19,6 +19,8 @@ public final class LoginServiceNGTest
     * This test is redundant, as it exercises the same path as the last test.
     * It cannot simply be removed, because the last test does not perform the "account.setLoggedIn(true)" verification;
     * if said verification is added there, however, then this test could be removed without weakening the test suite.
+    *
+    * @throws Exception the exception
     */
    @Test
    public void setAccountToLoggedInWhenPasswordMatches() throws Exception {
@@ -48,6 +50,8 @@ public final class LoginServiceNGTest
     * This test is also redundant, as it exercises the same path as the previous one.
     * Again, it cannot simply be removed since the previous test does not verify that "account.setLoggedIn(true)" is
     * never called; if said verification is added there, however, this test could safely be removed.
+    *
+    * @throws Exception the exception
     */
    @Test
    public void notSetAccountLoggedInIfPasswordDoesNotMatch() throws Exception {
