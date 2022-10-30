@@ -23,3 +23,7 @@ Considerations
   - Testing confirmed to work through jdk 17
   - Github Actions fail with testng and applet testing
   - New launcher pom in root to build entire project (extra modules rely on released copy of fork currently)
+
+Releasing
+
+  - Use jdk 8 as javadocs fail on anything newer, various attempts to update were preformed but javadocs is not giving any specific reason.
