@@ -21,9 +21,9 @@ import mockit.internal.startup.*;
  * }
  * </pre>
  * One or more <em>fake methods</em> annotated {@linkplain Mock as such} must be defined in the concrete subclass.
- * Each <tt>@Mock</tt> method should have a matching method or constructor in the faked class.
+ * Each <code>@Mock</code> method should have a matching method or constructor in the faked class.
  * At runtime, the execution of a faked method/constructor will get redirected to the corresponding fake method.
- * <p/>
+ * <p>
  * When the type to be faked is specified indirectly through a {@linkplain TypeVariable type variable}, then that type is taken as a
  * <em>base</em> type whose concrete implementation classes should <em>also</em> get faked.
  * Example:
@@ -117,10 +117,10 @@ public class MockUp<T>
 
    /**
     * Applies the {@linkplain Mock fake methods} defined in the fake class to the given class.
-    * <p/>
+    * <p>
     * In most cases, the {@linkplain #MockUp() constructor with no parameters} can be used.
     * This variation is useful when the type to be faked is not known at compile time.
-    * For example, it can be used with an {@linkplain Mock $advice} method and the <tt>fakes</tt> system property in order to have an
+    * For example, it can be used with an {@linkplain Mock $advice} method and the <code>fakes</code> system property in order to have an
     * aspect-like fake implementation applicable to any class; it can then be applied at the beginning of the test run with the desired
     * target class being specified in the test run configuration.
     */
@@ -133,7 +133,7 @@ public class MockUp<T>
     * An empty method that can be overridden in a fake class that wants to be notified whenever the fake is automatically torn down.
     * Tear down happens when the fake goes out of scope: at the end of the test when applied inside a test, at the end of the test class
     * when applied before the test class, or at the end of the test run when applied through the "<code>fakes</code>" system property.
-    * <p/>
+    * <p>
     * By default, this method does nothing.
     */
    protected void onTearDown() {}

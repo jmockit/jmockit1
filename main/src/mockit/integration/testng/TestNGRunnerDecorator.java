@@ -19,7 +19,7 @@ import static mockit.internal.util.StackTrace.*;
 /**
  * Provides callbacks to be called by the TestNG 6.2+ test runner for each test execution.
  * JMockit will then assert any expectations recorded in {@link Expectations} subclasses during the test.
- * <p/>
+ * <p>
  * This class is not supposed to be accessed from user code; it will be automatically loaded at startup.
  */
 public final class TestNGRunnerDecorator extends TestRunnerDecorator implements IInvokedMethodListener, IExecutionListener

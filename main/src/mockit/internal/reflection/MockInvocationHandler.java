@@ -13,12 +13,12 @@ import mockit.internal.util.*;
 /**
  * Handles invocations to all kinds of mock implementations created for interfaces and annotation types through any of
  * the mocking APIs.
- * <p/>
- * The <tt>java.lang.Object</tt> methods <tt>equals</tt>, <tt>hashCode</tt>, and <tt>toString</tt> are handled in a
+ * <p>
+ * The <code>java.lang.Object</code> methods <code>equals</code>, <code>hashCode</code>, and <code>toString</code> are handled in a
  * meaningful way, returning a value that makes sense for the proxy instance.
  * The special {@linkplain Annotation} contracts for these three methods is <em>not</em> observed, though, since it
  * would require making dynamic calls to the mocked annotation attributes.
- * <p/>
+ * <p>
  * Any other method invocation is handled by simply returning the default value according to the method's return type
  * (as defined in {@linkplain DefaultValues}).
  */

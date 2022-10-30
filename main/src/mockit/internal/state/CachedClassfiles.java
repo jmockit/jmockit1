@@ -18,9 +18,9 @@ import mockit.internal.startup.*;
  * available from the runtime classpath.
  * If any third-party {@link ClassFileTransformer}s are active, those original classfiles may have been modified before
  * being loaded by the JVM.
- * JMockit installs a <tt>ClassFileTransformer</tt> of its own which saves all potentially modified classfiles
+ * JMockit installs a <code>ClassFileTransformer</code> of its own which saves all potentially modified classfiles
  * here.
- * <p/>
+ * <p>
  * This bytecode cache allows classes to be mocked and un-mocked correctly, even in the presence of other
  * bytecode modification agents such as the AspectJ load-time weaver.
  */

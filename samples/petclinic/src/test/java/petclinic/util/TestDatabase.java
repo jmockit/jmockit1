@@ -53,7 +53,7 @@ public class TestDatabase
     * @param qlArgs zero or more arguments for positional parameters in the JPQL statement
     * @param <E> specifies the desired entity type
     *
-    * @return the first entity found, if any, or <tt>null</tt> if none
+    * @return the first entity found, if any, or <code>null</code> if none
     */
    @SuppressWarnings("unchecked")
    public final <E extends BaseEntity> E findOne(String qlStatement, Object... qlArgs) {

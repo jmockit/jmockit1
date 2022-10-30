@@ -83,7 +83,7 @@ public final class MethodWriter extends MethodVisitor
     * @param desc          the method's descriptor (see {@link JavaType})
     * @param signature     the method's signature
     * @param exceptions    the internal names of the method's exceptions
-    * @param computeFrames <tt>true</tt> if the stack map tables must be recomputed from scratch
+    * @param computeFrames <code>true</code> if the stack map tables must be recomputed from scratch
     */
    public MethodWriter(
       @Nonnull ClassWriter cw, int access, @Nonnull String name, @Nonnull String desc, @Nullable String signature,

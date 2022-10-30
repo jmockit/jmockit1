@@ -16,12 +16,12 @@ import org.springframework.beans.factory.support.*;
  * If applied, this fake will take over calls to {@link AbstractBeanFactory#getBean(String)} and
  * {@link AbstractBeanFactory#getBean(String, Class)} in any implementation class, returning instead a
  * {@link Tested @Tested} or {@link Injectable @Injectable} object with the given field name, or a dependency object
- * injected at any level into a <tt>@Tested</tt> object.
- * <p/>
- * In case said calls come (indirectly) from a test class having no <tt>@Tested</tt> fields, bean lookup will proceed
- * into the actual <tt>getBean</tt> implementation method.
- * <p/>
- * Note this fake is only useful if the code under test makes direct calls to Spring's <tt>getBean</tt> methods.
+ * injected at any level into a <code>@Tested</code> object.
+ * <p>
+ * In case said calls come (indirectly) from a test class having no <code>@Tested</code> fields, bean lookup will proceed
+ * into the actual <code>getBean</code> implementation method.
+ * <p>
+ * Note this fake is only useful if the code under test makes direct calls to Spring's <code>getBean</code> methods.
  */
 public final class FakeBeanFactory extends MockUp<DefaultListableBeanFactory>
 {

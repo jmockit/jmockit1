@@ -110,7 +110,7 @@ public class BytecodeReader
    }
 
    /**
-    * Reads an unsigned <tt>byte</tt> value in {@link #code}, incrementing {@link #codeIndex} by 1.
+    * Reads an unsigned <code>byte</code> value in {@link #code}, incrementing {@link #codeIndex} by 1.
     */
    @Nonnegative
    public final int readUnsignedByte() {
@@ -128,7 +128,7 @@ public class BytecodeReader
    }
 
    /**
-    * Reads a signed <tt>byte</tt> value in {@link #code}, incrementing {@link #codeIndex} by 1.
+    * Reads a signed <code>byte</code> value in {@link #code}, incrementing {@link #codeIndex} by 1.
     */
    public final int readSignedByte() {
       return code[codeIndex++];
@@ -169,7 +169,7 @@ public class BytecodeReader
    }
 
    /**
-    * Reads a signed <tt>short</tt> value in {@link #code}, incrementing {@link #codeIndex} by 2.
+    * Reads a signed <code>short</code> value in {@link #code}, incrementing {@link #codeIndex} by 2.
     */
    protected final short readShort() {
       //noinspection NumericCastThatLosesPrecision
@@ -187,7 +187,7 @@ public class BytecodeReader
    }
 
    /**
-    * Reads a signed <tt>int</tt> value in {@link #code}, incrementing {@link #codeIndex} by 4.
+    * Reads a signed <code>int</code> value in {@link #code}, incrementing {@link #codeIndex} by 4.
     */
    public final int readInt() {
       byte[] b = code;
@@ -301,7 +301,7 @@ public class BytecodeReader
    /**
     * Reads an UTF8 string constant pool item in {@link #code}, incrementing {@link #codeIndex} by 2.
     *
-    * @return the String corresponding to the UTF8 item, or <tt>null</tt> if {@link #codeIndex} points to an item whose value is zero
+    * @return the String corresponding to the UTF8 item, or <code>null</code> if {@link #codeIndex} points to an item whose value is zero
     */
    @Nullable
    protected final String readUTF8() {
@@ -318,7 +318,7 @@ public class BytecodeReader
     * Reads an UTF8 string constant pool item in {@link #code}.
     *
     * @param u2CodeIndex the index of an unsigned short value in {@link #code}, whose value is the index of an UTF8 constant pool item
-    * @return the String corresponding to the UTF8 item, or <tt>null</tt> if index is zero or points to an item whose value is zero
+    * @return the String corresponding to the UTF8 item, or <code>null</code> if index is zero or points to an item whose value is zero
     */
    @Nullable
    protected final String readUTF8(@Nonnegative int u2CodeIndex) {

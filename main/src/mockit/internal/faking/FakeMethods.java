@@ -164,8 +164,8 @@ final class FakeMethods
 
    /**
     * Finds a fake method with the same signature of a given real method, if previously collected from the fake class.
-    * Also handles "match-by-name-only" fake methods with only the <tt>Invocation</tt> parameter, and the <tt>$advice</tt> fake method.
-    * <p/>
+    * Also handles "match-by-name-only" fake methods with only the <code>Invocation</code> parameter, and the <code>$advice</code> fake method.
+    * <p>
     * This operation can be performed only once for any given fake method in this container, so that after the last real method is processed
     * there should be no fake methods left unused in the container.
     */

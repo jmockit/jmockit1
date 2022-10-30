@@ -12,12 +12,12 @@ import mockit.asm.util.*;
 final class LineNumberTableWriter extends AttributeWriter
 {
    /**
-    * Number of entries in the <tt>LineNumberTable</tt> attribute.
+    * Number of entries in the <code>LineNumberTable</code> attribute.
     */
    @Nonnegative private int lineNumberCount;
 
    /**
-    * The <tt>LineNumberTable</tt> attribute.
+    * The <code>LineNumberTable</code> attribute.
     */
    @Nullable private ByteVector lineNumbers;
 

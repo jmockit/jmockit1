@@ -114,7 +114,7 @@ public final class PrimitiveType extends JavaType
    }
 
    /**
-    * Maps a <tt>PrimitiveType</tt> to the corresponding {@link ArrayElementType}.
+    * Maps a <code>PrimitiveType</code> to the corresponding {@link ArrayElementType}.
     */
    public static int getArrayElementType(@Nonnull PrimitiveType elementType) {
       return ARRAY_ELEMENT_TYPES[elementType.index];

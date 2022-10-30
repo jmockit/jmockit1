@@ -40,8 +40,8 @@ public class FullVerifications extends Verifications
    /**
     * Same as {@link #FullVerifications()}, but restricting the verification to the specified mocked types and/or mocked instances.
     *
-    * @param mockedTypesAndInstancesToVerify one or more of the mocked types (ie, <tt>Class</tt> objects) and/or mocked instances that are
-    * in scope for the test; for a given mocked <em>instance</em>, all classes up to (but not including) <tt>java.lang.Object</tt> are
+    * @param mockedTypesAndInstancesToVerify one or more of the mocked types (ie, <code>Class</code> objects) and/or mocked instances that are
+    * in scope for the test; for a given mocked <em>instance</em>, all classes up to (but not including) <code>java.lang.Object</code> are
     * considered
     */
    protected FullVerifications(@Nonnull Object... mockedTypesAndInstancesToVerify) {

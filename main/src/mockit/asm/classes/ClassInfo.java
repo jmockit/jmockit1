@@ -16,13 +16,13 @@ public final class ClassInfo
 
    /**
     * The internal name of the super class. For interfaces, the super class is {@link Object}.
-    * Is <tt>null</tt> only for the {@link Object} class.
+    * Is <code>null</code> only for the {@link Object} class.
     */
    @Nullable public String superName;
 
    /**
     * The generic signature of the class.
-    * Is <tt>null</tt> when the class is not a generic one, and does not extend or implement generic classes or interfaces.
+    * Is <code>null</code> when the class is not a generic one, and does not extend or implement generic classes or interfaces.
     */
    @Nullable public String signature;
 

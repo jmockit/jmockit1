@@ -13,12 +13,12 @@ import mockit.asm.util.*;
 /**
  * A visitor to visit a Java method, in the following order:<br>
  * ({@link #visitAnnotation})* ({@link #visitParameterAnnotation})*
- * [(<tt>visit<i>X</i>Insn</tt> | {@link #visitLabel} | {@link #visitTryCatchBlock} | {@link #visitLocalVariable} |
+ * [(<code>visit<i>X</i>Insn</code> | {@link #visitLabel} | {@link #visitTryCatchBlock} | {@link #visitLocalVariable} |
  * {@link #visitLineNumber})* {@link #visitMaxStack}] {@link #visitEnd}.
- * <p/>
- * In addition, the <tt>visit<i>X</i>Insn</tt> and <tt>visitLabel</tt> methods are called in the sequential order of the bytecode
- * instructions of the visited code, <tt>visitTryCatchBlock</tt> is called <i>before</i> the labels passed as arguments have been visited,
- * and the <tt>visitLocalVariable</tt> and <tt>visitLineNumber</tt> methods are called <i>after</i> the labels passed as arguments have been
+ * <p>
+ * In addition, the <code>visit<i>X</i>Insn</code> and <code>visitLabel</code> methods are called in the sequential order of the bytecode
+ * instructions of the visited code, <code>visitTryCatchBlock</code> is called <i>before</i> the labels passed as arguments have been visited,
+ * and the <code>visitLocalVariable</code> and <code>visitLineNumber</code> methods are called <i>after</i> the labels passed as arguments have been
  * visited.
  */
 public class MethodVisitor extends BaseWriter
@@ -31,7 +31,7 @@ public class MethodVisitor extends BaseWriter
     *
     * @param parameter the parameter index
     * @param desc      the descriptor of the annotation type
-    * @return a visitor to visit the annotation values, or <tt>null</tt> if this visitor is not interested in visiting this annotation
+    * @return a visitor to visit the annotation values, or <code>null</code> if this visitor is not interested in visiting this annotation
     */
    @Nullable
    public AnnotationVisitor visitParameterAnnotation(@Nonnegative int parameter, @Nonnull String desc) { return null; }
@@ -50,7 +50,7 @@ public class MethodVisitor extends BaseWriter
    public void visitInsn(int opcode) {}
 
    /**
-    * Visits an instruction with a single <tt>int</tt> operand.
+    * Visits an instruction with a single <code>int</code> operand.
     *
     * @param opcode the {@linkplain Opcodes opcode} of the instruction to be visited: BIPUSH, SIPUSH, or NEWARRAY
     * @param operand the operand of the instruction to be visited:
@@ -130,7 +130,7 @@ public class MethodVisitor extends BaseWriter
     *
     * @param cst the constant to be loaded on the stack, which must be a non null
     * {@link Integer}/{@link Float}/{@link Long}/{@link Double}/{@link String}, an {@link ObjectType} or {@link ArrayType} for
-    * <tt>.class</tt> constants, a {@link MethodType}, or a {@link MethodHandle}
+    * <code>.class</code> constants, a {@link MethodType}, or a {@link MethodHandle}
     */
    public void visitLdcInsn(@Nonnull Object cst) {}
 
@@ -148,7 +148,7 @@ public class MethodVisitor extends BaseWriter
     * @param min    the minimum key value
     * @param max    the maximum key value
     * @param dflt   beginning of the default handler block
-    * @param labels beginnings of the handler blocks; <tt>labels[i]</tt> is the beginning of the handler block for the <tt>min + i</tt> key
+    * @param labels beginnings of the handler blocks; <code>labels[i]</code> is the beginning of the handler block for the <code>min + i</code> key
     */
    public void visitTableSwitchInsn(int min, int max, @Nonnull Label dflt, @Nonnull Label... labels) {}
 
@@ -157,7 +157,7 @@ public class MethodVisitor extends BaseWriter
     *
     * @param dflt   beginning of the default handler block
     * @param keys   the values of the keys
-    * @param labels beginnings of the handler blocks; <tt>labels[i]</tt> is the beginning of the handler block for the <tt>keys[i]</tt>
+    * @param labels beginnings of the handler blocks; <code>labels[i]</code> is the beginning of the handler block for the <code>keys[i]</code>
     */
    public void visitLookupSwitchInsn(@Nonnull Label dflt, @Nonnull int[] keys, @Nonnull Label[] labels) {}
 
@@ -170,12 +170,12 @@ public class MethodVisitor extends BaseWriter
    public void visitMultiANewArrayInsn(@Nonnull String desc, @Nonnegative int dims) {}
 
    /**
-    * Visits a <tt>try..catch</tt> block.
+    * Visits a <code>try..catch</code> block.
     *
     * @param start   beginning of the exception handler's scope (inclusive)
     * @param end     end of the exception handler's scope (exclusive)
     * @param handler beginning of the exception handler's code
-    * @param type    internal name of the type of exceptions handled by the handler, or <tt>null</tt> to catch any exceptions (for "finally"
+    * @param type    internal name of the type of exceptions handled by the handler, or <code>null</code> to catch any exceptions (for "finally"
     *                blocks)
     */
    public void visitTryCatchBlock(
@@ -186,7 +186,7 @@ public class MethodVisitor extends BaseWriter
     *
     * @param name      the name of the local variable
     * @param desc      the type descriptor of the local variable
-    * @param signature the type signature of the local variable; <tt>null</tt> when the local variable type does not use generic types
+    * @param signature the type signature of the local variable; <code>null</code> when the local variable type does not use generic types
     * @param start     the first instruction corresponding to the scope of this local variable (inclusive)
     * @param end       the last instruction corresponding to the scope of this local variable (exclusive)
     * @param index     the local variable's index

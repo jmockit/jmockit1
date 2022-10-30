@@ -23,24 +23,24 @@ class Invocations
    static { Startup.verifyInitialization(); }
 
    /**
-    * Matches any <tt>Object</tt> reference received by a parameter of a reference type.
-    * <p/>
+    * Matches any <code>Object</code> reference received by a parameter of a reference type.
+    * <p>
     * This field can only be used as the argument value at the proper parameter position in a method/constructor invocation, when recording
     * or verifying an expectation; it cannot be used anywhere else.
-    * <p/>
+    * <p>
     * When an argument matcher is used for a regular (ie, non-varargs) parameter in a call to a mocked method/constructor, it's <em>not</em>
     * necessary to also use matchers for the other parameters.
     * So, it's valid to mix the use of matchers with given values.
     * Any arguments given as literals, local variables, or fields will be implicitly matched as if {@link #withEqual(Object)} had been used.
     * In the special case of a varargs method, however, this flexibility is not available: if a matcher is used for any regular parameter,
     * or for any element in the varargs array, then a matcher <em>must</em> be used for every other parameter and varargs element.
-    * <p/>
+    * <p>
     * Notice the use of this field will usually require a cast to the specific parameter type.
-    * However, if there is any other parameter for which an argument matching constraint is specified, passing the <tt>null</tt> reference
+    * However, if there is any other parameter for which an argument matching constraint is specified, passing the <code>null</code> reference
     * instead will have the same effect.
-    * <p/>
-    * To match an entire <em>varargs</em> parameter of element type <tt>V</tt> (ie, all arguments in the array), cast it to the parameter
-    * type: "<tt>(V[]) any</tt>".
+    * <p>
+    * To match an entire <em>varargs</em> parameter of element type <code>V</code> (ie, all arguments in the array), cast it to the parameter
+    * type: "<code>(V[]) any</code>".
     *
     * @see #anyBoolean
     * @see #anyByte
@@ -56,11 +56,11 @@ class Invocations
    @Nullable protected final Object any = null;
 
    /**
-    * Matches any <tt>String</tt> value received by a parameter of this type.
-    * <p/>
+    * Matches any <code>String</code> value received by a parameter of this type.
+    * <p>
     * This field can only be used as the argument value at the proper parameter position in a method/constructor invocation, when recording
     * or verifying an expectation; it cannot be used anywhere else.
-    * <p/>
+    * <p>
     * When an argument matcher is used for a regular (ie, non-varargs) parameter in a call to a mocked method/constructor, it's <em>not</em>
     * necessary to also use matchers for the other parameters.
     * So, it's valid to mix the use of matchers with given values.
@@ -84,11 +84,11 @@ class Invocations
    @Nonnull protected final String anyString = new String();
 
    /**
-    * Matches any <tt>long</tt> or <tt>Long</tt> value received by a parameter of that type.
-    * <p/>
+    * Matches any <code>long</code> or <code>Long</code> value received by a parameter of that type.
+    * <p>
     * This field can only be used as the argument value at the proper parameter position in a method/constructor invocation, when recording
     * or verifying an expectation; it cannot be used anywhere else.
-    * <p/>
+    * <p>
     * When an argument matcher is used for a regular (ie, non-varargs) parameter in a call to a mocked method/constructor, it's <em>not</em>
     * necessary to also use matchers for the other parameters.
     * So, it's valid to mix the use of matchers with given values.
@@ -110,11 +110,11 @@ class Invocations
    @Nonnull protected final Long anyLong = 0L;
 
    /**
-    * Matches any <tt>int</tt> or <tt>Integer</tt> value received by a parameter of that type.
-    * <p/>
+    * Matches any <code>int</code> or <code>Integer</code> value received by a parameter of that type.
+    * <p>
     * This field can only be used as the argument value at the proper parameter position in a method/constructor invocation, when recording
     * or verifying an expectation; it cannot be used anywhere else.
-    * <p/>
+    * <p>
     * When an argument matcher is used for a regular (ie, non-varargs) parameter in a call to a mocked method/constructor, it's <em>not</em>
     * necessary to also use matchers for the other parameters.
     * So, it's valid to mix the use of matchers with given values.
@@ -136,11 +136,11 @@ class Invocations
    @Nonnull protected final Integer anyInt = 0;
 
    /**
-    * Matches any <tt>short</tt> or <tt>Short</tt> value received by a parameter of that type.
-    * <p/>
+    * Matches any <code>short</code> or <code>Short</code> value received by a parameter of that type.
+    * <p>
     * This field can only be used as the argument value at the proper parameter position in a method/constructor invocation, when recording
     * or verifying an expectation; it cannot be used anywhere else.
-    * <p/>
+    * <p>
     * When an argument matcher is used for a regular (ie, non-varargs) parameter in a call to a mocked method/constructor, it's <em>not</em>
     * necessary to also use matchers for the other parameters.
     * So, it's valid to mix the use of matchers with given values.
@@ -162,11 +162,11 @@ class Invocations
    @Nonnull protected final Short anyShort = 0;
 
    /**
-    * Matches any <tt>byte</tt> or <tt>Byte</tt> value received by a parameter of that type.
-    * <p/>
+    * Matches any <code>byte</code> or <code>Byte</code> value received by a parameter of that type.
+    * <p>
     * This field can only be used as the argument value at the proper parameter position in a method/constructor invocation, when recording
     * or verifying an expectation; it cannot be used anywhere else.
-    * <p/>
+    * <p>
     * When an argument matcher is used for a regular (ie, non-varargs) parameter in a call to a mocked method/constructor, it's <em>not</em>
     * necessary to also use matchers for the other parameters.
     * So, it's valid to mix the use of matchers with given values.
@@ -188,11 +188,11 @@ class Invocations
    @Nonnull protected final Byte anyByte = 0;
 
    /**
-    * Matches any <tt>boolean</tt> or <tt>Boolean</tt> value received by a parameter of that type.
-    * <p/>
+    * Matches any <code>boolean</code> or <code>Boolean</code> value received by a parameter of that type.
+    * <p>
     * This field can only be used as the argument value at the proper parameter position in a method/constructor invocation, when recording
     * or verifying an expectation; it cannot be used anywhere else.
-    * <p/>
+    * <p>
     * When an argument matcher is used for a regular (ie, non-varargs) parameter in a call to a mocked method/constructor, it's <em>not</em>
     * necessary to also use matchers for the other parameters.
     * So, it's valid to mix the use of matchers with given values.
@@ -214,11 +214,11 @@ class Invocations
    @Nonnull protected final Boolean anyBoolean = false;
 
    /**
-    * Matches any <tt>char</tt> or <tt>Character</tt> value received by a parameter of that type.
-    * <p/>
+    * Matches any <code>char</code> or <code>Character</code> value received by a parameter of that type.
+    * <p>
     * This field can only be used as the argument value at the proper parameter position in a method/constructor invocation, when recording
     * or verifying an expectation; it cannot be used anywhere else.
-    * <p/>
+    * <p>
     * When an argument matcher is used for a regular (ie, non-varargs) parameter in a call to a mocked method/constructor, it's <em>not</em>
     * necessary to also use matchers for the other parameters.
     * So, it's valid to mix the use of matchers with given values.
@@ -240,11 +240,11 @@ class Invocations
    @Nonnull protected final Character anyChar = '\0';
 
    /**
-    * Matches any <tt>double</tt> or <tt>Double</tt> value received by a parameter of that type.
-    * <p/>
+    * Matches any <code>double</code> or <code>Double</code> value received by a parameter of that type.
+    * <p>
     * This field can only be used as the argument value at the proper parameter position in a method/constructor invocation, when recording
     * or verifying an expectation; it cannot be used anywhere else.
-    * <p/>
+    * <p>
     * When an argument matcher is used for a regular (ie, non-varargs) parameter in a call to a mocked method/constructor, it's <em>not</em>
     * necessary to also use matchers for the other parameters.
     * So, it's valid to mix the use of matchers with given values.
@@ -266,11 +266,11 @@ class Invocations
    @Nonnull protected final Double anyDouble = 0.0;
 
    /**
-    * Matches any <tt>float</tt> or <tt>Float</tt> value received by a parameter of that type.
-    * <p/>
+    * Matches any <code>float</code> or <code>Float</code> value received by a parameter of that type.
+    * <p>
     * This field can only be used as the argument value at the proper parameter position in a method/constructor invocation, when recording
     * or verifying an expectation; it cannot be used anywhere else.
-    * <p/>
+    * <p>
     * When an argument matcher is used for a regular (ie, non-varargs) parameter in a call to a mocked method/constructor, it's <em>not</em>
     * necessary to also use matchers for the other parameters.
     * So, it's valid to mix the use of matchers with given values.
@@ -305,11 +305,11 @@ class Invocations
     * A positive value assigned to this field will be taken as the minimum number of times that invocations matching the current expectation
     * should occur during replay.
     * <em>Zero</em> or a <em>negative</em> value means there is no lower limit.
-    * <p/>
-    * If not specified, the default value of <tt>1</tt> (one) is used.
-    * <p/>
+    * <p>
+    * If not specified, the default value of <code>1</code> (one) is used.
+    * <p>
     * The <em>maximum</em> number of times is automatically adjusted to allow any number of invocations.
-    * Both <tt>minTimes</tt> and <tt>maxTimes</tt> can be specified for the same expectation, provided <tt>minTimes</tt> is assigned first.
+    * Both <code>minTimes</code> and <code>maxTimes</code> can be specified for the same expectation, provided <code>minTimes</code> is assigned first.
     *
     * @see #times
     * @see #maxTimes
@@ -321,8 +321,8 @@ class Invocations
     * A non-negative value assigned to this field will be taken as the maximum number of times that invocations matching the current
     * expectation should occur during replay.
     * A <em>negative</em> value implies there is no upper limit (the default).
-    * <p/>
-    * Both <tt>minTimes</tt> and <tt>maxTimes</tt> can be specified for the same expectation, provided <tt>minTimes</tt> is assigned first.
+    * <p>
+    * Both <code>minTimes</code> and <code>maxTimes</code> can be specified for the same expectation, provided <code>minTimes</code> is assigned first.
     *
     * @see #times
     * @see #minTimes
@@ -334,17 +334,17 @@ class Invocations
 
    /**
     * Applies a custom argument matcher for a parameter in the current expectation.
-    * <p/>
+    * <p>
     * The class of the given delegate object should define a single non-<code>private</code> <em>delegate</em> method (plus any number of
-    * helper <tt>private</tt> methods).
+    * helper <code>private</code> methods).
     * The name of the delegate method doesn't matter, but it must have a single parameter capable of receiving the relevant argument values.
-    * <p/>
-    * The return type of the delegate method should be <tt>boolean</tt> or <tt>void</tt>.
-    * In the first case, a return value of <tt>true</tt> will indicate a successful match for the actual invocation argument at replay time,
-    * while a return of <tt>false</tt> will fail to match the invocation.
-    * In the case of a <tt>void</tt> return type, the actual invocation argument should be validated through a suitable JUnit/TestNG
+    * <p>
+    * The return type of the delegate method should be <code>boolean</code> or <code>void</code>.
+    * In the first case, a return value of <code>true</code> will indicate a successful match for the actual invocation argument at replay time,
+    * while a return of <code>false</code> will fail to match the invocation.
+    * In the case of a <code>void</code> return type, the actual invocation argument should be validated through a suitable JUnit/TestNG
     * assertion.
-    * <p/>
+    * <p>
     * When an argument matcher is used for a regular (ie, non-varargs) parameter in a call to a mocked method/constructor, it's <em>not</em>
     * necessary to also use matchers for the other parameters.
     * So, it's valid to mix the use of matchers with given values.
@@ -354,7 +354,7 @@ class Invocations
     *
     * @param objectWithDelegateMethod an instance of a class defining a single non-<code>private</code> delegate method
     *
-    * @return the default primitive value corresponding to <tt>T</tt> if it's a primitive wrapper type, or <tt>null</tt> otherwise
+    * @return the default primitive value corresponding to <code>T</code> if it's a primitive wrapper type, or <code>null</code> otherwise
     *
     * @see <a href="http://jmockit.github.io/tutorial/Mocking.html#withMethods" target="tutorial">Tutorial</a>
     */
@@ -385,12 +385,12 @@ class Invocations
    }
 
    /**
-    * Same as {@link #withEqual(Object)}, but matching any argument value of the appropriate type (<tt>null</tt> included).
-    * <p/>
+    * Same as {@link #withEqual(Object)}, but matching any argument value of the appropriate type (<code>null</code> included).
+    * <p>
     * Consider using instead the "anyXyz" field appropriate to the parameter type:
     * {@link #anyBoolean}, {@link #anyByte}, {@link #anyChar}, {@link #anyDouble}, {@link #anyFloat}, {@link #anyInt}, {@link #anyLong},
     * {@link #anyShort}, {@link #anyString}, or {@link #any} for other reference types.
-    * <p/>
+    * <p>
     * When an argument matcher is used for a regular (ie, non-varargs) parameter in a call to a mocked method/constructor, it's <em>not</em>
     * necessary to also use matchers for the other parameters.
     * So, it's valid to mix the use of matchers with given values.
@@ -427,7 +427,7 @@ class Invocations
     * the tested code is exercised.
     * As each such value is captured, it gets added to the given list so that it can be inspected later.
     * Apart from capturing received argument values, this method has the same effect as the {@link #any} argument matcher.
-    * <p/>
+    * <p>
     * When an argument matcher is used for a regular (ie, non-varargs) parameter in a call to a mocked method/constructor, it's <em>not</em>
     * necessary to also use matchers for the other parameters.
     * So, it's valid to mix the use of matchers with given values.
@@ -437,7 +437,7 @@ class Invocations
     *
     * @param valueHolderForMultipleInvocations list into which the arguments received by matching invocations will be added
     *
-    * @return the default value for type <tt>T</tt>
+    * @return the default value for type <code>T</code>
     *
     * @see Verifications#withCapture()
     * @see Verifications#withCapture(Object)
@@ -452,17 +452,17 @@ class Invocations
    /**
     * When passed as argument for an expectation, creates a new matcher that will check if the given value is
     * {@link Object#equals(Object) equal} to the corresponding argument received by a matching invocation.
-    * <p/>
+    * <p>
     * The matcher is added to the end of the list of argument matchers for the invocation being recorded/verified.
     * It cannot be reused for a different parameter.
-    * <p/>
+    * <p>
     * When an argument matcher is used for a regular (ie, non-varargs) parameter in a call to a mocked method/constructor, it's <em>not</em>
     * necessary to also use matchers for the other parameters.
     * So, it's valid to mix the use of matchers with given values.
-    * Any arguments given as literals, local variables, or fields will be implicitly matched as if <tt>withEqual(value)</tt> had been used.
+    * Any arguments given as literals, local variables, or fields will be implicitly matched as if <code>withEqual(value)</code> had been used.
     * In the special case of a varargs method, however, this flexibility is not available: if a matcher is used for any regular parameter,
     * or for any element in the varargs array, then a matcher <em>must</em> be used for every other parameter and varargs element.
-    * <p/>
+    * <p>
     * Usually, this particular method should <em>not</em> be used.
     * Instead, simply pass the desired argument value directly, without any matcher.
     * Only when specifying values for a <em>varargs</em> method it's useful, and even then only when some other argument matcher is also
@@ -484,7 +484,7 @@ class Invocations
    /**
     * Same as {@link #withEqual(Object)}, but checking that a numeric invocation argument in the replay phase is sufficiently close to the
     * given value.
-    * <p/>
+    * <p>
     * When an argument matcher is used for a regular (ie, non-varargs) parameter in a call to a mocked method/constructor, it's <em>not</em>
     * necessary to also use matchers for the other parameters.
     * So, it's valid to mix the use of matchers with given values.
@@ -495,7 +495,7 @@ class Invocations
     * @param value the center value for range comparison
     * @param delta the tolerance around the center value, for a range of [value - delta, value + delta]
     *
-    * @return the given <tt>value</tt>
+    * @return the given <code>value</code>
     *
     * @see <a href="http://jmockit.github.io/tutorial/Mocking.html#withMethods" target="tutorial">Tutorial</a>
     */
@@ -507,7 +507,7 @@ class Invocations
    /**
     * Same as {@link #withEqual(Object)}, but checking that a numeric invocation argument in the replay phase is sufficiently close to the
     * given value.
-    * <p/>
+    * <p>
     * When an argument matcher is used for a regular (ie, non-varargs) parameter in a call to a mocked method/constructor, it's <em>not</em>
     * necessary to also use matchers for the other parameters.
     * So, it's valid to mix the use of matchers with given values.
@@ -518,7 +518,7 @@ class Invocations
     * @param value the center value for range comparison
     * @param delta the tolerance around the center value, for a range of [value - delta, value + delta]
     *
-    * @return the given <tt>value</tt>
+    * @return the given <code>value</code>
     *
     * @see <a href="http://jmockit.github.io/tutorial/Mocking.html#withMethods" target="tutorial">Tutorial</a>
     */
@@ -530,9 +530,9 @@ class Invocations
    /**
     * Same as {@link #withEqual(Object)}, but checking that an invocation argument in the replay phase is an instance of the same class as
     * the given object.
-    * <p/>
-    * Equivalent to a <code>withInstanceOf(object.getClass())</code> call, except that it returns <tt>object</tt> instead of <tt>null</tt>.
-    * <p/>
+    * <p>
+    * Equivalent to a <code>withInstanceOf(object.getClass())</code> call, except that it returns <code>object</code> instead of <code>null</code>.
+    * <p>
     * When an argument matcher is used for a regular (ie, non-varargs) parameter in a call to a mocked method/constructor, it's <em>not</em>
     * necessary to also use matchers for the other parameters.
     * So, it's valid to mix the use of matchers with given values.
@@ -554,7 +554,7 @@ class Invocations
 
    /**
     * Same as {@link #withEqual(Object)}, but checking that an invocation argument in the replay phase is an instance of the given class.
-    * <p/>
+    * <p>
     * When an argument matcher is used for a regular (ie, non-varargs) parameter in a call to a mocked method/constructor, it's <em>not</em>
     * necessary to also use matchers for the other parameters.
     * So, it's valid to mix the use of matchers with given values.
@@ -564,7 +564,7 @@ class Invocations
     *
     * @param argClass the desired class
     *
-    * @return always <tt>null</tt>; if you need a specific return value, use {@link #withInstanceLike(Object)}
+    * @return always <code>null</code>; if you need a specific return value, use {@link #withInstanceLike(Object)}
     *
     * @see <a href="http://jmockit.github.io/tutorial/Mocking.html#withMethods" target="tutorial">Tutorial</a>
     */
@@ -576,7 +576,7 @@ class Invocations
 
    /**
     * Same as {@link #withEqual(Object)}, but checking that the invocation argument in the replay phase is different from the given value.
-    * <p/>
+    * <p>
     * When an argument matcher is used for a regular (ie, non-varargs) parameter in a call to a mocked method/constructor, it's <em>not</em>
     * necessary to also use matchers for the other parameters.
     * So, it's valid to mix the use of matchers with given values.
@@ -597,8 +597,8 @@ class Invocations
    }
 
    /**
-    * Same as {@link #withEqual(Object)}, but checking that an invocation argument in the replay phase is <tt>null</tt>.
-    * <p/>
+    * Same as {@link #withEqual(Object)}, but checking that an invocation argument in the replay phase is <code>null</code>.
+    * <p>
     * When an argument matcher is used for a regular (ie, non-varargs) parameter in a call to a mocked method/constructor, it's <em>not</em>
     * necessary to also use matchers for the other parameters.
     * So, it's valid to mix the use of matchers with given values.
@@ -606,7 +606,7 @@ class Invocations
     * In the special case of a varargs method, however, this flexibility is not available: if a matcher is used for any regular parameter,
     * or for any element in the varargs array, then a matcher <em>must</em> be used for every other parameter and varargs element.
     *
-    * @return always <tt>null</tt>
+    * @return always <code>null</code>
     *
     * @see <a href="http://jmockit.github.io/tutorial/Mocking.html#withMethods" target="tutorial">Tutorial</a>
     */
@@ -617,8 +617,8 @@ class Invocations
    }
 
    /**
-    * Same as {@link #withEqual(Object)}, but checking that an invocation argument in the replay phase is not <tt>null</tt>.
-    * <p/>
+    * Same as {@link #withEqual(Object)}, but checking that an invocation argument in the replay phase is not <code>null</code>.
+    * <p>
     * When an argument matcher is used for a regular (ie, non-varargs) parameter in a call to a mocked method/constructor, it's <em>not</em>
     * necessary to also use matchers for the other parameters.
     * So, it's valid to mix the use of matchers with given values.
@@ -626,7 +626,7 @@ class Invocations
     * In the special case of a varargs method, however, this flexibility is not available: if a matcher is used for any regular parameter,
     * or for any element in the varargs array, then a matcher <em>must</em> be used for every other parameter and varargs element.
     *
-    * @return always <tt>null</tt>
+    * @return always <code>null</code>
     *
     * @see <a href="http://jmockit.github.io/tutorial/Mocking.html#withMethods" target="tutorial">Tutorial</a>
     */
@@ -639,7 +639,7 @@ class Invocations
    /**
     * Same as {@link #withEqual(Object)}, but checking that an invocation argument in the replay phase is the exact same instance as the one
     * in the recorded/verified invocation.
-    * <p/>
+    * <p>
     * When an argument matcher is used for a regular (ie, non-varargs) parameter in a call to a mocked method/constructor, it's <em>not</em>
     * necessary to also use matchers for the other parameters.
     * So, it's valid to mix the use of matchers with given values.
@@ -662,7 +662,7 @@ class Invocations
    /**
     * Same as {@link #withEqual(Object)}, but checking that a textual invocation argument in the replay phase contains the given text as a
     * substring.
-    * <p/>
+    * <p>
     * When an argument matcher is used for a regular (ie, non-varargs) parameter in a call to a mocked method/constructor, it's <em>not</em>
     * necessary to also use matchers for the other parameters.
     * So, it's valid to mix the use of matchers with given values.
@@ -684,7 +684,7 @@ class Invocations
 
    /**
     * Same as {@link #withEqual(Object)}, but checking that a textual invocation argument in the replay phase starts with the given text.
-    * <p/>
+    * <p>
     * When an argument matcher is used for a regular (ie, non-varargs) parameter in a call to a mocked method/constructor, it's <em>not</em>
     * necessary to also use matchers for the other parameters.
     * So, it's valid to mix the use of matchers with given values.
@@ -706,7 +706,7 @@ class Invocations
 
    /**
     * Same as {@link #withEqual(Object)}, but checking that a textual invocation argument in the replay phase ends with the given text.
-    * <p/>
+    * <p>
     * When an argument matcher is used for a regular (ie, non-varargs) parameter in a call to a mocked method/constructor, it's <em>not</em>
     * necessary to also use matchers for the other parameters.
     * So, it's valid to mix the use of matchers with given values.
@@ -729,9 +729,9 @@ class Invocations
    /**
     * Same as {@link #withEqual(Object)}, but checking that a textual invocation argument in the replay phase matches the given
     * {@link Pattern regular expression}.
-    * <p/>
-    * Note that this can be used for any string comparison, including case insensitive ones (with <tt>"(?i)"</tt> in the regex).
-    * <p/>
+    * <p>
+    * Note that this can be used for any string comparison, including case insensitive ones (with <code>"(?i)"</code> in the regex).
+    * <p>
     * When an argument matcher is used for a regular (ie, non-varargs) parameter in a call to a mocked method/constructor, it's <em>not</em>
     * necessary to also use matchers for the other parameters.
     * So, it's valid to mix the use of matchers with given values.

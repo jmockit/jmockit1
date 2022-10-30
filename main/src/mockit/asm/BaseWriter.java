@@ -45,7 +45,7 @@ public class BaseWriter
     * Visits an annotation of the class/field/method being visited.
     *
     * @param desc the descriptor of the annotation type
-    * @return a visitor to visit the annotation values, or <tt>null</tt> if this visitor is not interested in visiting the annotation
+    * @return a visitor to visit the annotation values, or <code>null</code> if this visitor is not interested in visiting the annotation
     */
    @Nullable
    public AnnotationVisitor visitAnnotation(@Nonnull String desc) {

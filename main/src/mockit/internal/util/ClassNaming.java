@@ -13,8 +13,8 @@ public final class ClassNaming
    /**
     * This method was created to work around an issue in the standard {@link Class#isAnonymousClass()} method, which
     * causes a sibling nested class to be loaded when called on a nested class. If that sibling nested class is not in
-    * the classpath, a <tt>ClassNotFoundException</tt> would result.
-    * <p/>
+    * the classpath, a <code>ClassNotFoundException</code> would result.
+    * <p>
     * This method checks only the given class name, never causing any other classes to be loaded.
     */
    public static boolean isAnonymousClass(@Nonnull Class<?> aClass) {

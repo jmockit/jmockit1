@@ -11,7 +11,7 @@
  *       Expected invocations specified through the Mocking API are automatically verified before the execution of a test is completed.
  *    </li>
  *    <li>
- *       Fake classes applied with the Faking API from inside a method annotated as a <tt>@Test</tt> or a <tt>@BeforeMethod</tt> will be
+ *       Fake classes applied with the Faking API from inside a method annotated as a <code>@Test</code> or a <code>@BeforeMethod</code> will be
  *       discarded right after the execution of the test method or the whole test, respectively.
  *    </li>
  * </ol>

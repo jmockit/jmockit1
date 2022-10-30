@@ -104,9 +104,9 @@ public final class Label
 
    /**
     * Start of the output stack relatively to the input stack. The exact semantics of this field depends on the algorithm that is used.
-    * <p/>
+    * <p>
     * When only the maximum stack size is computed, this field is the number of elements in the input stack.
-    * <p/>
+    * <p>
     * When the stack map frames are completely computed, this field is the offset of the first output stack element relatively to the top of
     * the input stack. This offset is always negative or null. A null offset means that the output stack must be appended to the input
     * stack. A -n offset means that the first n output stack elements must replace the top n input stack elements, and that the other
@@ -171,7 +171,7 @@ public final class Label
     *
     * @param out the bytecode of the method
     * @param source the position of first byte of the bytecode instruction that contains this label
-    * @param wideOffset <tt>true</tt> if the reference must be stored in 4 bytes, or <tt>false</tt> if it must be stored with 2 bytes
+    * @param wideOffset <code>true</code> if the reference must be stored in 4 bytes, or <code>false</code> if it must be stored with 2 bytes
     * @throws IllegalArgumentException if this label has not been created by the given code writer
     */
    public void put(@Nonnull ByteVector out, @Nonnegative int source, boolean wideOffset) {

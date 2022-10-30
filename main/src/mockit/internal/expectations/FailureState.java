@@ -13,7 +13,7 @@ final class FailureState
 
    /**
     * Holds an error associated to an ExpectedInvocation that is to be reported to the user.
-    * <p/>
+    * <p>
     * This field is also set if and when an unexpected invocation is detected, so that any future
     * invocations in this same phase execution can rethrow the original error instead of throwing a
     * new one, which would hide the original.

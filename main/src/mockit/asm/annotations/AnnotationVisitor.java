@@ -9,7 +9,7 @@ import mockit.asm.util.*;
 
 /**
  * A visitor to visit a Java annotation, in the following order:
- * (<tt>visit</tt> | <tt>visitEnum</tt> | <tt>visitAnnotation</tt> | <tt>visitArray</tt>)* <tt>visitEnd</tt>.
+ * (<code>visit</code> | <code>visitEnum</code> | <code>visitAnnotation</code> | <code>visitArray</code>)* <code>visitEnd</code>.
  */
 public final class AnnotationVisitor
 {
@@ -24,7 +24,7 @@ public final class AnnotationVisitor
    @Nonnegative private int attributeCount;
 
    /**
-    * <tt>true<tt> if values are named, <tt>false</tt> otherwise.
+    * <code>true<code> if values are named, <code>false</code> otherwise.
     * Annotation writers used for annotation default and annotation arrays use unnamed values.
     */
    private final boolean named;

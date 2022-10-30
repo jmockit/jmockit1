@@ -11,7 +11,7 @@ import static java.lang.annotation.RetentionPolicy.*;
 /**
  * Indicates a mock field or a mock parameter for which all classes extending/implementing the {@linkplain Mocked mocked} type will
  * <em>also</em> get mocked.
- * <p/>
+ * <p>
  * <em>Future</em> instances of a capturing mocked type (ie, instances created sometime later during the test) will become associated with
  * the mock field/parameter.
  * When recording or verifying expectations on the mock field/parameter, these associated instances are regarded as equivalent to the

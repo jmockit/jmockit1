@@ -14,7 +14,7 @@ import static mockit.internal.startup.ClassLoadingBridgeFields.createSyntheticFi
 
 /**
  * This is the "agent class" that initializes the JMockit "Java agent", provided the JVM is initialized with
- * <tt>-javaagent:&lt;properPathTo>/jmockit-1-x.jar</tt>.
+ * <code>-javaagent:&lt;properPathTo>/jmockit-1-x.jar</code>.
  *
  * @see #premain(String, Instrumentation)
  */

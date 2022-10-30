@@ -62,7 +62,7 @@ public class BaseClassModifier extends WrappingClassVisitor
 
    /**
     * Just creates a new MethodWriter which will write out the method bytecode when visited.
-    * <p/>
+    * <p>
     * Removes any "abstract" or "native" modifiers for the modified version.
     */
    protected final void startModifiedMethodVersion(

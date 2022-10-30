@@ -20,7 +20,7 @@ import static mockit.internal.reflection.ConstructorReflection.*;
 import static mockit.internal.util.Utilities.*;
 
 /**
- * Responsible for recursive injection of dependencies into a <tt>@Tested(fullyInitialized = true)</tt> object.
+ * Responsible for recursive injection of dependencies into a <code>@Tested(fullyInitialized = true)</code> object.
  */
 public final class FullInjection
 {

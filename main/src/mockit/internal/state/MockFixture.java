@@ -26,8 +26,8 @@ import static mockit.internal.util.Utilities.*;
 public final class MockFixture
 {
    /**
-    * Similar to {@link #redefinedClasses}, but for classes modified by a <tt>ClassFileTransformer</tt> such as the
-    * <tt>CaptureTransformer</tt>, and containing the pre-transform bytecode instead of the modified one.
+    * Similar to {@link #redefinedClasses}, but for classes modified by a <code>ClassFileTransformer</code> such as the
+    * <code>CaptureTransformer</code>, and containing the pre-transform bytecode instead of the modified one.
     *
     * @see #addTransformedClass(ClassIdentification, byte[])
     * @see #getTransformedClasses()
@@ -37,9 +37,9 @@ public final class MockFixture
 
    /**
     * Real classes currently redefined in the running JVM and their current (modified) bytecodes.
-    * <p/>
+    * <p>
     * The keys in the map allow each redefined real class to be later restored to a previous definition.
-    * <p/>
+    * <p>
     * The modified bytecode arrays in the map allow a new redefinition to be made on top of the current redefinition
     * (in the case of the Faking API), or to restore the class to a previous definition (provided the map is copied
     * between redefinitions of the same class).
@@ -54,7 +54,7 @@ public final class MockFixture
 
    /**
     * Maps redefined real classes to the internal name of the corresponding fake classes, when it's the case.
-    * <p/>
+    * <p>
     * This allows any global state associated to a fake class to be discarded when the corresponding real class is later
     * restored to its original definition.
     *

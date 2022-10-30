@@ -47,7 +47,7 @@ public class TypeOrMemberItem extends Item
 
    /**
     * Recovers the stack size variation from this constant pool item, computing and storing it if needed.
-    * The {@link #argSize} field stores the sizes of the arguments and of the return value corresponding to <tt>desc</tt>.
+    * The {@link #argSize} field stores the sizes of the arguments and of the return value corresponding to <code>desc</code>.
     */
    @Nonnegative
    public final int getArgSizeComputingIfNeeded(@Nonnull String methodDesc) {

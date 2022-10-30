@@ -9,7 +9,7 @@ import static mockit.asm.jvmConstants.Opcodes.*;
 
 /**
  * The control flow graph analysis algorithm, used to compute the maximum stack size for a method or constructor.
- * <p/>
+ * <p>
  * A control flow graph contains one node per "basic block", and one edge per "jump" from one basic block to another.
  * Each node (i.e., each basic block) is represented by the Label object that corresponds to the first instruction of this basic block.
  * Each node also stores the list of its successors in the graph, as a linked list of Edge objects.
@@ -45,14 +45,14 @@ public final class CFGAnalysis
    /**
     * The (relative) stack size after the last visited instruction. This size is relative to the beginning of the current basic block, i.e.,
     * the true stack size after the last visited instruction is equal to the {@link Label#inputStackTop beginStackSize} of the current basic
-    * block plus <tt>stackSize</tt>.
+    * block plus <code>stackSize</code>.
     */
    @Nonnegative private int stackSize;
 
    /**
     * The (relative) maximum stack size after the last visited instruction. This size is relative to the beginning of the current basic
     * block, i.e., the true maximum stack size after the last visited instruction is equal to the {@link Label#inputStackTop beginStackSize}
-    * of the current basic block plus <tt>stackSize</tt>.
+    * of the current basic block plus <code>stackSize</code>.
     */
    @Nonnegative private int maxStackSize;
 

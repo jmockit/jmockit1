@@ -60,10 +60,10 @@ public final class CoverageData implements Serializable
    /**
     * Computes the coverage percentage over a subset of the available source files.
     *
-    * @param fileNamePrefix a regular expression for matching the names of the source files to be considered, or <tt>null</tt> to consider
+    * @param fileNamePrefix a regular expression for matching the names of the source files to be considered, or <code>null</code> to consider
     *                       <em>all</em> files
     *
-    * @return the computed percentage from <tt>0</tt> to <tt>100</tt> (inclusive), or <tt>-1</tt> if no meaningful value could be computed
+    * @return the computed percentage from <code>0</code> to <code>100</code> (inclusive), or <code>-1</code> if no meaningful value could be computed
     */
    public int getPercentage(@Nullable String fileNamePrefix) {
       int coveredItems = 0;
@@ -85,7 +85,7 @@ public final class CoverageData implements Serializable
    /**
     * Finds the source file with the smallest coverage percentage.
     *
-    * @return the percentage value for the file found, or <tt>Integer.MAX_VALUE</tt> if no file is found with a meaningful percentage
+    * @return the percentage value for the file found, or <code>Integer.MAX_VALUE</code> if no file is found with a meaningful percentage
     */
    @Nonnegative
    public int getSmallestPerFilePercentage() {
@@ -184,10 +184,10 @@ public final class CoverageData implements Serializable
    }
 
    /**
-    * Reads a serialized <tt>CoverageData</tt> object from the given file (normally, a "<tt>coverage.ser</tt>" file generated at the end of
+    * Reads a serialized <code>CoverageData</code> object from the given file (normally, a "<code>coverage.ser</code>" file generated at the end of
     * a previous test run).
     *
-    * @param dataFile the ".ser" file containing a serialized <tt>CoverageData</tt> instance
+    * @param dataFile the ".ser" file containing a serialized <code>CoverageData</code> instance
     *
     * @return a new object containing all coverage data resulting from a previous test run
     */

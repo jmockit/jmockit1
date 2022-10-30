@@ -10,34 +10,34 @@ import static mockit.asm.jvmConstants.Opcodes.*;
 
 /**
  * Information about the input and output stack map frames of a basic block.
- * <p/>
+ * <p>
  * Frames are computed in a two steps process: during the visit of each instruction, the state of the frame at the end of current basic
  * block is updated by simulating the action of the instruction on the previous state of this so called "output frame".
  * In visitMaxStack, a fix point algorithm is used to compute the "input frame" of each basic block, i.e. the stack map frame at the
  * beginning of the basic block, starting from the input frame of the first basic block (which is computed from the method descriptor), and
  * by using the previously computed output frames to compute the input state of the other blocks.
- * <p/>
+ * <p>
  * All output and input frames are stored as arrays of integers. Reference and array types are represented by an index into a type table
  * (which is not the same as the constant pool of the class, in order to avoid adding unnecessary constants in the pool - not all computed
  * frames will end up being stored in the stack map table). This allows very fast type comparisons.
- * <p/>
+ * <p>
  * Output stack map frames are computed relatively to the input frame of the basic block, which is not yet known when output frames are
  * computed. It is therefore necessary to be able to represent abstract types such as "the type at position x in the input frame locals" or
  * "the type at position x from the top of the input frame stack" or even "the type at position x in the input frame, with y more (or less)
  * array dimensions". This explains the rather complicated type format used in output frames.
- * <p/>
+ * <p>
  * This format is the following: DIM KIND VALUE (4, 4 and 24 bits). DIM is a signed number of array dimensions (from -8 to 7).
  * KIND is either BASE, LOCAL or STACK. BASE is used for types that are not relative to the input frame. LOCAL is used for types that are
  * relative to the input local variable types. STACK is used for types that are relative to the input stack types. VALUE depends on KIND.
  * For LOCAL types, it is an index in the input local variable types. For STACK types, it is a position relatively to the top of input frame
  * stack. For BASE types, it is either one of the constants defined below, or for OBJECT and UNINITIALIZED types, a tag and an index in the
  * type table.
- * <p/>
+ * <p>
  * Output frames can contain types of any kind and with a positive or negative dimension (and even unassigned types, represented by 0 -
  * which does not correspond to any valid type value). Input frames can only contain BASE types of positive or null dimension.
  * In all cases the type table contains only internal type names (array type descriptors are forbidden - dimensions must be represented
  * through the DIM field).
- * <p/>
+ * <p>
  * The LONG and DOUBLE types are always represented by using two slots (LONG + TOP or DOUBLE + TOP), for local variable types as well as in
  * the operand stack. This is necessary to be able to simulate DUPx_y instructions, whose effect would be dependent on the actual type
  * values if types were always represented by a single slot in the stack (and this is not possible, since actual type values are not always
@@ -76,10 +76,10 @@ public final class Frame
 
    /**
     * Relative size of the output stack. The exact semantics of this field depends on the algorithm that is used.
-    * <p/>
+    * <p>
     * When only the maximum stack size is computed, this field is the size of the output stack relatively to the top of
     * the input stack.
-    * <p/>
+    * <p>
     * When the stack map frames are completely computed, this field is the actual number of types in
     * {@link #outputStack}.
     */
@@ -381,7 +381,7 @@ public final class Frame
    /**
     * Replaces the given type with the appropriate type if it is one of the types on which a constructor is invoked in the basic block.
     *
-    * @return the given type or, if <tt>type</tt> is one of the types on which a constructor is invoked in the basic block, the type
+    * @return the given type or, if <code>type</code> is one of the types on which a constructor is invoked in the basic block, the type
     * corresponding to this constructor
     */
    @Nonnegative
@@ -943,7 +943,7 @@ public final class Frame
     * @param frame the basic block whose input frame must be updated
     * @param edge  the kind of the {@link Edge} between this label and 'label'; see {@link Edge#info}
     *
-    * @return <tt>true</tt> if the input frame of the given label has been changed by this operation
+    * @return <code>true</code> if the input frame of the given label has been changed by this operation
     */
    boolean merge(@Nonnull String classDesc, @Nonnull Frame frame, @Nonnegative int edge) {
       int nLocal = inputLocals.length;
@@ -1068,7 +1068,7 @@ public final class Frame
     * @param type1 the type with which the type array element must be merged
     * @param types an array of types
     * @param index the index of the type that must be merged in 'types'
-    * @return <tt>true</tt> if the type array has been modified by this operation
+    * @return <code>true</code> if the type array has been modified by this operation
     */
    private boolean merge(@Nonnegative int type1, @Nonnull int[] types, @Nonnegative int index) {
       int type2 = types[index];

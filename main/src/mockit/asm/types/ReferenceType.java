@@ -39,7 +39,7 @@ public abstract class ReferenceType extends JavaType
    }
 
    /**
-    * Returns the Java type corresponding to the given type descriptor. For method descriptors, <tt>buf</tt> is supposed
+    * Returns the Java type corresponding to the given type descriptor. For method descriptors, <code>buf</code> is supposed
     * to contain nothing more than the descriptor itself.
     *
     * @param buf a buffer containing a type descriptor.

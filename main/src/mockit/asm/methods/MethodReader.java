@@ -35,7 +35,7 @@ public final class MethodReader extends AnnotatedReader
 
    /**
     * The label objects, indexed by bytecode offset, of the method currently being parsed (only bytecode offsets for which a label is needed
-    * have a non null associated <tt>Label</tt> object).
+    * have a non null associated <code>Label</code> object).
     */
    private Label[] labels;
 
@@ -138,7 +138,7 @@ public final class MethodReader extends AnnotatedReader
    }
 
    /**
-    * If the returned <tt>MethodVisitor</tt> is in fact a <tt>MethodWriter</tt>, it means there is no method adapter between the reader and
+    * If the returned <code>MethodVisitor</code> is in fact a <code>MethodWriter</code>, it means there is no method adapter between the reader and
     * the writer.
     * In addition, it's assumed that the writer's constant pool was copied from this reader (mw.cw.cr == this.cr), and the signature of the
     * method has not been changed; then, we skip all visit events and just copy the original code of the method to the writer.

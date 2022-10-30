@@ -17,7 +17,7 @@ import mockit.internal.state.TestRun;
 
 /**
  * Startup fake which works in conjunction with {@link JUnit4TestRunnerDecorator} to provide JUnit 4.5+ integration.
- * <p/>
+ * <p>
  * This class is not supposed to be accessed from user code. JMockit will automatically load it at startup.
  */
 public final class FakeRunNotifier extends MockUp<RunNotifier>

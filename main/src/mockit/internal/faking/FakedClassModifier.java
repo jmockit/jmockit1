@@ -23,9 +23,9 @@ import static mockit.asm.jvmConstants.Opcodes.*;
  * Responsible for generating all necessary bytecode in the redefined (real) class.
  * Such code will redirect calls made on "real" methods to equivalent calls on the corresponding "fake" methods.
  * The original code won't be executed by the running JVM until the class redefinition is undone.
- * <p/>
+ * <p>
  * Methods in the real class with no corresponding fake methods are unaffected.
- * <p/>
+ * <p>
  * Any fields (static or not) in the real class remain untouched.
  */
 final class FakedClassModifier extends BaseClassModifier
@@ -40,7 +40,7 @@ final class FakedClassModifier extends BaseClassModifier
 
    /**
     * Initializes the modifier for a given real/fake class pair.
-    * <p/>
+    * <p>
     * The fake instance provided will receive calls for any instance methods defined in the fake class.
     * Therefore, it needs to be later recovered by the modified bytecode inside the real method.
     * To enable this, the fake instance is added to a global data structure made available through the {@link TestRun#getFake(String)}

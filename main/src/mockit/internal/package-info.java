@@ -5,7 +5,7 @@
 
 /**
  * Contains the classes that implement the internal mechanisms of the toolkit, and as such are not intended for direct use in client code.
- * <p/>
+ * <p>
  * The public API in this package and its sub-packages is to be considered non-published, for internal use only, and is subject to
  * incompatible changes at any time.
  */

@@ -16,10 +16,10 @@ public abstract class Item
 
    /**
     * {@link ConstantPoolTypes Type} of this constant pool item.
-    * <p/>
+    * <p>
     * MethodHandle variations are stored using a range of 9 values from {@link ConstantPoolTypes#HANDLE_BASE HANDLE_BASE} + 1 to
     * {@link ConstantPoolTypes#HANDLE_BASE HANDLE_BASE} + 9.
-    * <p/>
+    * <p>
     * Special Item types are used for items that are stored in the {@link ConstantPoolGeneration#typeTable}, instead of the constant pool,
     * in order to avoid clashes with normal constant pool items in the constant pool's hash table.
     * These special item types are defined in {@link TypeTableItem.SpecialType}.
@@ -87,7 +87,7 @@ public abstract class Item
     * Indicates if the given item is equal to this one, <em>assuming that the two items have the same {@link #type}</em>.
     *
     * @param item the item to be compared to this one (both items must have the same {@link #type})
-    * @return <tt>true</tt> if the given item is equal to this one, <tt>false</tt> otherwise
+    * @return <code>true</code> if the given item is equal to this one, <code>false</code> otherwise
     */
    abstract boolean isEqualTo(@Nonnull Item item);
 }

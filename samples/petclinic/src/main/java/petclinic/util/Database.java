@@ -20,7 +20,7 @@ public class Database
     * @param <E> the element type
     * @param entityClass the entity class
     * @param id the id
-    * @return the persistent entity if found, or <tt>null</tt> if not found
+    * @return the persistent entity if found, or <code>null</code> if not found
     */
    @Nullable
    public <E extends BaseEntity> E findById(@Nonnull Class<E> entityClass, int id) {
@@ -47,7 +47,7 @@ public class Database
     * Finds one or more persistent entities of a certain type in the application database, up to a given maximum number of entities.
     *
     * @param <E> the element type
-    * @param maxResults the maximum number of resulting entities to be returned, or <tt>0</tt> if there is no limit
+    * @param maxResults the maximum number of resulting entities to be returned, or <code>0</code> if there is no limit
     * @param qlStatement a JPQL "select" statement that locates entities of the same type
     * @param qlArgs zero or more argument values for the positional query parameters specified in the JPQL statement,
     *               in the same order as the parameter positions

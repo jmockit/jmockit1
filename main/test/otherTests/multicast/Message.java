@@ -19,7 +19,7 @@ public final class Message
 
    /**
     * Sends the message contents to all clients, notifying the status listener about the corresponding events as they occur.
-    * <p/>
+    * <p>
     * Network communication with clients occurs asynchronously, without ever blocking the caller.
     * Status notifications are executed on the Swing EDT (Event Dispatching Thread), so that the UI can be safely updated.
     */

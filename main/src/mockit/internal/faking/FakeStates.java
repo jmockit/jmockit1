@@ -19,7 +19,7 @@ public final class FakeStates
    private static final Pattern SPACE = Pattern.compile(" ");
 
    /**
-    * For each fake instance and each <tt>@Mock</tt> method containing the <tt>Invocation</tt> parameter, a runtime
+    * For each fake instance and each <code>@Mock</code> method containing the <code>Invocation</code> parameter, a runtime
     * state will be kept here.
     */
    @Nonnull private final Map<Object, List<FakeState>> fakesToFakeStates;

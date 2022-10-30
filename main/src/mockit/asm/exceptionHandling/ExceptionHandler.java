@@ -26,12 +26,12 @@ final class ExceptionHandler
    @Nonnull final Label handler;
 
    /**
-    * Internal name of the type of exceptions handled by this handler, or <tt>null</tt> to catch any exceptions.
+    * Internal name of the type of exceptions handled by this handler, or <code>null</code> to catch any exceptions.
     */
    @Nullable private final String desc;
 
    /**
-    * Constant pool index of the internal name of the type of exceptions handled by this handler, or <tt>0</tt> to catch
+    * Constant pool index of the internal name of the type of exceptions handled by this handler, or <code>0</code> to catch
     * any exceptions.
     */
    @Nonnegative private final int type;

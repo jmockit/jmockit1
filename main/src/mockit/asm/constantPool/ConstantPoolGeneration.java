@@ -50,10 +50,10 @@ public final class ConstantPoolGeneration
    /**
     * A type table used to temporarily store internal names that will not necessarily be stored in the constant pool.
     * This type table is used by the control flow and data flow analysis algorithm to compute stack map frames from scratch.
-    * This array associates to each index <tt>i</tt> the <tt>TypeTableItem</tt> whose index is <tt>i</tt>.
-    * All <tt>TypeTableItem</tt> objects stored in this array are also stored in the {@link #items} hash table.
-    * These two arrays allow to retrieve an <tt>Item</tt> from its index or, conversely, to get the index of an <tt>Item</tt> from its
-    * value. Each <tt>TypeTableItem</tt> stores an internal name in its {@link TypeTableItem#typeDesc} field.
+    * This array associates to each index <code>i</code> the <code>TypeTableItem</code> whose index is <code>i</code>.
+    * All <code>TypeTableItem</code> objects stored in this array are also stored in the {@link #items} hash table.
+    * These two arrays allow to retrieve an <code>Item</code> from its index or, conversely, to get the index of an <code>Item</code> from its
+    * value. Each <code>TypeTableItem</code> stores an internal name in its {@link TypeTableItem#typeDesc} field.
     */
    private TypeTableItem[] typeTable;
 
@@ -223,7 +223,7 @@ public final class ConstantPoolGeneration
     * @param owner the internal name of the method's owner class
     * @param name  the method's name
     * @param desc  the method's descriptor
-    * @param itf   <tt>true</tt> if <tt>owner</tt> is an interface
+    * @param itf   <code>true</code> if <code>owner</code> is an interface
     * @return a new or already existing method reference item
     */
    @Nonnull
@@ -561,7 +561,7 @@ public final class ConstantPoolGeneration
     * Returns the constant pool's hash table item which is equal to the given item.
     *
     * @param key a constant pool item
-    * @return the constant pool's hash table item which is equal to the given item, or <tt>null</tt> if there is no such item
+    * @return the constant pool's hash table item which is equal to the given item, or <code>null</code> if there is no such item
     */
    @Nullable
    private <I extends Item> I get(@Nonnull I key) {

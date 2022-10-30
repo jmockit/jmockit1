@@ -86,13 +86,13 @@ public final class StackMapTableWriter extends AttributeWriter
 
    /**
     * The current stack map frame.
-    * <p/>
+    * <p>
     * The first element contains the offset of the instruction to which the frame corresponds (frameDefinition[0] = offset), the second
     * element is the number of locals (frameDefinition[1] = nLocal), and the third one is the number of stack elements (frameDefinition[2]
     * = nStack).
     * The local variables start at index 3 (frameDefinition[3 to 3+nLocal-1]) and are followed by the operand stack values
     * (frameDefinition[3+nLocal...]).
-    * <p/>
+    * <p>
     * All types are encoded as integers, with the same format as the one used in {@link Label}, but limited to BASE types.
     */
    private int[] frameDefinition;

@@ -15,7 +15,7 @@ import mockit.internal.util.*;
 /**
  * A {@link ClassVisitor} that generates classes in bytecode form, that is, a byte array conforming to the
  * <a href="https://docs.oracle.com/javase/specs/jvms/se11/html/jvms-4.html">Java class file format</a>.
- * <p/>
+ * <p>
  * It can be used alone, to generate a Java class "from scratch", or with one or more {@link ClassReader} and adapter class visitor to
  * generate a modified class from one or more existing Java classes.
  */
@@ -61,7 +61,7 @@ public final class ClassWriter extends ClassVisitor
     * New constant pool entries will be added at the end if necessary, but unused constant pool entries <i>won't be removed</i>.</li>
     * <li>Methods that are not transformed are copied as is in the new class, directly from the original class bytecode (i.e. without
     * emitting visit events for all the method instructions), which saves a <i>lot</i> of time. Untransformed methods are detected by the
-    * fact that the {@link ClassReader} receives <tt>MethodVisitor</tt> objects that come from a <tt>ClassWriter</tt> (and not from any
+    * fact that the {@link ClassReader} receives <code>MethodVisitor</code> objects that come from a <code>ClassWriter</code> (and not from any
     * other {@link ClassVisitor} instance).</li>
     * </ul>
     *

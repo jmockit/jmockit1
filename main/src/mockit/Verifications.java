@@ -15,14 +15,14 @@ import mockit.internal.state.*;
  * Used to <em>verify</em> a set of expectations on available {@linkplain Mocked mocked} types and/or instances, against the invocations which
  * actually occurred during the test.
  * As such, these verifications can only appear <em>after</em> having exercised the code under test.
- * <p/>
+ * <p>
  * An expectation verification attempts to match a number of method or constructor invocations, that we expect have occurred during the execution of
  * code under test.
  * By default, <em>at least one</em> matching invocation must be found for the verification to be successful; if no matching invocations are found,
  * an assertion error is thrown.
- * <p/>
+ * <p>
  * Expectations are verified simply by invoking the desired method or constructor on a mocked type/instance, during the initialization of a
- * <tt>Verifications</tt> object.
+ * <code>Verifications</code> object.
  * This is done by instantiating an anonymous subclass containing an instance initialization body, or as we call it, a <em>verification block</em>:
  * <pre>
  * // Exercise tested code.
@@ -36,7 +36,7 @@ import mockit.internal.state.*;
  * </pre>
  * The relative order between the invocations that match two or more verifications is not taken into consideration; when that is desired, the
  * {@link VerificationsInOrder} class should be used instead.
- * <p/>
+ * <p>
  * Not all invocations that occurred during the execution of code under test need to be explicitly verified in a verification block.
  * If that is desired, we can make sure that <em>all</em> such invocations are verified, by using the {@link FullVerifications} class.
  *
@@ -76,7 +76,7 @@ public class Verifications extends Invocations
     * </pre>
     * If there is more than one matching invocation, then only the last one to have occurred is considered.
     * Apart from capturing received argument values, this method has the same effect as the {@link #any} argument matcher.
-    * <p/>
+    * <p>
     * When an argument matcher is used for a regular (ie, non-varargs) parameter in a call to a mocked method/constructor, it's <em>not</em>
     * necessary to also use matchers for the other parameters.
     * So, it's valid to mix the use of matchers with given values.
@@ -97,7 +97,7 @@ public class Verifications extends Invocations
    }
 
    /**
-    * Captures new instances of type <tt>T</tt> that were created by the code under test.
+    * Captures new instances of type <code>T</code> that were created by the code under test.
     * Said instances are only those which were created through constructor invocations matching the constructor verification that was passed
     * as argument in a call to this method.
     * For example:

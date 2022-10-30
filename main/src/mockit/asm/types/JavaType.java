@@ -97,10 +97,10 @@ public abstract class JavaType
     * Computes the size of the arguments and of the return value of a method.
     *
     * @param desc the descriptor of a method.
-    * @return the size of the arguments of the method (plus one for the implicit <tt>this</tt> argument),
-    * <tt>argSize</tt>, and the size of its return value, <tt>retSize</tt>, packed into a single
-    * <tt>int i = (argSize << 2) | retSize</tt> (<tt>argSize</tt> is therefore equal to <tt>i >> 2</tt>, and
-    * <tt>retSize</tt> to <tt>i & 0x03</tt>).
+    * @return the size of the arguments of the method (plus one for the implicit <code>this</code> argument),
+    * <code>argSize</code>, and the size of its return value, <code>retSize</code>, packed into a single
+    * <code>int i = (argSize << 2) | retSize</code> (<code>argSize</code> is therefore equal to <code>i >> 2</code>, and
+    * <code>retSize</code> to <code>i & 0x03</code>).
     */
    public static int getArgumentsAndReturnSizes(@Nonnull String desc) {
       int argSize = 1;
@@ -149,7 +149,7 @@ public abstract class JavaType
    }
 
    /**
-    * Returns the Java type corresponding to the given type descriptor. For method descriptors, <tt>buf</tt> is supposed
+    * Returns the Java type corresponding to the given type descriptor. For method descriptors, <code>buf</code> is supposed
     * to contain nothing more than the descriptor itself.
     *
     * @param buf a buffer containing a type descriptor.
@@ -271,7 +271,7 @@ public abstract class JavaType
    /**
     * Returns the size of values of this type. This method must not be used for method types.
     *
-    * @return the size of values of this type, i.e., 2 for <tt>long</tt> and <tt>double</tt>, 0 for <tt>void</tt> and 1
+    * @return the size of values of this type, i.e., 2 for <code>long</code> and <code>double</code>, 0 for <code>void</code> and 1
     * otherwise.
     */
    @Nonnegative
@@ -283,7 +283,7 @@ public abstract class JavaType
     * @param opcode a JVM instruction opcode. This opcode must be one of ILOAD, ISTORE, IALOAD, IASTORE, IADD, ISUB,
     *               IMUL, IDIV, IREM, INEG, ISHL, ISHR, IUSHR, IAND, IOR, IXOR and IRETURN.
     * @return an opcode that is similar to the given opcode, but adapted to this Java type. For example, if this type is
-    * <tt>float</tt> and <tt>opcode</tt> is IRETURN, this method returns FRETURN.
+    * <code>float</code> and <code>opcode</code> is IRETURN, this method returns FRETURN.
     */
    public abstract int getOpcode(int opcode);
 
