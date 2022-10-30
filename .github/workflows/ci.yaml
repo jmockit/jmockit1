@@ -22,4 +22,5 @@ jobs:
           java-version: ${{ matrix.java }}
           distribution: ${{ matrix.distribution }}
       - name: Test with Maven
-        run: ./mvnw test -B -D"java.awt.headless=true"
+        uses: GabrielBB/xvfb-action@v1
+        run: ./mvnw test -B
