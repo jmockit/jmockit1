@@ -391,9 +391,9 @@ public final class ConstantPoolGeneration
          return newMethodHandleItem((MethodHandle) cst);
       }
       if(cst instanceof DynamicItem) {
-		 DynamicItem dynamicItem = (DynamicItem) cst;
-		 return createDynamicItem(dynamicItem.type, dynamicItem.name, dynamicItem.desc, dynamicItem.bsmIndex);
-	  }
+         DynamicItem dynamicItem = (DynamicItem) cst;
+         return createDynamicItem(dynamicItem.type, dynamicItem.name, dynamicItem.desc, dynamicItem.bsmIndex);
+      }
       throw new IllegalArgumentException("value " + cst);
    }
 
