@@ -81,6 +81,31 @@
             </includes>
          </resource>
       </resources>
+      <pluginManagement>
+         <plugins>
+            <plugin>
+               <groupId>org.apache.maven.plugins</groupId>
+               <artifactId>maven-enforcer-plugin</artifactId>
+               <version>${enforcer.plugin}</version>
+               <configuration>
+                  <rules>
+                     <restrictImports>
+                        <includeTestCode>true</includeTestCode>
+                        <groups>
+                           <group>
+                              <reason>Don't allow obsolete logging</reason>
+                              <bannedImports>
+                                 <bannedImport>org.apache.commons.logging.**</bannedImport>
+                                 <bannedImport>org.apache.log4j.**</bannedImport>
+                              </bannedImports>
+                           </group>
+                        </groups>
+                     </restrictImports>
+                  </rules>
+               </configuration>
+            </plugin>
+         </plugins>
+      </pluginManagement>
       <plugins>
          <plugin>
             <artifactId>maven-compiler-plugin</artifactId>
