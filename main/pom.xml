@@ -50,6 +50,8 @@
    </distributionManagement>
 
    <properties>
+      <javadoc.plugin>3.4.1</javadoc.plugin>
+
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
    </properties>
 
