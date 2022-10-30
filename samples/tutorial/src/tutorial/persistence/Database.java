@@ -7,7 +7,7 @@ import javax.persistence.*;
 /**
  * This class is a <em>static facade</em> for persistence operations.
  * All methods are <tt>static</tt>, so it can be statically imported in client classes for maximum usability.
- * <p/>
+ * <p>
  * All of the persistence operations made available through this facade access a thread-bound <em>persistence
  * context</em>. In this particular implementation, the standard <strong>JPA</strong> API is used, where
  * <tt>javax.persistence.EntityManager</tt> represents a work unit. Typically, each work unit instance exists only long
@@ -17,7 +17,7 @@ import javax.persistence.*;
  * (In a web app, the persistence context can be tied to the HTTP request/response cycle, which normally runs entirely
  * in a single thread for each request/response pair; a central action-dispatch servlet can commit or rollback the
  * current transaction, while a custom <tt>javax.servlet.Filter</tt> can close the thread-bound <tt>EntityManager</tt>.)
- * <p/>
+ * <p>
  * Compared to direct use of an ORM API such as JPA, or to the use of <em>Data Access Objects</em> (the "DAO" pattern),
  * this <em>static persistence facade</em> pattern has several advantages.
  * Mainly, client code which needs to perform high-level persistence operations (such as persisting a new entity

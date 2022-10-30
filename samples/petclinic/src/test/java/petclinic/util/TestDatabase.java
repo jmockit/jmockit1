@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Base test utility class for domain-specific "EntityXData" classes, which allow each test to create
  * the required data in the test database.
- * <p/>
+ * <p>
  * Ensures that tests execute in a database transaction which is always rolled back at the end.
  */
 public class TestDatabase

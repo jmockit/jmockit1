@@ -11,7 +11,7 @@ import static tutorial.persistence.Database.*;
  * This class makes use of several idioms which would prevent unit testing with more "conventional" mocking tools.
  * Its usage is as simple as it gets: <tt>new MyBusinessService(data).doBusinessOperationXyz()</tt>.
  * No need to make such classes stateless, or worse, <em>singletons</em>; instead, it's designed as a proper object.
- * <p/>
+ * <p>
  * One of those "untestable" idioms is the use of a <em>static persistence facade</em> (the
  * {@linkplain tutorial.persistence.Database Database} class) for high-level database operations in the context
  * of a thread-bound work unit.
@@ -19,14 +19,14 @@ import static tutorial.persistence.Database.*;
  * tool which only supports <em>mock objects</em>.
  * With JMockit, though, writing such a test is just as easy as any other (even easier, in fact, given that
  * <tt>static</tt> methods don't require an instance of the mocked class at all).
- * <p/>
+ * <p>
  * Another idiom which runs against limitations of other mocking tools is the direct instantiation and use of external
  * dependencies, such as the <a href="http://commons.apache.org/email">Apache Commons Email</a> API, used here to send
  * notification e-mails.
  * As demonstrated here, sending an e-mail is simply a matter of instantiating the appropriate <tt>Email</tt> subclass,
  * setting the necessary properties, and calling the <tt>send()</tt> method.
  * It is certainly not a good use case for <em>Dependency Injection</em> (DI).
- * <p/>
+ * <p>
  * Finally, consider that application-specific classes like this one are inherently non-reusable in different
  * contexts/applications; as such, they can and should be made <tt>final</tt> to reflect the fact that they are not
  * supposed to be extended through inheritance.

@@ -34,6 +34,8 @@ public class ClassWithFields
 
    /**
     * Indicates whether {@link #instance1} is <code>true</code> or <code>false</code>.
+    *
+    * @return true, if is instance 1
     */
    public boolean isInstance1() {
       return instance1;

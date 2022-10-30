@@ -70,7 +70,7 @@ public class Database
    /**
     * Saves the state of a given entity to the application database, whether it is new (still transient, with no id) or already persisted
     * (with an id).
-    * <p/>
+    * <p>
     * In either case, the persistence context is synchronized to the application database, so that any pending "inserts", "updates" or
     * "deletes" get executed at this time.
     */
