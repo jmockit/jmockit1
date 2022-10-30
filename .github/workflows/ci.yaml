@@ -23,4 +23,5 @@ jobs:
           distribution: ${{ matrix.distribution }}
       - name: Test with Maven
         uses: GabrielBB/xvfb-action@v1
-        run: ./mvnw test -B
+        with:
+          run: ./mvnw test -B
