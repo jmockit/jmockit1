@@ -16,6 +16,8 @@ This fork contains pull requests from main repo as well as updated libraries wit
   - [736](https://github.com/jmockit/jmockit1/pull/736) from fork [Col-E](https://github.com/Col-E/jmockit1) Add suport for Java 11+ based off this repo
   - [68](https://github.com/hazendaz/jmockit1/pull/68) from fork [Col-E](https://github.com/Col-E/jmockit1) after sync up from PR 736.
 
-Testing confirmed to work through jdk 20
-Github Actions fail with testng and applet testing
-New launcher pom in root to build entire project (extra modules rely on released copy of fork currently)
+Considerations
+
+  - Testing confirmed to work through jdk 20
+  - Github Actions fail with testng and applet testing
+  - New launcher pom in root to build entire project (extra modules rely on released copy of fork currently)
