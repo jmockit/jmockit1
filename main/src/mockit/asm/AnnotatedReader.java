@@ -62,6 +62,7 @@ public abstract class AnnotatedReader extends BytecodeReader
    /**
     * Attempts to read the next attribute, provided it's one recognizable by the implementing subclass.
     *
+    * @param attributeName the attribute name
     * @return {@code true} if {@link #codeIndex} is already pointing to the next attribute in the classfile, {@code false} or {@code null} otherwise;
     * in the case of {@code null}, the current attribute was not yet identified, but is one of the more general ones ("RuntimeVisibleAnnotations",
     * "Deprecated", or "Synthetic")

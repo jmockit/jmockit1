@@ -15,14 +15,14 @@ import mockit.coverage.lines.*;
  * Generates a XML file containing the coverage data gathered by the test run.
  * The XML schema used is the one <a href="http://docs.sonarqube.org/display/SONAR/Generic+Test+Data">defined</a> by
  * the SonarQube project:
- * <pre>
+ * <pre>{@code
  * &lt;coverage version="1">
  *    &lt;file path="com/example/MyClass.java">
  *       &lt;lineToCover lineNumber="5" covered="false"/>
  *       &lt;lineToCover lineNumber="8" covered="true" branchesToCover="2" coveredBranches="1"/>
  *    &lt;/file>
  * &lt;/coverage>
- * </pre>
+ * }</pre>
  */
 final class XmlFile
 {

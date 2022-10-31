@@ -74,11 +74,14 @@ import static java.lang.annotation.RetentionPolicy.*;
 @Target({FIELD, PARAMETER, ANNOTATION_TYPE, METHOD})
 public @interface Tested
 {
+   
    /**
     * Specifies a literal value when the type of the tested field/parameter is <code>String</code>, a primitive or wrapper type, a number type,
     * or an enum type.
     * For a primitive/wrapper/number type, the value provided must be convertible to it.
     * For an enum type, the given textual value must equal the name of one of the possible enum values.
+    *
+    * @return the string
     */
    String value() default "";
 

@@ -24,7 +24,7 @@ import mockit.internal.state.*;
  * Expectations are verified simply by invoking the desired method or constructor on a mocked type/instance, during the initialization of a
  * <code>Verifications</code> object.
  * This is done by instantiating an anonymous subclass containing an instance initialization body, or as we call it, a <em>verification block</em>:
- * <pre>
+ * <pre>{@code
  * // Exercise tested code.
  * codeUnderTest.doSomething();
  *
@@ -33,7 +33,7 @@ import mockit.internal.state.*;
  *    <strong>mock1</strong>.expectedMethod(anyInt);
  *    <strong>mock2</strong>.anotherExpectedMethod(1, "test"); times = 2;
  * }};
- * </pre>
+ * }</pre>
  * The relative order between the invocations that match two or more verifications is not taken into consideration; when that is desired, the
  * {@link VerificationsInOrder} class should be used instead.
  * <p>
@@ -63,7 +63,7 @@ public class Verifications extends Invocations
     * code was exercised.
     * This method should be used in a local variable assignment expression inside a verification block.
     * For example:
-    * <pre>
+    * <pre>{@code
     * codeUnderTest.doSomething();
     *
     * new Verifications() {{
@@ -73,7 +73,7 @@ public class Verifications extends Invocations
     *    assertFalse(<strong>name</strong>.isEmpty());
     *    assertTrue(<strong>age</strong> >= 18);
     * }};
-    * </pre>
+    * }</pre>
     * If there is more than one matching invocation, then only the last one to have occurred is considered.
     * Apart from capturing received argument values, this method has the same effect as the {@link #any} argument matcher.
     * <p>
@@ -101,11 +101,11 @@ public class Verifications extends Invocations
     * Said instances are only those which were created through constructor invocations matching the constructor verification that was passed
     * as argument in a call to this method.
     * For example:
-    * <pre>
+    * <pre>{@code
     * codeUnderTest.doSomething();
     *
     * new Verifications() {{
-    *    <strong>List&lt;Person> newPersons = withCapture(new Person());</strong>
+    *    <strong>List<Person> newPersons = withCapture(new Person());</strong>
     *    Person newPerson = newPersons.get(0);
     *
     *    Person personCreated;
@@ -113,7 +113,7 @@ public class Verifications extends Invocations
     *
     *    assertSame(newPerson, personCreated);
     * }};
-    * </pre>
+    * }</pre>
     * Note this is not meant be used as an argument matcher.
     *
     * @param constructorVerification a new instance of the desired mocked class, created through a regular constructor verification

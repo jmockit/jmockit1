@@ -33,11 +33,14 @@ import static java.lang.annotation.RetentionPolicy.*;
 @Target({FIELD, PARAMETER})
 public @interface Injectable
 {
+   
    /**
     * Specifies a literal value when the type of the injectable mock field/parameter is <code>String</code>, a primitive or wrapper type, a
     * number type, or an enum type.
     * For a primitive/wrapper/number type, the value provided must be convertible to it.
     * For an enum type, the given textual value must equal the name of one of the possible enum values.
+    *
+    * @return the string
     */
    String value() default "";
 }

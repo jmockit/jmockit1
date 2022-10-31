@@ -21,7 +21,7 @@ import mockit.internal.expectations.*;
  * an <code>Expectations</code> object.
  * This is done by instantiating an anonymous subclass containing an instance initialization body, or as we call it, an
  * <em>expectation block</em>:
- * <pre>
+ * <pre>{@code
  * // <em>Record</em> one or more expectations on available mocked types/instances.
  * new Expectations() {{
  *    <strong>mock1</strong>.expectedMethod(anyInt); result = 123; times = 2;
@@ -30,7 +30,7 @@ import mockit.internal.expectations.*;
  *
  * // Exercise tested code, with previously recorded expectations now available for <em>replay</em>.
  * codeUnderTest.doSomething();
- * </pre>
+ * }</pre>
  * During replay, invocations matching a recorded expectation must occur at least <em>once</em> (unless specified otherwise);
  * if, by the end of the test, no matching invocation occurred for a given recorded expectation, the test will fail with a
  * <code>MissingInvocation</code> error.

@@ -9,7 +9,7 @@ import javax.annotation.*;
 /**
  * Same as {@link Verifications}, but checking that <em>all</em> invocations from code under test are explicitly verified, except for those
  * already verified through other means.
- * <pre>
+ * <pre>{@code
  * // Exercise tested code.
  * codeUnderTest.doSomething();
  *
@@ -18,7 +18,7 @@ import javax.annotation.*;
  *    <strong>mock1</strong>.expectedMethod(anyInt);
  *    <strong>mock2</strong>.anotherExpectedMethod(1, "test"); times = 2;
  * }};
- * </pre>
+ * }</pre>
  * Any invocation from code under test that is not covered by an explicit verification, or by an invocation count constraint when recorded,
  * will cause an assertion error to be thrown.
  *

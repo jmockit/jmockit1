@@ -37,6 +37,8 @@ public class BaseWriter
 
    /**
     * Returns the {@link #cp constant pool generation helper object} used by this writer.
+    *
+    * @return the constant pool generation
     */
    @Nonnull
    public final ConstantPoolGeneration getConstantPoolGeneration() { return cp; }

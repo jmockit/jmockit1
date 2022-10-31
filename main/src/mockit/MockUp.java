@@ -15,11 +15,11 @@ import mockit.internal.startup.*;
  * component used from the <em>internal</em> codebase of the system under test (SUT).
  * Such fake classes can be used as <em>fake implementations</em> for use in unit or integration tests.
  * For example:
- * <pre>
+ * <pre>{@code
  * public final class FakeSystem <strong>extends MockUp&lt;System></strong> {
  *    <strong>&#64;Mock</strong> public static long nanoTime() { return 123L; }
  * }
- * </pre>
+ * }</pre>
  * One or more <em>fake methods</em> annotated {@linkplain Mock as such} must be defined in the concrete subclass.
  * Each <code>@Mock</code> method should have a matching method or constructor in the faked class.
  * At runtime, the execution of a faked method/constructor will get redirected to the corresponding fake method.
@@ -27,7 +27,7 @@ import mockit.internal.startup.*;
  * When the type to be faked is specified indirectly through a {@linkplain TypeVariable type variable}, then that type is taken as a
  * <em>base</em> type whose concrete implementation classes should <em>also</em> get faked.
  * Example:
- * <pre>
+ * <pre>{@code
  * &#64;Test
  * public &lt;<strong>BC extends SomeBaseClass</strong>> void someTest() {
  *     new MockUp&lt;<strong>BC</strong>>() {
@@ -37,7 +37,7 @@ import mockit.internal.startup.*;
  *     int i = new AConcreteSubclass().someMethod(1);
  *     assertEquals(2, i);
  * }
- * </pre>
+ * }</pre>
  *
  * @param <T> specifies the type to be faked; if a type variable is used, then all implementation classes extending or implementing that
  *            base type are also faked; if the type argument itself is a parameterized type, then only its raw type is considered

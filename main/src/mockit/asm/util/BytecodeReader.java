@@ -111,6 +111,8 @@ public class BytecodeReader
 
    /**
     * Reads an unsigned <code>byte</code> value in {@link #code}, incrementing {@link #codeIndex} by 1.
+    *
+    * @return the int
     */
    @Nonnegative
    public final int readUnsignedByte() {
@@ -121,6 +123,7 @@ public class BytecodeReader
     * Reads an unsigned byte value in {@link #code}.
     *
     * @param u1CodeIndex the start index of the value to be read in {@link #code}
+    * @return the int
     */
    @Nonnegative
    protected final int readUnsignedByte(@Nonnegative int u1CodeIndex) {
@@ -129,6 +132,8 @@ public class BytecodeReader
 
    /**
     * Reads a signed <code>byte</code> value in {@link #code}, incrementing {@link #codeIndex} by 1.
+    *
+    * @return the int
     */
    public final int readSignedByte() {
       return code[codeIndex++];
@@ -144,6 +149,8 @@ public class BytecodeReader
 
    /**
     * Reads an unsigned short value in {@link #code}, incrementing {@link #codeIndex} by 2.
+    *
+    * @return the int
     */
    @Nonnegative
    public final int readUnsignedShort() {
@@ -159,6 +166,7 @@ public class BytecodeReader
     * Reads an unsigned short value in {@link #code}.
     *
     * @param u2CodeIndex the start index of the value to be read in {@link #code}
+    * @return the int
     */
    @Nonnegative
    protected final int readUnsignedShort(@Nonnegative int u2CodeIndex) {
@@ -170,6 +178,8 @@ public class BytecodeReader
 
    /**
     * Reads a signed <code>short</code> value in {@link #code}, incrementing {@link #codeIndex} by 2.
+    *
+    * @return the short
     */
    protected final short readShort() {
       //noinspection NumericCastThatLosesPrecision
@@ -180,6 +190,7 @@ public class BytecodeReader
     * Reads a signed short value in {@link #code}.
     *
     * @param u2CodeIndex the start index of the value to be read in {@link #code}
+    * @return the short
     */
    protected final short readShort(@Nonnegative int u2CodeIndex) {
       //noinspection NumericCastThatLosesPrecision
@@ -188,6 +199,8 @@ public class BytecodeReader
 
    /**
     * Reads a signed <code>int</code> value in {@link #code}, incrementing {@link #codeIndex} by 4.
+    *
+    * @return the int
     */
    public final int readInt() {
       byte[] b = code;
@@ -204,6 +217,7 @@ public class BytecodeReader
     * Reads a signed int value in {@link #code}.
     *
     * @param s4CodeIndex the start index of the value to be read in {@link #code}
+    * @return the int
     */
    protected final int readInt(@Nonnegative int s4CodeIndex) {
       byte[] b = code;
@@ -214,6 +228,8 @@ public class BytecodeReader
 
    /**
     * Reads a signed long value in {@link #code}, incrementing {@link #codeIndex} by 8.
+    *
+    * @return the long
     */
    public final long readLong() {
       long l1 = readInt();
@@ -225,6 +241,7 @@ public class BytecodeReader
     * Reads a signed long value in {@link #code}.
     *
     * @param s8CodeIndex the start index of the value to be read in {@link #code}
+    * @return the long
     */
    protected final long readLong(@Nonnegative int s8CodeIndex) {
       long l1 = readInt(s8CodeIndex);
@@ -256,6 +273,7 @@ public class BytecodeReader
     * Reads an UTF8 string in {@link #code}.
     *
     * @param itemIndex index in {@link #items} for the UTF8 string to be read
+    * @return the string
     */
    @Nonnull @SuppressWarnings("CharUsedInArithmeticContext")
    private String readUTF(@Nonnegative int itemIndex) {
@@ -349,6 +367,7 @@ public class BytecodeReader
    /**
     * Reads the index of an UTF8 item in {@link #code}.
     *
+    * @param u2CodeIndex the u 2 code index
     * @return the UTF8 string found in {@link #strings} at that index
     */
    @Nonnull
@@ -359,6 +378,9 @@ public class BytecodeReader
 
    /**
     * Reads a string in {@link #strings} at the given index.
+    *
+    * @param itemIndex the item index
+    * @return the string
     */
    @Nonnull
    public final String readString(@Nonnegative int itemIndex) {
@@ -461,6 +483,8 @@ public class BytecodeReader
 
    /**
     * Reads the class name from the constant pool, incrementing {@link #codeIndex} by 2.
+    *
+    * @return the string
     */
    @Nullable
    protected final String readClass() {
@@ -471,6 +495,8 @@ public class BytecodeReader
 
    /**
     * Reads a class descriptor in {@link #code}, incrementing {@link #codeIndex} by 2.
+    *
+    * @return the string
     */
    @Nonnull
    public final String readNonnullClass() {

@@ -11,7 +11,7 @@ package mockit;
  * <p>
  * When combined with the <code>result</code> field, a test will typically assign it with an anonymous class object implementing this interface
  * and containing a <em>delegate method</em>:
- * <pre>
+ * <pre>{@code
  *    new Expectations() {{
  *       mock.doSomething(anyInt, anyString);
  *       result = new Delegate() {
@@ -22,7 +22,7 @@ package mockit;
  *    }};
  *
  *    tested.exerciseCodeUnderTest();
- * </pre>
+ * }</pre>
  * The delegate class (either named or anonymous) must contain exactly one non-<code>private</code> instance method to be executed when the
  * mocked method or mocked constructor is invoked; it can contain any number of <code>private</code> or <code>static</code> methods, though.
  * The name of the delegate method can be anything.

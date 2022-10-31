@@ -99,8 +99,8 @@ public abstract class JavaType
     * @param desc the descriptor of a method.
     * @return the size of the arguments of the method (plus one for the implicit <code>this</code> argument),
     * <code>argSize</code>, and the size of its return value, <code>retSize</code>, packed into a single
-    * <code>int i = (argSize << 2) | retSize</code> (<code>argSize</code> is therefore equal to <code>i >> 2</code>, and
-    * <code>retSize</code> to <code>i & 0x03</code>).
+    * <pre>{@code int i = (argSize << 2) | retSize }</pre> (<code>argSize</code> is therefore equal to <pre>{@code i >> 2 }</pre>, and
+    * <pre>{@code retSize }</pre> to <pre>@{code i &amp; 0x03 }</pre>).
     */
    public static int getArgumentsAndReturnSizes(@Nonnull String desc) {
       int argSize = 1;

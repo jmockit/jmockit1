@@ -32,6 +32,10 @@ public class Invocation
 
    /**
     * For internal use only.
+    *
+    * @param invokedInstance the invoked instance
+    * @param invokedArguments the invoked arguments
+    * @param invocationCount the invocation count
     */
    protected Invocation(@Nullable Object invokedInstance, @Nonnull Object[] invokedArguments, @Nonnegative int invocationCount) {
       this.invokedInstance = invokedInstance;
@@ -41,6 +45,9 @@ public class Invocation
 
    /**
     * Returns the instance on which the current invocation was made, or <code>null</code> for a <code>static</code> method invocation.
+    *
+    * @param <T> the generic type
+    * @return the invoked instance
     */
    @Nullable
    public final <T> T getInvokedInstance() {
