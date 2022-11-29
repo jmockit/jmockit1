@@ -7,6 +7,7 @@ package mockit.integration.junit5;
 import java.lang.reflect.*;
 import javax.annotation.*;
 
+import mockit.internal.util.Utilities;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.*;
 
@@ -35,6 +36,17 @@ public final class JMockitExtension extends TestRunnerDecorator implements
          @Nullable Class<?> testClass = context.getTestClass().orElse(null);
          savePointForTestClass = new SavePoint();
          TestRun.setCurrentTestClass(testClass);
+
+         // @BeforeAll can be used on instance methods depending on @TestInstance(PER_CLASS) usage
+         Object testInstance = context.getTestInstance().orElse(null);
+         if (testClass == null || testInstance == null) {
+            return;
+         }
+
+         Method beforeAllMethod = Utilities.getAnnotatedDeclaredMethod(testClass, BeforeAll.class);
+         if (beforeAllMethod != null) {
+            parameterValues = createInstancesForAnnotatedParameters(testInstance, beforeAllMethod, null);
+         }
       }
    }
 
@@ -73,6 +85,15 @@ public final class JMockitExtension extends TestRunnerDecorator implements
       try {
          savePointForTest = new SavePoint();
          createInstancesForTestedFieldsBeforeSetup(testInstance);
+
+         Class<?> testClass = context.getTestClass().orElse(null);
+         if (testClass == null) {
+            return;
+         }
+         Method beforeEachMethod = Utilities.getAnnotatedDeclaredMethod(testClass, BeforeEach.class);
+         if (beforeEachMethod != null) {
+            parameterValues = createInstancesForAnnotatedParameters(testInstance, beforeEachMethod, null);
+         }
       }
       finally {
          TestRun.exitNoMockingZone();
