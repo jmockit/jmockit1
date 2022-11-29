@@ -245,21 +245,12 @@ public final class JMockitExtension extends TestRunnerDecorator implements
          return method.getDeclaredAnnotation(BeforeEach.class) != null;
       }
 
-      @Override
-      public String toString() {
-         return "ParamContext{" +
-                 "hasInstance=" + (instance == null ?  "false" : "true")  +
-                 ", class=" + clazz +
-                 ", method=" + method +
-                 '}';
-      }
-
-      public String displayClass() {
+      String displayClass() {
          if (clazz == null) return "<no class reference>";
          return clazz.getName();
       }
 
-      public String displayMethod() {
+      String displayMethod() {
          if (method == null) return "<no method reference>";
          String methodPrefix = isBeforeAllMethod() ? "@BeforeAll " :
                  isBeforeEachMethod() ? "@BeforeEach " : "";
@@ -267,6 +258,15 @@ public final class JMockitExtension extends TestRunnerDecorator implements
                  .map(Class::getName)
                  .collect(Collectors.joining(", "));
          return methodPrefix + method.getName() + "(" + args + ")";
+      }
+
+      @Override
+      public String toString() {
+         return "ParamContext{" +
+                 "hasInstance=" + (instance == null ?  "false" : "true")  +
+                 ", class=" + clazz +
+                 ", method=" + method +
+                 '}';
       }
    }
 }
