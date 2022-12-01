@@ -6,6 +6,7 @@ package mockit.internal.util;
 
 import javax.annotation.*;
 import java.io.*;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.net.*;
 import java.security.*;
@@ -34,6 +35,16 @@ public final class Utilities
       if (!classMember.isAccessible()) {
          classMember.setAccessible(true);
       }
+   }
+
+   public static Method getAnnotatedMethod(Class<?> cls, Class<? extends Annotation> annotation) {
+      for (Method method : cls.getMethods()) if (method.getAnnotation(annotation) != null) return method;
+      return null;
+   }
+
+   public static Method getAnnotatedDeclaredMethod(Class<?> cls, Class<? extends Annotation> annotation) {
+      for (Method method : cls.getDeclaredMethods()) if (method.getAnnotation(annotation) != null) return method;
+      return null;
    }
 
    @Nonnull
