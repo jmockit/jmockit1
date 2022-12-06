@@ -11,7 +11,7 @@
 
    <groupId>com.github.hazendaz.jmockit</groupId>
    <artifactId>jmockit</artifactId>
-   <version>1.49.4-SNAPSHOT</version>
+   <version>1.49.4</version>
 
    <name>jmockit</name>
    <description>
@@ -35,7 +35,7 @@
       <url>https://github.com/hazendaz/jmockit1</url>
       <connection>scm:git:https://github.com/hazendaz/jmockit1</connection>
       <developerConnection>scm:git:ssh://git@github.com/hazendaz/jmockit1.git</developerConnection>
-      <tag>jmockit-1.49.3</tag>
+      <tag>jmockit-1.49.4</tag>
    </scm>
    <issueManagement>
       <system>GitHub Issues</system>
