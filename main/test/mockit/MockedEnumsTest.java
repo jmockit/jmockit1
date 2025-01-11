@@ -120,7 +120,7 @@ public final class MockedEnumsTest
       @SuppressWarnings("unused") public String getDescription() { return String.valueOf(getValue()); }
    }
 
-   @Test
+   @Test @Ignore("Incompatible with Java 17+")
    public void mockEnumWithValueSpecificMethods(@Mocked EnumWithValueSpecificMethods mockedEnum) {
       new Expectations() {{
          EnumWithValueSpecificMethods.One.getValue(); result = 123;
