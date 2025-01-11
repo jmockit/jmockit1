@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project
    xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/maven-v4_0_0.xsd">
    <modelVersion>4.0.0</modelVersion>
 
    <groupId>org.jmockit</groupId><artifactId>coverage-tests</artifactId><version>1</version>
@@ -9,7 +9,7 @@
 
    <properties>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-      <jmockit.version>1.49</jmockit.version>
+      <jmockit.version>1.50</jmockit.version>
    </properties>
 
    <build>
@@ -17,14 +17,14 @@
       <testSourceDirectory>test</testSourceDirectory>
       <plugins>
          <plugin>
-            <artifactId>maven-compiler-plugin</artifactId><version>3.8.0</version>
+            <artifactId>maven-compiler-plugin</artifactId><version>3.13.0</version>
             <configuration>
                <encoding>UTF-8</encoding>
-               <source>1.8</source><target>1.8</target>
+               <release>17</release>
             </configuration>
          </plugin>
          <plugin>
-            <artifactId>maven-surefire-plugin</artifactId><version>2.22.2</version>
+            <artifactId>maven-surefire-plugin</artifactId><version>3.3.1</version>
             <configuration>
                <disableXmlReport>true</disableXmlReport>
                <excludes><exclude>**/CoverageTest.class</exclude></excludes>
@@ -38,7 +38,7 @@
 
    <dependencies>
       <dependency>
-         <groupId>com.github.spotbugs</groupId><artifactId>spotbugs-annotations</artifactId><version>4.0.0</version>
+         <groupId>com.github.spotbugs</groupId><artifactId>spotbugs-annotations</artifactId><version>4.8.4</version>
          <optional>true</optional>
       </dependency>
       <dependency>
@@ -46,7 +46,7 @@
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>junit</groupId><artifactId>junit</artifactId><version>4.13</version>
+         <groupId>junit</groupId><artifactId>junit</artifactId><version>4.13.2</version>
          <scope>test</scope><optional>true</optional>
       </dependency>
    </dependencies>

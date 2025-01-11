@@ -1,10 +1,10 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <project
    xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/maven-v4_0_0.xsd">
    <modelVersion>4.0.0</modelVersion>
 
-   <groupId>org.jmockit</groupId><artifactId>jmockit</artifactId><version>1.49</version>
+   <groupId>org.jmockit</groupId><artifactId>jmockit</artifactId><version>1.50</version>
    <packaging>jar</packaging>
 
    <name>JMockit</name>
@@ -14,11 +14,11 @@
       APIs; JUnit (4 &amp; 5) and TestNG test runners are supported.
       It also contains an advanced code coverage tool.
    </description>
-   <url>http://jmockit.github.io</url>
+   <url>https://jmockit.github.io</url>
    <licenses>
       <license>
          <name>The MIT License</name>
-         <url>http://www.opensource.org/licenses/mit-license.php</url>
+         <url>https://www.opensource.org/licenses/mit-license.php</url>
       </license>
    </licenses>
    <developers>
@@ -66,16 +66,16 @@
       </resources>
       <plugins>
          <plugin>
-            <artifactId>maven-compiler-plugin</artifactId><version>3.8.0</version>
+            <artifactId>maven-compiler-plugin</artifactId><version>3.13.0 </version>
             <configuration>
                <encoding>UTF-8</encoding>
-               <source>1.7</source><target>1.7</target>
+               <release>17</release>
                <compilerArgs><arg>-Xlint:none</arg></compilerArgs>
                <useIncrementalCompilation>false</useIncrementalCompilation>
             </configuration>
          </plugin>
          <plugin>
-            <artifactId>maven-jar-plugin</artifactId><version>3.1.0</version>
+            <artifactId>maven-jar-plugin</artifactId><version>3.1.2</version>
             <configuration>
                <archive>
                   <addMavenDescriptor>false</addMavenDescriptor>
@@ -91,7 +91,7 @@
             </configuration>
          </plugin>
          <plugin>
-            <artifactId>maven-source-plugin</artifactId><version>3.0.1</version>
+            <artifactId>maven-source-plugin</artifactId><version>3.3.1</version>
             <configuration>
                <archive>
                   <addMavenDescriptor>false</addMavenDescriptor>
@@ -112,7 +112,7 @@
             </executions>
          </plugin>
          <plugin>
-            <artifactId>maven-javadoc-plugin</artifactId><version>3.0.1</version>
+            <artifactId>maven-javadoc-plugin</artifactId><version>3.8.0</version>
             <configuration>
                <encoding>UTF-8</encoding>
                <nodeprecated>true</nodeprecated>
@@ -122,7 +122,7 @@
                <notimestamp>true</notimestamp>
                <breakiterator>true</breakiterator>
                <use>false</use>
-               <source>1.8</source>
+               <source>17</source>
                <windowtitle>JMockit Toolkit API</windowtitle>
                <doctitle>JMockit Toolkit API Documentation</doctitle>
                <quiet>true</quiet>
@@ -132,8 +132,8 @@
                   <additionalOption>-Xdoclint:none</additionalOption>
                </additionalOptions>
                <links>
-                  <link>http://docs.oracle.com/javase/8/docs/api/</link>
-                  <link>http://docs.oracle.com/javaee/7/api/</link>
+                  <link>https://docs.oracle.com/javase/17/docs/api/</link>
+                  <link>https://docs.oracle.com/javaee/7/api/</link>
                </links>
             </configuration>
             <executions>
@@ -144,34 +144,24 @@
             </executions>
          </plugin>
          <plugin>
-            <artifactId>maven-surefire-plugin</artifactId><version>2.22.2</version>
+            <artifactId>maven-surefire-plugin</artifactId><version>3.2.5</version>
             <configuration>
-               <disableXmlReport>true</disableXmlReport>
                <runOrder>alphabetical</runOrder>
-               <argLine>@{argLine} -javaagent:../agent.jar</argLine>
+               <argLine>-javaagent:../agent.jar</argLine>
                <properties><property><name>junit</name><value>false</value></property></properties>
                <excludes><exclude>**/TestNGViolatedExpectationsTest.class</exclude></excludes>
-               <threadCount>1</threadCount>
-               <forkCount>1C</forkCount>
             </configuration>
             <dependencies>
                <dependency>
-                  <groupId>org.apache.maven.surefire</groupId><artifactId>surefire-junit47</artifactId><version>2.22.2</version>
+                  <groupId>org.apache.maven.surefire</groupId><artifactId>surefire-junit47</artifactId><version>3.2.5</version>
                </dependency>
                <dependency>
-                  <groupId>org.apache.maven.surefire</groupId><artifactId>surefire-testng</artifactId><version>2.22.2</version>
+                  <groupId>org.apache.maven.surefire</groupId><artifactId>surefire-testng</artifactId><version>3.2.5</version>
                </dependency>
             </dependencies>
          </plugin>
          <plugin>
-            <groupId>org.jacoco</groupId><artifactId>jacoco-maven-plugin</artifactId><version>0.8.4</version>
-            <executions>
-               <execution><id>default-prepare-agent</id><goals><goal>prepare-agent</goal></goals></execution>
-               <execution><id>default-report</id><goals><goal>report</goal></goals><phase>test</phase></execution>
-            </executions>
-         </plugin>
-         <plugin>
-            <artifactId>maven-gpg-plugin</artifactId><version>1.6</version>
+            <artifactId>maven-gpg-plugin</artifactId><version>3.2.3</version>
             <executions>
                <execution>
                   <id>sign-artifacts</id>
@@ -181,7 +171,7 @@
             </executions>
          </plugin>
          <plugin>
-            <groupId>org.sonatype.plugins</groupId><artifactId>nexus-staging-maven-plugin</artifactId><version>1.6.8</version>
+            <groupId>org.sonatype.plugins</groupId><artifactId>nexus-staging-maven-plugin</artifactId><version>1.7.0</version>
             <extensions>true</extensions>
             <configuration>
                <serverId>sonatype-nexus-staging</serverId>
@@ -194,14 +184,14 @@
 
    <dependencies>
       <dependency>
-         <groupId>com.github.spotbugs</groupId><artifactId>spotbugs-annotations</artifactId><version>4.0.0</version>
+         <groupId>com.github.spotbugs</groupId><artifactId>spotbugs-annotations</artifactId><version>4.8.4</version>
       </dependency>
       <dependency>
-         <groupId>junit</groupId><artifactId>junit</artifactId><version>4.13</version>
+         <groupId>junit</groupId><artifactId>junit</artifactId><version>4.13.2</version>
          <optional>true</optional>
       </dependency>
       <dependency>
-         <groupId>org.junit.jupiter</groupId><artifactId>junit-jupiter-engine</artifactId><version>5.6.0</version>
+         <groupId>org.junit.jupiter</groupId><artifactId>junit-jupiter-engine</artifactId><version>5.10.2</version>
          <optional>true</optional>
          <exclusions>
             <exclusion><groupId>org.apiguardian</groupId><artifactId>apiguardian-api</artifactId></exclusion>
@@ -211,7 +201,7 @@
          </exclusions>
       </dependency>
       <dependency>
-         <groupId>org.testng</groupId><artifactId>testng</artifactId><version>7.1.0</version>
+         <groupId>org.testng</groupId><artifactId>testng</artifactId><version>7.7.1</version>
          <optional>true</optional>
       </dependency>
       <dependency>
@@ -222,11 +212,11 @@
          </exclusions>
       </dependency>
       <dependency>
-         <groupId>org.springframework</groupId><artifactId>spring-web</artifactId><version>5.2.4.RELEASE</version>
+         <groupId>org.springframework</groupId><artifactId>spring-web</artifactId><version>5.3.39</version>
          <optional>true</optional>
       </dependency>
       <dependency>
-         <groupId>org.springframework</groupId><artifactId>spring-context</artifactId><version>5.2.4.RELEASE</version>
+         <groupId>org.springframework</groupId><artifactId>spring-context</artifactId><version>5.3.39</version>
          <optional>true</optional>
          <exclusions>
             <exclusion><groupId>org.springframework</groupId><artifactId>spring-aop</artifactId></exclusion>
