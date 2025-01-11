@@ -12,7 +12,7 @@
       <plugins>
          <plugin>
             <artifactId>maven-compiler-plugin</artifactId>
-            <configuration><source>1.8</source><target>1.8</target></configuration>
+            <configuration><release>17</release></configuration>
          </plugin>
          <plugin>
             <artifactId>maven-surefire-plugin</artifactId>
@@ -29,7 +29,7 @@
 
    <dependencies>
       <dependency>
-         <groupId>com.github.spotbugs</groupId><artifactId>spotbugs-annotations</artifactId><version>4.0.0</version>
+         <groupId>com.github.spotbugs</groupId><artifactId>spotbugs-annotations</artifactId><version>4.8.4</version>
          <optional>true</optional>
       </dependency>
       <dependency>

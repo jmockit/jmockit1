@@ -18,7 +18,7 @@
 
    <properties>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-      <jmockit.version>1.49</jmockit.version>
+      <jmockit.version>1.50</jmockit.version>
    </properties>
 
    <build>
@@ -35,15 +35,15 @@
       </testResources>
       <plugins>
          <plugin>
-            <artifactId>maven-compiler-plugin</artifactId><version>3.8.0</version>
+            <artifactId>maven-compiler-plugin</artifactId><version>3.13.0</version>
             <configuration>
                <encoding>UTF-8</encoding>
-               <source>1.7</source><target>1.7</target>
+               <release>17</release>
                <useIncrementalCompilation>false</useIncrementalCompilation>
             </configuration>
          </plugin>
          <plugin>
-            <artifactId>maven-surefire-plugin</artifactId><version>2.22.2</version>
+            <artifactId>maven-surefire-plugin</artifactId><version>3.2.5</version>
             <configuration>
                <argLine>
                   -javaagent:${settings.localRepository}/org/jmockit/jmockit/${jmockit.version}/jmockit-${jmockit.version}.jar
@@ -58,11 +58,11 @@
       <dependencies>
          <!-- Basic testing tools -->
          <dependency>
-            <groupId>junit</groupId><artifactId>junit</artifactId><version>4.13</version>
+            <groupId>junit</groupId><artifactId>junit</artifactId><version>4.13.2</version>
             <scope>test</scope>
          </dependency>
          <dependency>
-            <groupId>org.testng</groupId><artifactId>testng</artifactId><version>7.1.0</version>
+            <groupId>org.testng</groupId><artifactId>testng</artifactId><version>7.7.1</version>
             <scope>test</scope>
          </dependency>
          <dependency>

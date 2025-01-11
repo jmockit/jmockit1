@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/maven-v4_0_0.xsd">
    <modelVersion>4.0.0</modelVersion>
    <groupId>org.jmockit</groupId>
    <artifactId>petclinic</artifactId>
@@ -14,7 +14,7 @@
 
    <properties>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-      <jmockit.version>1.49</jmockit.version>
+      <jmockit.version>1.50</jmockit.version>
    </properties>
 
    <dependencies>
@@ -45,7 +45,7 @@
 
       <!-- Test dependencies -->
       <dependency>
-         <groupId>org.junit.jupiter</groupId><artifactId>junit-jupiter</artifactId><version>5.6.0</version>
+         <groupId>org.junit.jupiter</groupId><artifactId>junit-jupiter</artifactId><version>5.10.3</version>
          <scope>test</scope>
       </dependency>
       <dependency>
@@ -62,14 +62,14 @@
    <build>
       <plugins>
          <plugin>
-            <artifactId>maven-compiler-plugin</artifactId><version>3.8.0</version>
+            <artifactId>maven-compiler-plugin</artifactId><version>3.13.0</version>
             <configuration>
-               <source>1.8</source><target>1.8</target>
+               <release>17</release>
                <useIncrementalCompilation>false</useIncrementalCompilation>
             </configuration>
          </plugin>
          <plugin>
-            <artifactId>maven-surefire-plugin</artifactId><version>2.22.2</version>
+            <artifactId>maven-surefire-plugin</artifactId><version>3.3.1</version>
             <configuration>
                <argLine>
                   -javaagent:${settings.localRepository}/org/jmockit/jmockit/${jmockit.version}/jmockit-${jmockit.version}.jar
@@ -99,7 +99,7 @@
             </executions>
          </plugin>
          <plugin>
-            <artifactId>maven-war-plugin</artifactId><version>3.2.2</version>
+            <artifactId>maven-war-plugin</artifactId><version>3.4.0</version>
             <configuration>
                <archive><addMavenDescriptor>false</addMavenDescriptor></archive>
             </configuration>

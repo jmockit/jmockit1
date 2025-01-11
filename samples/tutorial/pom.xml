@@ -11,7 +11,7 @@
       <plugins>
          <plugin>
             <artifactId>maven-compiler-plugin</artifactId>
-            <configuration><source>1.8</source><target>1.8</target></configuration>
+            <configuration><release>17</release></configuration>
          </plugin>
       </plugins>
    </build>
@@ -34,7 +34,7 @@
       </dependency>
       <!-- Testing code -->
       <dependency>
-         <groupId>org.hsqldb</groupId><artifactId>hsqldb</artifactId><version>2.5.0</version>
+         <groupId>org.hsqldb</groupId><artifactId>hsqldb</artifactId><version>2.7.3</version>
          <scope>test</scope>
       </dependency>
       <dependency>
