@@ -47,7 +47,8 @@ final class ClassLoadingBridgeFields
          @Nullable ClassLoader loader, @Nonnull String className, @Nullable Class<?> classBeingRedefined,
          @Nullable ProtectionDomain protectionDomain, @Nonnull byte[] classfileBuffer
       ) {
-         if (loader == null && hostClassName == null) { // adds the fields to the first public JRE class to be loaded
+         if (loader == null && hostClassName == null && !isInternalJDKClass(className)) {
+            // Adds the fields to the first public JRE class to be loaded.
             ClassReader cr = new ClassReader(classfileBuffer);
 
             if (isPublic(cr.getAccess())) {
@@ -59,6 +60,8 @@ final class ClassLoadingBridgeFields
 
          return null;
       }
+
+      private static boolean isInternalJDKClass(@Nonnull String className) { return className.startsWith("jdk/") || className.startsWith("sun/"); }
 
       @Nonnull
       private static byte[] getModifiedJREClassWithAddedFields(@Nonnull ClassReader classReader) {
