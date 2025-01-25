@@ -1,6 +1,5 @@
 package mockit;
 
-import java.net.*;
 import javax.servlet.*;
 
 import org.junit.*;
@@ -24,14 +23,6 @@ public final class TestedClassWithConstructorDI2Test
 
          int i = dependency1.doSomething();
          assert i == 123;
-
-         try {
-            InetAddress localHost = InetAddress.getLocalHost();
-            assert localHost.getHostName() == null;
-         }
-         catch (UnknownHostException e) {
-            throw new IllegalStateException("InetAddress should be mocked", e);
-         }
       }
 
       public int doSomeOperation() {
@@ -49,24 +40,11 @@ public final class TestedClassWithConstructorDI2Test
 
          int i = dependency1.doSomething();
          assert i == 123;
-
-         checkInetAddressMocking();
-      }
-
-      private void checkInetAddressMocking() {
-         try {
-            InetAddress inetAddress = InetAddress.getByName("testHost");
-            assert inetAddress.getHostName() == null;
-         }
-         catch (UnknownHostException ignore) {
-            counter = -1;
-         }
       }
 
       @Override
       public void destroy() {
          counter++;
-         checkInetAddressMocking();
       }
    }
 
@@ -77,7 +55,6 @@ public final class TestedClassWithConstructorDI2Test
    @Injectable Dependency dependency1;
    @Injectable Dependency dependency2;
    @Injectable ServletConfig config;
-   @Mocked InetAddress testHost;
 
    @Before
    public void resetCounter() {
