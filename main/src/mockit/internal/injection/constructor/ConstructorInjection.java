@@ -31,7 +31,7 @@ public final class ConstructorInjection extends Injector
    }
 
    @Nullable
-   public Object instantiate(@Nonnull List<InjectionProvider> parameterProviders, @Nonnull TestedClass testedClass, boolean required) {
+   public Object instantiate(@Nonnull List<InjectionProvider> parameterProviders, @Nonnull TestedClass testedClass, boolean required, boolean needToConstruct) {
       Type[] parameterTypes = constructor.getGenericParameterTypes();
       int n = parameterTypes.length;
       List<InjectionProvider> consumedInjectables = n == 0 ? null : injectionState.injectionProviders.saveConsumedInjectionProviders();
@@ -49,7 +49,7 @@ public final class ConstructorInjection extends Injector
          if (parameterProvider instanceof ConstructorParameter) {
             value = createOrReuseArgumentValue((ConstructorParameter) parameterProvider, required);
 
-            if (value == null) {
+            if (value == null && !needToConstruct) {
                return null;
             }
          }

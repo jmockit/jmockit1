@@ -53,7 +53,7 @@ public final class TestedObjectCreation
    }
 
    @Nullable
-   public Object create(boolean required) {
+   public Object create(boolean required, boolean needToConstruct) {
       ConstructorSearch constructorSearch = new ConstructorSearch(injectionState, testedClass, fullInjection != null);
       Constructor<?> constructor = constructorSearch.findConstructorToUse();
 
@@ -64,6 +64,6 @@ public final class TestedObjectCreation
       }
 
       ConstructorInjection constructorInjection = new ConstructorInjection(injectionState, fullInjection, constructor);
-      return constructorInjection.instantiate(constructorSearch.parameterProviders, testedClass, required);
+      return constructorInjection.instantiate(constructorSearch.parameterProviders, testedClass, required, needToConstruct);
    }
 }
