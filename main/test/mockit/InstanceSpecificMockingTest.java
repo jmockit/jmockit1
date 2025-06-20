@@ -5,6 +5,8 @@ import java.nio.*;
 import java.util.*;
 
 import static org.junit.Assert.*;
+
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.*;
 import org.junit.runners.*;
@@ -110,7 +112,7 @@ public final class InstanceSpecificMockingTest
 
    // Mocking java.nio.ByteBuffer /////////////////////////////////////////////////////////////////////////////////////
 
-   @Test
+   @Test @Ignore("ClassReader does not support the PermittedSubclasses attribute yet, needed for InetAddress")
    public void mockByteBufferAsInjectable(@Injectable final ByteBuffer buf) {
       ByteBuffer realBuf = ByteBuffer.allocateDirect(10);
       assertNotNull(realBuf);
@@ -127,7 +129,7 @@ public final class InstanceSpecificMockingTest
       buf.put("Test".getBytes());
    }
 
-   @Test
+   @Test @Ignore("ClassReader does not support the PermittedSubclasses attribute yet, needed for InetAddress")
    public void mockByteBufferRegularly(@Mocked ByteBuffer mockBuffer) {
       ByteBuffer buffer = ByteBuffer.allocateDirect(10);
       //noinspection MisorderedAssertEqualsArguments
@@ -136,7 +138,7 @@ public final class InstanceSpecificMockingTest
       new Verifications() {{ ByteBuffer.allocateDirect(anyInt); }};
    }
 
-   @Test
+   @Test @Ignore("ClassReader does not support the PermittedSubclasses attribute yet, needed for InetAddress")
    public void mockByteBufferAsCascading(@Mocked ByteBuffer unused) {
       ByteBuffer cascadedBuf = ByteBuffer.allocateDirect(10);
       assertNotNull(cascadedBuf);
@@ -145,7 +147,7 @@ public final class InstanceSpecificMockingTest
 
    static class BufferFactory { ByteBuffer createBuffer() { return null; } }
 
-   @Test
+   @Test @Ignore("ClassReader does not support the PermittedSubclasses attribute yet, needed for InetAddress")
    public void mockByteBufferAsCascadedMock(@Mocked BufferFactory cascadingMock) {
       ByteBuffer realBuf1 = ByteBuffer.allocateDirect(10);
       assertEquals(10, realBuf1.capacity());

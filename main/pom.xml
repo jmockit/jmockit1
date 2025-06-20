@@ -131,10 +131,6 @@
                <additionalOptions>
                   <additionalOption>-Xdoclint:none</additionalOption>
                </additionalOptions>
-               <links>
-                  <link>https://docs.oracle.com/javase/17/docs/api/</link>
-                  <link>https://docs.oracle.com/javaee/7/api/</link>
-               </links>
             </configuration>
             <executions>
                <execution>
