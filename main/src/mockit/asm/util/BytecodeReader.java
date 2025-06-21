@@ -2,6 +2,8 @@ package mockit.asm.util;
 
 import javax.annotation.*;
 
+import mockit.asm.constantPool.DynamicItem;
+import mockit.asm.jvmConstants.ConstantPoolTypes;
 import mockit.asm.types.*;
 import static mockit.asm.jvmConstants.ConstantPoolTypes.*;
 
@@ -394,6 +396,15 @@ public class BytecodeReader
          case MTYPE:
             String methodDesc = readNonnullUTF8(constCodeIndex);
             return MethodType.create(methodDesc);
+		 case CONDY: {
+			int bsmStartIndex = readUnsignedShort(constCodeIndex);
+			int nameIndex = readItem(constCodeIndex + 2);
+			String name = readNonnullUTF8(nameIndex);
+			String desc = readNonnullUTF8(nameIndex + 2);
+			DynamicItem dynamicItem = new DynamicItem(itemIndex);
+			dynamicItem.set(ConstantPoolTypes.CONDY, name, desc, bsmStartIndex);
+			return dynamicItem;
+		 }	            
       // case HANDLE_BASE + [1..9]:
          default:
             return readMethodHandle(constCodeIndex);

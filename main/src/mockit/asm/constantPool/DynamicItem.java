@@ -6,7 +6,7 @@ import mockit.asm.jvmConstants.ConstantPoolTypes;
 
 public final class DynamicItem extends TypeOrMemberItem
 {
-   @Nonnegative private int bsmIndex;
+   @Nonnegative int bsmIndex;
 
    public DynamicItem(@Nonnegative int index) { super(index); }
 
